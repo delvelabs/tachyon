@@ -1,0 +1,5 @@
+*.iml
+.idea
+*.pyc
+data/*
+local_settings.py
