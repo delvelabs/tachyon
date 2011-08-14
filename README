@@ -1,0 +1,13 @@
+Tachyon is a Fast Multi-Threaded Web Scanner built with Python.
+
+The main goal of tachyon is to help webadmins find leftover files in their
+site installation, permission problems and web server configuration errors.
+
+It provides:
+ - Fast website file scanning
+ - SSL support
+ - Tor support (trough privoxy)
+ - Robots.txt support
+ - Common directory lookup
+ - Fast Multi-Threaded execution
+
