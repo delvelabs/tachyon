@@ -1,0 +1,34 @@
+# Tachyon - Path discovery library
+# Copyright (c) 2011 Gabriel Tremblay - initnull hat gmail.com
+#
+# GNU General Public Licence (GPL)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
+
+# Interresting path
+{"url" : "/phpMyAdmin", "description" : "phpMyAdmin installation", "expected_response" : [200, 302]}
+{"url" : "/phpmyadmin", "description" : "phpMyAdmin installation", "expected_response" : [200, 302]}
+{"url" : "/admin", "description" : "Admin section", "expected_response" : [200, 302]}
+{"url" : "/adm", "description" : "Admin section", "expected_response" : [200, 302]}
+{"url" : "/administration", "description" : "Admin section", "expected_response" : [200, 302]}
+{"url" : "/administrator", "description" : "Admin section", "expected_response" : [200, 302]}
+{"url" : "/_assets", "description" : "_assets directory", "expected_response" : [200, 302]}
+{"url" : "/dev", "description" : "Dev directory", "expected_response" : [200, 302]}
+{"url" : "/backup", "description" : "backup directory", "expected_response" : [200, 302]}
+{"url" : "/wp-admin", "description" : "Wordpress admin section", "expected_response" : [200, 302]}
+{"url" : "/config", "description" : "Config directory", "expected_response" : [200, 302]}
+{"url" : "/conf", "description" : "Config directory", "expected_response" : [200, 302]}
+{"url" : "/cgi-bin", "description" : "Cgi-bin directory", "expected_response" : [200, 302]}
+
+
+{"url" : "/view", "description" : "debug", "expected_response" : [200, 302]}

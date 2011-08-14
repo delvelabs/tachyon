@@ -1,0 +1,1 @@
+Host plugins runs once on each host, they must define "def execute()" and be included in __init__.py.
