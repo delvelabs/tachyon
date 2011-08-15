@@ -35,7 +35,6 @@ class FetchUrlWorker(Thread):
             queued = database.fetch_queue.get()
             url = urljoin(conf.target_host, queued.get('url'))
             expected = queued.get('expected_response')
-            
             if conf.use_get:
                 method = 'GET'
             else:

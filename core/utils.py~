@@ -25,19 +25,19 @@ def output(text):
 
 def output_error(text):
     """ Output text to the synchronized output queue """
-    output('[ERROR] ' + text)
+    output('[ERROR] - ' + text)
     
 def output_info(text):
     """ Output text to the synchronized output queue """
-    output('[INFO] ' + text)
+    output('[INFO] - ' + text)
     
 def output_timeout(text):
     """ Output text to the synchronized output queue """
-    output('[TIMEOUT] ' + text)
+    output('[TIMEOUT] - ' + text)
     
 def output_found(text):
     """ Output text to the synchronized output queue """
-    output('[FOUND] ' + text)
+    output('[FOUND] - ' + text)
         
 
 def sanitize_config():

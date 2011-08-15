@@ -16,18 +16,14 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from core import conf, utils
-from core.fetcher import Fetcher
-from urlparse import urljoin
+version = '0.1'
+debug = False
+use_head = True
+fetch_timeout_secs = 3
+max_timeout_count = 5
+thread_count = 25
+target_host = ''
+use_tor = False
+user_agent = 'Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US)' # maximum compatibility
 
-def execute():
-    """ Fetch /robots.txt and add the disallowed paths as target """
-    target_url = urljoin(conf.target_host, "/robots.txt")
-    fetcher = Fetcher()
-    response_code, content, headers = fetcher.fetch_url(target_url, 'GET', conf.user_agent, True, conf.fetch_timeout_secs)
-
-    if response_code is 200 or response_code is 302 and content:
-        utils.output_info(content)
-    else:
-        utils.output_info('Robots plugin: robots.txt not found on target site')
-
+  

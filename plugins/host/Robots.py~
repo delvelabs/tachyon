@@ -27,7 +27,7 @@ def execute():
     response_code, content, headers = fetcher.fetch_url(target_url, 'GET', conf.user_agent, True, conf.fetch_timeout_secs)
 
     if response_code is 200 or response_code is 302 and content:
-        utils.output_info(content)
+        utils.output(content)
     else:
-        utils.output_info('Robots plugin: robots.txt not found on target site')
+        utils.output('Robots plugin: robots.txt not found on target site')
 

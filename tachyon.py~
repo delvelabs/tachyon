@@ -163,7 +163,7 @@ if __name__ == "__main__":
     print_worker.daemon = True
     print_worker.start()
     
-    utils.output_info('Starting Discovery')
+    utils.output('Starting Discovery')
     
     # Handle keyboard exit before multi-thread operations
     try:
