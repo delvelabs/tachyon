@@ -53,8 +53,6 @@ if __name__ == "__main__":
         if hasattr(plugin , 'execute'):
              plugin.execute()
 
-    exit(0)
-
 
     # Spawn workers
     for thread_id in range(conf.thread_count):
@@ -63,7 +61,7 @@ if __name__ == "__main__":
         worker.start()
 
     # Fill work queue with fetch list
-    utils.output('Filling work queue')
+    utils.output('Probing ' + str(len(database.preload_list)) + ' items...')
     for item in database.preload_list:
         database.fetch_queue.put(item)
 

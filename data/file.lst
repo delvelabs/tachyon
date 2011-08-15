@@ -15,12 +15,17 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
+{"url" : "/.htaccess", "description" : "htacces file", "expected_response" : [200, 302]}
+{"url" : "/.htpasswd", "description" : "htpasswd file", "expected_response" : [200, 302]}
 {"url" : "/site.zip", "description" : "Site backup", "expected_response" : [200, 302]}
 {"url" : "/site.tar.gz", "description" : "Site backup", "expected_response" : [200, 302]}
 {"url" : "/site.tar.bz2", "description" : "Site backup", "expected_response" : [200, 302]}
 {"url" : "/backup.zip", "description" : "Site backup", "expected_response" : [200, 302]}
 {"url" : "/backup.tar.gz", "description" : "Site backup", "expected_response" : [200, 302]}
 {"url" : "/backup.tar.bz2", "description" : "Site backup", "expected_response" : [200, 302]}
+{"url" : "/deploy.zip", "description" : "Site backup", "expected_response" : [200, 302]}
+{"url" : "/deploy.tar.gz", "description" : "Site backup", "expected_response" : [200, 302]}
+{"url" : "/deploy.tar.bz2", "description" : "Site backup", "expected_response" : [200, 302]}
 {"url" : "/error_log", "description" : "error log", "expected_response" : [200, 302]}
 {"url" : "/access_log", "description" : "access log", "expected_response" : [200, 302]}
 {"url" : "/index.php.old", "description" : "index.php backup", "expected_response" : [200, 302]}

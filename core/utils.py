@@ -17,10 +17,11 @@
 #
 
 from core import database, conf
+from datetime import datetime
 
 def output(text):
     """ Output text to the synchronized output queue """
-    database.output_queue.put(text)
+    database.output_queue.put('[' + str(datetime.now()) + '] - ' + text)
 
 def sanitize_config():
     """ Sanitize configuration values """

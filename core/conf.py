@@ -21,9 +21,9 @@ debug = True
 use_head = True
 fetch_timeout_secs = 3
 max_timeout_count = 5
-thread_count = 5
-#target_host = 'http://www.etrange.ca'
-target_host = 'www.google.ca'
+thread_count = 10
+target_host = 'http://www.etrange.ca'
+#target_host = 'http://www.superc.ca'
 use_tor = False
 user_agent = 'Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US)' # maximum compatibility
 

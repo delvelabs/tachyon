@@ -29,6 +29,3 @@
 {"url" : "/config", "description" : "Config directory", "expected_response" : [200, 302]}
 {"url" : "/conf", "description" : "Config directory", "expected_response" : [200, 302]}
 {"url" : "/cgi-bin", "description" : "Cgi-bin directory", "expected_response" : [200, 302]}
-
-
-{"url" : "/view", "description" : "debug", "expected_response" : [200, 302]}

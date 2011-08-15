@@ -39,14 +39,14 @@ class FetchUrlWorker(Thread):
                 utils.output('[TIMEOUT] Thread #' + str(self.thread_id) + ': ' + url)
             elif response_code in expected:
                 if conf.debug:
-                    utils.output('Thread #' + str(self.thread_id) + ': ' + url)
+                    utils.output('[FOUND] ' + str(self.thread_id) + ': ' + url)
                 else:
                     utils.output(url)
-            else:
-                if conf.debug:
-                    utils.output('[ERROR] Thread #' + str(self.thread_id) + ': ' + url)
-                else:
-                    utils.output(url)
+            #else:
+             #  if conf.debug:
+                  #  utils.output('[ERROR] Thread #' + str(self.thread_id) + ': ' + url)
+            #    else:
+                 #   utils.output(url)
 
 
             # Mark item as processed

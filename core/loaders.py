@@ -26,12 +26,18 @@ def load_file_list(file):
     file_list = codecs.open(file, 'r', 'UTF-8')
     tmp_list = list()
 
-    for path in file_list:
-        path = path.strip()
-        if len(path) > 0 and '#' not in path:
+    for file in file_list:
+        file = file.strip()
+        if len(file) > 0 and '#' not in file:
+            parsed_path = ast.literal_eval(file)
+            # Add on root
+            tmp_list.append(parsed_path)
+
+            # Combine with preload list
             for item in database.preload_list:
                 try:
-                    file_path = ast.literal_eval(path)
+                    # copy before adding
+                    file_path = dict(parsed_path)
                     file_path['url'] = item.get('url') + file_path.get('url')
                     tmp_list.append(file_path)
                 except SyntaxError as (errno, strerror):
