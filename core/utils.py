@@ -56,3 +56,4 @@ def sanitize_config():
 
     if not conf.target_host.endswith('/'):
         conf.target_host += '/'
+        
