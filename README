@@ -15,3 +15,4 @@ It provides:
 TODO:
  - Tor support
  - Add more targets
+ - Add content-type handling on file (HEAD /test.zip should not return text/html)
