@@ -103,6 +103,8 @@ def generate_options():
     """ Generate command line parser """
     usage_str = "usage: %prog <host> [options]"
     parser = OptionParser(usage=usage_str)
+    parser.add_option("-b", action="store_false",
+                    dest="blacklist", help="Disable content type blacklisting [default: %default]", default=conf.content_type_blacklist)
     parser.add_option("-d", action="store_true",
                     dest="debug", help="Enable debug [default: %default]", default=conf.debug)
     parser.add_option("-g", action="store_true",
@@ -125,20 +127,14 @@ def parse_args(parser, system_args):
     """ Parse and assign options """
     (options, args) = parser.parse_args(system_args)
  
-    if options.debug:
-        conf.debug = options.debug
-    if options.use_get:
-        conf.use_get = options.use_get
-    if options.timeout:       
-        conf.fetch_timeout_secs = int(options.timeout)
-    if options.max_timeout:
-        conf.max_timeout_count = int(options.max_timeout)
-    if options.workers:
-        conf.thread_count = int(options.workers)
-    if options.user_agent:
-        conf.user_agent = options.user_agent
-    if options.use_tor:
-        conf.use_tor = options.use_tor
+    conf.debug = options.debug
+    conf.content_type_blacklist = options.blacklist
+    conf.use_get = options.use_get
+    conf.fetch_timeout_secs = int(options.timeout)
+    conf.max_timeout_count = int(options.max_timeout)
+    conf.thread_count = int(options.workers)
+    conf.user_agent = options.user_agent
+    conf.use_tor = options.use_tor
         
     return options, args    
     
@@ -171,6 +167,7 @@ if __name__ == "__main__":
         utils.output_debug('Worker threads: ' + str(conf.thread_count))
         utils.output_debug('Target Host: ' + str(conf.target_host))
         utils.output_debug('Using Tor: ' + str(conf.use_tor))
+        utils.output_debug('Content-type Blacklisting: ' + str(conf.content_type_blacklist))
         utils.output_debug('Using User-Agent: ' + str(conf.user_agent))
         
      

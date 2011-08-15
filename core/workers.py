@@ -36,6 +36,11 @@ class FetchUrlWorker(Thread):
             url = urljoin(conf.target_host, queued.get('url'))
             expected = queued.get('expected_response')
             description = queued.get('description')
+            content_type_blacklist = queued.get('blacklist_content_types')
+            
+            if not content_type_blacklist:
+                content_type_blacklist = []
+            
             
             if conf.use_get:
                 method = 'GET'
@@ -46,7 +51,9 @@ class FetchUrlWorker(Thread):
             
             if conf.debug:
                 utils.output_info("Thread #" + str(self.thread_id) + ": " + str(queued))
-                
+           
+            found = False
+                 
             if response_code is 0: # timeout
                 if queued.get('timeout_count') < conf.max_timeout_count:
                     new_timeout_count = queued.get('timeout_count') + 1
@@ -61,10 +68,23 @@ class FetchUrlWorker(Thread):
                     utils.output_timeout(url)
                     
             elif response_code in expected:
-                if response_code == 401:
-                    utils.output_found('*Password Protected* ' + description + ' at: ' + url)
-                else:
-                    utils.output_found(description + ' at: ' + url)
+                content_type = headers['content-type']
+                if not content_type:
+                    content_type = ''
+                
+                # If we don't blacklist, just show the result    
+                if not conf.content_type_blacklist:
+                    if response_code == 401:
+                        utils.output_found('*Password Protected* ' + description + ' at: ' + url)
+                    else:
+                        utils.output_found(description + ' at: ' + url) 
+                # if we DO blacklist but content is not blacklisted, show the result         
+                elif content_type not in content_type_blacklist:
+                    if response_code == 401:
+                        utils.output_found('*Password Protected* ' + description + ' at: ' + url)
+                    else:
+                        utils.output_found(description + ' at: ' + url)
+                 
                     
 
             # Mark item as processed
