@@ -34,3 +34,4 @@
 {"url" : "/site.sql", "description" : "database backup", "expected_response" : [200, 302]}
 {"url" : "/backup.sql", "description" : "database backup", "expected_response" : [200, 302]}
 {"url" : "/data.sql", "description" : "database backup", "expected_response" : [200, 302]}
+{"url" : "/import.sql", "description" : "database backup", "expected_response" : [200, 302]}
