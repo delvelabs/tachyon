@@ -12,3 +12,6 @@ It provides:
  - Common directory lookup
  - Fast Multi-Threaded execution
 
+TODO:
+ - Tor support
+ - Add more targets
