@@ -19,9 +19,35 @@
 from core import database, conf
 from datetime import datetime
 
+
+def output_raw(text):
+    """ Output text to the synchronized output queue """
+    database.output_queue.put(text)
+      
 def output(text):
     """ Output text to the synchronized output queue """
-    database.output_queue.put('[' + str(datetime.now()) + '] - ' + text)
+    output_raw('[' + str(datetime.now().strftime("%H:%M:%S")) + '] ' + text)
+
+def output_error(text):
+    """ Output text to the synchronized output queue """
+    output('[ERROR] ' + text)
+    
+def output_info(text):
+    """ Output text to the synchronized output queue """
+    output('[INFO] ' + text)
+    
+def output_timeout(text):
+    """ Output text to the synchronized output queue """
+    output('[TIMEOUT] ' + text)
+    
+def output_found(text):
+    """ Output text to the synchronized output queue """
+    output('[FOUND] ' + text)
+    
+def output_debug(text):
+    """ Output text to the synchronized output queue """
+    output('[DEBUG] ' + text)
+        
 
 def sanitize_config():
     """ Sanitize configuration values """
@@ -30,3 +56,4 @@ def sanitize_config():
 
     if not conf.target_host.endswith('/'):
         conf.target_host += '/'
+        

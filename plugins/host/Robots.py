@@ -16,18 +16,45 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from core import conf, utils
+import re
+from core import conf, utils, database
 from core.fetcher import Fetcher
 from urlparse import urljoin
 
 def execute():
     """ Fetch /robots.txt and add the disallowed paths as target """
+    worker_template = {'url': '', 'expected_response': [200, 302], 'timeout_count': 0, 'description': 'Robots.txt entry'}
     target_url = urljoin(conf.target_host, "/robots.txt")
     fetcher = Fetcher()
     response_code, content, headers = fetcher.fetch_url(target_url, 'GET', conf.user_agent, True, conf.fetch_timeout_secs)
 
     if response_code is 200 or response_code is 302 and content:
-        utils.output(content)
+        if conf.debug:
+            utils.output_debug(content)
+
+        match = re.findall(r'Disallow:\s*[a-zA-Z0-9-/.]*', content)
+        added = 0
+        for match_obj in match:
+            if '?' not in match_obj and '.' not in match_obj:                
+                splitted = match_obj.split(':')
+                if splitted[1]:
+                    path = splitted[1].strip() 
+                    if path != '/' or path != '':
+                        new_path = urljoin(conf.target_host, path)
+                        current_template = dict(worker_template)
+                        current_template['url'] = new_path
+                        database.preload_list.append(current_template)
+        
+                        if conf.debug:
+                            utils.output_debug(str(current_template))
+                            
+                        added = added + 1       
+                    
+        if added > 0:
+            utils.output_info('Robots plugin: added ' + str(added) + ' base paths using /robots.txt')
+        else :
+            utils.output_info('Robots plugin: no usable entries in /robots.txt')     
+               
     else:
-        utils.output('Robots plugin: robots.txt not found on target site')
+        utils.output_info('Robots plugin: /robots.txt not found on target site')
 

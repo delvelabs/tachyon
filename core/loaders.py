@@ -30,6 +30,10 @@ def load_file_list(file):
         file = file.strip()
         if len(file) > 0 and '#' not in file:
             parsed_path = ast.literal_eval(file)
+            
+            # Add processing values
+            parsed_path['timeout_count'] = 0
+            
             # Add on root
             tmp_list.append(parsed_path)
 
@@ -57,7 +61,10 @@ def load_path_file(file):
         path = path.strip()
         if len(path) > 0 and '#' not in path:
             try:
-                database.preload_list.append(ast.literal_eval(path))
+                # Add processing values
+                parsed_path = ast.literal_eval(path)
+                parsed_path['timeout_count'] = 0
+                database.preload_list.append(parsed_path)
             except SyntaxError as (errno, strerror):
                 print 'Path parsing error: ', strerror
 

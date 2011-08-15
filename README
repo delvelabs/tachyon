@@ -4,10 +4,15 @@ The main goal of tachyon is to help webadmins find leftover files in their
 site installation, permission problems and web server configuration errors.
 
 It provides:
- - Fast website file scanning
+ - Fast website file discovery
+ - Plugin support
  - SSL support
  - Tor support (trough privoxy)
  - Robots.txt support
  - Common directory lookup
  - Fast Multi-Threaded execution
 
+TODO:
+ - Tor support
+ - Add more targets
+ - Add content-type handling on file (HEAD /test.zip should not return text/html)
