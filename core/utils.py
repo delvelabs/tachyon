@@ -19,9 +19,14 @@
 from core import database, conf
 from datetime import datetime
 
+
+def output_raw(text):
+    """ Output text to the synchronized output queue """
+    database.output_queue.put(text)
+      
 def output(text):
     """ Output text to the synchronized output queue """
-    database.output_queue.put('[' + str(datetime.now().strftime("%H:%M:%S")) + '] ' + text)
+    output_raw('[' + str(datetime.now().strftime("%H:%M:%S")) + '] ' + text)
 
 def output_error(text):
     """ Output text to the synchronized output queue """
@@ -38,6 +43,10 @@ def output_timeout(text):
 def output_found(text):
     """ Output text to the synchronized output queue """
     output('[FOUND] ' + text)
+    
+def output_debug(text):
+    """ Output text to the synchronized output queue """
+    output('[DEBUG] ' + text)
         
 
 def sanitize_config():

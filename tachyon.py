@@ -69,11 +69,12 @@ def main():
     # Wait for task completion and handle keyboard interrupt
     while len(workers) > 0:
         try:
-            # Join all threads using a timeout so it doesn't block
-            # Filter out threads which have been joined or are None
             if database.fetch_queue.empty():
-                workers = [worker.join(1) for worker in workers if worker is not None and worker.isAlive()]
+                # Wait for all threads to return their state
+                database.fetch_queue.join() 
+                workers = []
         except KeyboardInterrupt:
+            utils.output_raw('')
             utils.output_info('Keyboard Interrupt Received, cleaning up threads')
 
             # Kill remaining workers    
@@ -112,10 +113,10 @@ def generate_options():
                     help="Max number of timeouts for a given request [default: %default]", default=conf.max_timeout_count)                 
     parser.add_option("-w", metavar="WORKERS", dest="workers", 
                     help="Number of worker threads [default: %default]", default=conf.thread_count) 
-    parser.add_option("-u", metavar="AGENT", dest="user_agent", 
-                    help="User-agent [default: %default]", default='using IE9')  
     parser.add_option("-p", metavar="TOR", dest="use_tor", 
-                    help="Use Tor [default: %default]", default=conf.use_tor)                  
+                    help="Use Tor [default: %default]", default=conf.use_tor)      
+    parser.add_option("-u", metavar="AGENT", dest="user_agent", 
+                    help="User-agent [default: %default]", default=conf.user_agent)              
       
     return parser
     
@@ -138,12 +139,11 @@ def parse_args(parser, system_args):
         conf.user_agent = options.user_agent
     if options.use_tor:
         conf.use_tor = options.use_tor
-    
+        
     return options, args    
     
     
 
-    
 if __name__ == "__main__":
     # Cute program output
     print_program_header()
@@ -157,18 +157,31 @@ if __name__ == "__main__":
         sys.exit()
    
     conf.target_host = args[1]
-    
+
     # Spawn synchronized print output worker
     print_worker = PrintWorker()
     print_worker.daemon = True
     print_worker.start()
     
-    utils.output_info('Starting Discovery')
+    if conf.debug:
+        utils.output_debug('Version: ' + str(conf.version))
+        utils.output_debug('Use GET instead of HEAD: ' + str(conf.use_get))
+        utils.output_debug('Fetch timeout: ' + str(conf.fetch_timeout_secs))
+        utils.output_debug('Max timeouts per url: ' + str(conf.max_timeout_count))
+        utils.output_debug('Worker threads: ' + str(conf.thread_count))
+        utils.output_debug('Target Host: ' + str(conf.target_host))
+        utils.output_debug('Using Tor: ' + str(conf.use_tor))
+        utils.output_debug('Using User-Agent: ' + str(conf.user_agent))
+        
+     
+    utils.output_info('Starting Discovery on ' + conf.target_host)
+    
     
     # Handle keyboard exit before multi-thread operations
     try:
         main()
     except KeyboardInterrupt:
+        utils.output_raw('')
         utils.output_info('Keyboard Interrupt Received')
         database.output_queue.join()
         sys.exit(0)    

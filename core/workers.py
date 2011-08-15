@@ -35,6 +35,7 @@ class FetchUrlWorker(Thread):
             queued = database.fetch_queue.get()
             url = urljoin(conf.target_host, queued.get('url'))
             expected = queued.get('expected_response')
+            description = queued.get('description')
             
             if conf.use_get:
                 method = 'GET'
@@ -43,22 +44,27 @@ class FetchUrlWorker(Thread):
                 
             response_code, content, headers = self.fetcher.fetch_url(url, method, conf.user_agent, False, conf.fetch_timeout_secs)
             
-            #utils.output_info(str(queued))
+            if conf.debug:
+                utils.output_info("Thread #" + str(self.thread_id) + ": " + str(queued))
+                
             if response_code is 0: # timeout
                 if queued.get('timeout_count') < conf.max_timeout_count:
                     new_timeout_count = queued.get('timeout_count') + 1
                     queued['timeout_count'] = new_timeout_count
-                    #utils.output_timeout('re-queuing ' + str(queued))
+                    
+                    if conf.debug:
+                        utils.output_info('Thread #' + str(self.thread_id) + ': re-queuing ' + str(queued))
+                        
+                    # Add back the timed-out item
                     database.fetch_queue.put(queued)
                 else:
                     utils.output_timeout(url)
                     
             elif response_code in expected:
-                utils.output_found(url)
+                utils.output_found(description + ' at: ' + url)
 
             # Mark item as processed
             database.fetch_queue.task_done()
-
 
 
 class PrintWorker(Thread):
