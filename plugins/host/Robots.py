@@ -38,16 +38,17 @@ def execute():
             if '?' not in match_obj and '.' not in match_obj:                
                 splitted = match_obj.split(':')
                 if splitted[1]:
-                    new_path = urljoin(conf.target_host, splitted[1].strip())
-                    
-                    current_template = dict(worker_template)
-                    current_template['url'] = new_path
-                    database.preload_list.append(current_template)
-    
-                    if conf.debug:
-                        utils.output_debug(str(current_template))
+                    if splitted[1].strip() != '/':
+                        new_path = urljoin(conf.target_host, splitted[1].strip())
                         
-                    added = added + 1       
+                        current_template = dict(worker_template)
+                        current_template['url'] = new_path
+                        database.preload_list.append(current_template)
+        
+                        if conf.debug:
+                            utils.output_debug(str(current_template))
+                            
+                        added = added + 1       
                     
         if added > 0:
             utils.output_info('Robots plugin: added ' + str(added) + ' base paths using /robots.txt')

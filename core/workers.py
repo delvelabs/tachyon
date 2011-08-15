@@ -61,7 +61,11 @@ class FetchUrlWorker(Thread):
                     utils.output_timeout(url)
                     
             elif response_code in expected:
-                utils.output_found(description + ' at: ' + url)
+                if response_code == 401:
+                    utils.output_found('*Password Protected* ' + description + ' at: ' + url)
+                else:
+                    utils.output_found(description + ' at: ' + url)
+                    
 
             # Mark item as processed
             database.fetch_queue.task_done()

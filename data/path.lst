@@ -16,16 +16,16 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 # Interresting path
-{"url" : "/phpMyAdmin", "description" : "phpMyAdmin installation", "expected_response" : [200, 302]}
-{"url" : "/phpmyadmin", "description" : "phpMyAdmin installation", "expected_response" : [200, 302]}
-{"url" : "/admin", "description" : "Admin section", "expected_response" : [200, 302]}
-{"url" : "/adm", "description" : "Admin section", "expected_response" : [200, 302]}
-{"url" : "/administration", "description" : "Admin section", "expected_response" : [200, 302]}
-{"url" : "/administrator", "description" : "Admin section", "expected_response" : [200, 302]}
-{"url" : "/_assets", "description" : "_assets directory", "expected_response" : [200, 302]}
-{"url" : "/dev", "description" : "Dev directory", "expected_response" : [200, 302]}
-{"url" : "/backup", "description" : "backup directory", "expected_response" : [200, 302]}
-{"url" : "/wp-admin", "description" : "Wordpress admin section", "expected_response" : [200, 302]}
-{"url" : "/config", "description" : "Config directory", "expected_response" : [200, 302]}
-{"url" : "/conf", "description" : "Config directory", "expected_response" : [200, 302]}
-{"url" : "/cgi-bin", "description" : "Cgi-bin directory", "expected_response" : [200, 302]}
+{"url" : "/phpMyAdmin", "description" : "phpMyAdmin installation", "expected_response" : [200, 302, 401]}
+{"url" : "/phpmyadmin", "description" : "phpMyAdmin installation", "expected_response" : [200, 302, 401]}
+{"url" : "/admin", "description" : "Admin section", "expected_response" : [200, 302, 401]}
+{"url" : "/adm", "description" : "Admin section", "expected_response" : [200, 302, 401]}
+{"url" : "/administration", "description" : "Admin section", "expected_response" : [200, 302, 401]}
+{"url" : "/administrator", "description" : "Admin section", "expected_response" : [200, 302, 401]}
+{"url" : "/_assets", "description" : "_assets directory", "expected_response" : [200, 302, 401]}
+{"url" : "/dev", "description" : "Dev directory", "expected_response" : [200, 302, 401]}
+{"url" : "/backup", "description" : "backup directory", "expected_response" : [200, 302, 401]}
+{"url" : "/wp-admin", "description" : "Wordpress admin section", "expected_response" : [200, 302, 401]}
+{"url" : "/config", "description" : "Config directory", "expected_response" : [200, 302, 401]}
+{"url" : "/conf", "description" : "Config directory", "expected_response" : [200, 302, 401]}
+{"url" : "/cgi-bin", "description" : "Cgi-bin directory", "expected_response" : [200, 302, 401]}
