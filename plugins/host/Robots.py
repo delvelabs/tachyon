@@ -38,9 +38,9 @@ def execute():
             if '?' not in match_obj and '.' not in match_obj:                
                 splitted = match_obj.split(':')
                 if splitted[1]:
-                    if splitted[1].strip() != '/':
-                        new_path = urljoin(conf.target_host, splitted[1].strip())
-                        
+                    path = splitted[1].strip() 
+                    if path != '/' or path != '':
+                        new_path = urljoin(conf.target_host, path)
                         current_template = dict(worker_template)
                         current_template['url'] = new_path
                         database.preload_list.append(current_template)
