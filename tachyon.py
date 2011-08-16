@@ -91,7 +91,6 @@ def main():
         for item in database.valid_paths:
             utils.output_debug(str(item))
 
-    # Buggy
     if conf.search_files:
         # Load target files
         utils.output_info('Loading target files')
