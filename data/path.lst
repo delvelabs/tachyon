@@ -22,14 +22,26 @@
 {"url" : "/administration", "description" : "Admin section", "expected_response" : [200, 302, 401]}
 {"url" : "/administrator", "description" : "Admin section", "expected_response" : [200, 302, 401]}
 {"url" : "/backup", "description" : "Backup directory", "expected_response" : [200, 302, 401]}
+{"url" : "/cfg", "description" : "Config directory", "expected_response" : [200, 302, 401]}
 {"url" : "/conf", "description" : "Config directory", "expected_response" : [200, 302, 401]}
 {"url" : "/config", "description" : "Config directory", "expected_response" : [200, 302, 401]}
+{"url" : "/configuration", "description" : "Config directory", "expected_response" : [200, 302, 401]}
+{"url" : "/content", "description" : "", "expected_response" : [200, 302, 401]}
 {"url" : "/cgi-bin", "description" : "Cgi-bin directory", "expected_response" : [200, 302, 401]}
+{"url" : "/data", "description" : "", "expected_response" : [200, 302, 401]}
 {"url" : "/database", "description" : "Database directory", "expected_response" : [200, 302, 401]}
 {"url" : "/db", "description" : "Database directory", "expected_response" : [200, 302, 401]}
 {"url" : "/dev", "description" : "Dev directory", "expected_response" : [200, 302, 401]}
+{"url" : "/files", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/ftp", "description" : "", "expected_response" : [200, 302, 401]}
 {"url" : "/img", "description" : "Readable images directory", "expected_response" : [200, 302, 401]}
 {"url" : "/images", "description" : "Readable images directory", "expected_response" : [200, 302, 401]}
+{"url" : "/inc", "description" : "Includes directory", "expected_response" : [200, 302, 401]}
+{"url" : "/include", "description" : "Includes directory", "expected_response" : [200, 302, 401]}
+{"url" : "/includes", "description" : "Includes directory", "expected_response" : [200, 302, 401]}
+{"url" : "/_inc", "description" : "Includes directory", "expected_response" : [200, 302, 401]}
+{"url" : "/_include", "description" : "Includes directory", "expected_response" : [200, 302, 401]}
+{"url" : "/_includes", "description" : "Includes directory", "expected_response" : [200, 302, 401]}
 {"url" : "/_layouts", "description" : "Sharepoint directory", "expected_response" : [200, 302, 401]}
 {"url" : "/old", "description" : "Old website version", "expected_response" : [200, 302, 401]}
 {"url" : "/phpMyAdmin", "description" : "phpMyAdmin installation", "expected_response" : [200, 302, 401]}
@@ -38,15 +50,49 @@
 {"url" : "/protected", "description" : "_Protected_ directory", "expected_response" : [200, 302, 401]}
 {"url" : "/secret", "description" : "_Secret_ directory", "expected_response" : [200, 302, 401]}
 {"url" : "/secure", "description" : "_Secure_ directory", "expected_response" : [200, 302, 401]}
+{"url" : "/settings", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/sql", "description" : "", "expected_response" : [200, 302, 401]}
 {"url" : "/src", "description" : "Source directory", "expected_response" : [200, 302, 401]}
 {"url" : "/.ssh", "description" : "SSH config directory", "expected_response" : [200, 302, 401]}
 {"url" : "/static", "description" : "Static files directory", "expected_response" : [200, 302, 401]}
 {"url" : "/stats", "description" : "Stats directory", "expected_response" : [200, 302, 401]}
+{"url" : "/statistics", "description" : "Stats directory", "expected_response" : [200, 302, 401]}
 {"url" : "/upload", "description" : "Upload directory", "expected_response" : [200, 302, 401]}
 {"url" : "/tmp", "description" : "Temp directory", "expected_response" : [200, 302, 401]}
+{"url" : "/temp", "description" : "Temp directory", "expected_response" : [200, 302, 401]}
+{"url" : "/test", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/tests", "description" : "", "expected_response" : [200, 302, 401]}
 {"url" : "/webadmin", "description" : "Admin section", "expected_response" : [200, 302, 401]}
 {"url" : "/webadm", "description" : "Admin section", "expected_response" : [200, 302, 401]}
 {"url" : "/webedit", "description" : "Admin directory", "expected_response" : [200, 302, 401]}
 {"url" : "/WEB-INF", "description" : "web-inf directory", "expected_response" : [200, 302, 401]}
 {"url" : "/wp-admin", "description" : "Wordpress admin section", "expected_response" : [200, 302, 401]}
+{"url" : "/xml", "description" : "", "expected_response" : [200, 302, 401]}
 
+# Testing the alphabet
+{"url" : "/a", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/b", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/c", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/d", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/e", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/f", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/g", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/h", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/i", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/j", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/k", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/l", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/m", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/n", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/o", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/p", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/q", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/r", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/s", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/t", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/u", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/v", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/w", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/x", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/y", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/z", "description" : "", "expected_response" : [200, 302, 401]}
