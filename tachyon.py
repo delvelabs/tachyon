@@ -87,6 +87,11 @@ def main():
     wait_for_idle(workers, database.fetch_queue)
     utils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
 
+    if conf.debug:
+        for item in database.valid_paths:
+            utils.output_debug(str(item))
+
+    # Buggy
     if conf.search_files:
         # Load target files
         utils.output_info('Loading target files')
@@ -99,7 +104,7 @@ def main():
             file_copy['url'] = urljoin(conf.target_host, file_copy['url'])
             tmp_list.append(file_copy)
             for valid_url in database.valid_paths:
-                file['url'] = urljoin(conf.target_host, valid_url['url'] + file['url'])
+                file['url'] = valid_url['url'] + file['url']
                 tmp_list.append(file)
 
         # Fill Valid path with generated urls
@@ -154,10 +159,10 @@ def generate_options():
                     help="Use Tor [default: %default]", default=conf.use_tor)
     parser.add_option("-t", metavar="TIMEOUT", dest="timeout", 
                     help="Request timeout [default: %default]", default=conf.fetch_timeout_secs)
-    parser.add_option("-u", metavar="AGENT", dest="user_agent",
-                    help="User-agent [default: %default]", default=conf.user_agent)
     parser.add_option("-w", metavar="WORKERS", dest="workers", 
                     help="Number of worker threads [default: %default]", default=conf.thread_count)
+    parser.add_option("-u", metavar="AGENT", dest="user_agent",
+                    help="User-agent [default: %default]", default=conf.user_agent)
     return parser
     
     
@@ -172,6 +177,7 @@ def parse_args(parser, system_args):
     conf.thread_count = int(options.workers)
     conf.user_agent = options.user_agent
     conf.use_tor = options.use_tor
+    conf.search_files = options.search_files
 
     return options, args    
 

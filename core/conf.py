@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-version = '0.1'
+version = '0.2'
 debug = False
 use_get = False
 search_files = True

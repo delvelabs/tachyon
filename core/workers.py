@@ -67,6 +67,10 @@ class FetchUrlWorker(Thread):
                     
             elif response_code in expected:
                 content_type = headers['content-type']
+
+                # Fuse with current url. (/test become url.dom/test)
+                queued['url'] = urljoin(conf.target_host, queued['url'])
+
                 if not content_type:
                     content_type = ''
                 
