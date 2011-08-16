@@ -30,6 +30,7 @@
 {"url" : "/.config", "description" : "Generic config", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/cachemgr.cgi", "description" : "Squid proxy admin interface", "expected_response" : [200, 302], "blacklist_content_types" : []}
 {"url" : "/ccbill.log", "description" : "CCBill.com logs", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
+{"url" : "/config.ini", "description" : "Config file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/data.csv", "description" : "database backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/data.sql", "description" : "database backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/deploy.zip", "description" : "Site backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html", "text/plain"]}
