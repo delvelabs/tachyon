@@ -26,8 +26,6 @@
 {"url" : "/backup.tar.gz", "description" : "Site backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html", "text/plain"]}
 {"url" : "/backup.tar.bz2", "description" : "Site backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html", "text/plain"]}
 {"url" : "/backup.sql", "description" : "database backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/.bash_history", "description" : "Bash history", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/.config", "description" : "Generic config", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/cachemgr.cgi", "description" : "Squid proxy admin interface", "expected_response" : [200, 302], "blacklist_content_types" : []}
 {"url" : "/ccbill.log", "description" : "CCBill.com logs", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/config.ini", "description" : "Config file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
@@ -56,7 +54,6 @@
 {"url" : "/my.cnf", "description" : "Mysql config file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/my.cnf.old", "description" : "Mysql config file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/my.cnf.bak", "description" : "Mysql config file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/.mysql_history", "description" : "mysql history", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/pass.txt", "description" : "Password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/password", "description" : "password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/passwords", "description" : "password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
@@ -76,7 +73,6 @@
 {"url" : "/service.pwd", "description" : "Password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/settings.ini", "description" : "settings file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/settings", "description" : "settings file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/.sh_history", "description" : "sh history", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/site.csv", "description" : "database backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/site.zip", "description" : "Site backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html", "text/plain"] }
 {"url" : "/site.tar.gz", "description" : "Site backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html", "text/plain"]}
@@ -85,3 +81,17 @@
 {"url" : "/users.pwd", "description" : "Password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/WS_FTP.LOG", "description" : "WS_FTP client logs", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/ws_ftp.ini", "description" : "WS_FTP client config", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
+
+# PHP common developer files
+{"url" : "/info.php", "description" : "Common phpinfo() wrapper script", "expected_response" : [200, 302], "blacklist_content_types" : []}
+{"url" : "/infos.php", "description" : "Common phpinfo() wrapper script", "expected_response" : [200, 302], "blacklist_content_types" : []}
+{"url" : "/phpinfo.php", "description" : "Common phpinfo() wrapper script", "expected_response" : [200, 302], "blacklist_content_types" : []}
+{"url" : "/phpinfos.php", "description" : "Common phpinfo() wrapper script", "expected_response" : [200, 302], "blacklist_content_types" : []}
+
+# The directory is the home of a shell user
+{"url" : "/.bash_history", "description" : "Bash history", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
+{"url" : "/.bashrc", "description" : "Bash default config file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
+{"url" : "/.config", "description" : "Generic config", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
+{"url" : "/.mysql_history", "description" : "mysql history", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
+{"url" : "/.profile", "description" : "Common default shell config file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
+{"url" : "/.sh_history", "description" : "sh history", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
