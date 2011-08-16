@@ -32,6 +32,8 @@ def wait_for_idle(workers, queue):
             if queue.empty():
                 # Wait for all threads to return their state
                 queue.join()
+                for worker in workers:
+                    worker.kill_received = True
                 workers = []
         except KeyboardInterrupt:
             utils.output_raw('')
@@ -186,7 +188,6 @@ def parse_args(parser, system_args):
     conf.user_agent = options.user_agent
     conf.use_tor = options.use_tor
     conf.search_files = options.search_files
-
     return options, args    
 
 
