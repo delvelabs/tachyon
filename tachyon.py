@@ -95,16 +95,25 @@ def main():
         # Load target files
         utils.output_info('Loading target files')
         database.files = loaders.load_targets('data/file.lst')
+        if conf.debug:
+            for item in database.files:
+                utils.output_debug('Target file added: ' + str(item))
 
         # Combine files with '/' and all valid paths
         tmp_list = list()
         for file in database.files:
             file_copy = dict(file)
             file_copy['url'] = urljoin(conf.target_host, file_copy['url'])
+            if conf.debug:
+                utils.output('Adding base target: ' + str(file_copy))
             tmp_list.append(file_copy)
+
             for valid_url in database.valid_paths:
-                file['url'] = valid_url['url'] + file['url']
-                tmp_list.append(file)
+                file_copy = dict(file)
+                file_copy['url'] = valid_url['url'] + file['url']
+                if conf.debug:
+                    utils.output('Adding combined target: ' + str(file_copy))
+                tmp_list.append(file_copy)
 
         # Fill Valid path with generated urls
         for item in tmp_list:
@@ -112,7 +121,7 @@ def main():
 
         if conf.debug:
             for item in database.valid_paths:
-                utils.output_debug(str(item))
+                utils.output_debug('Path to test: ' + str(item))
 
         # Add to valid paths
         # Import and run file plugins
