@@ -83,6 +83,7 @@ def main():
     # Fill work queue with fetch list
     utils.output_info('Probing ' + str(len(database.paths)) + ' paths')
     for item in database.paths:
+        item['url'] = urljoin(conf.target_host, item['url'])
         database.fetch_queue.put(item)
 
     # Wait for initial valid path lookup
@@ -160,7 +161,7 @@ def generate_options():
     parser.add_option("-d", action="store_true",
                     dest="debug", help="Enable debug [default: %default]", default=conf.debug)
     parser.add_option("-g", action="store_true",
-                    dest="use_get", help="Use GET instead of HEAD [default: %default]", default=conf.use_get)
+                    dest="use_head", help="Use HEAD instead of GET (Faster but error-prone) [default: %default]", default=conf.use_head)
     parser.add_option("-f", action="store_false",
                     dest="search_files", help="Disable file searching [default: %default]", default=conf.search_files)
     parser.add_option("-m", metavar="MAXTIMEOUT", dest="max_timeout",
@@ -181,7 +182,7 @@ def parse_args(parser, system_args):
     (options, args) = parser.parse_args(system_args)
     conf.debug = options.debug
     conf.content_type_blacklist = options.blacklist
-    conf.use_get = options.use_get
+    conf.use_head = options.use_head
     conf.fetch_timeout_secs = int(options.timeout)
     conf.max_timeout_count = int(options.max_timeout)
     conf.thread_count = int(options.workers)

@@ -26,6 +26,8 @@
 {"url" : "/config", "description" : "Config directory", "expected_response" : [200, 302, 401]}
 {"url" : "/cgi-bin", "description" : "Cgi-bin directory", "expected_response" : [200, 302, 401]}
 {"url" : "/database", "description" : "Database directory", "expected_response" : [200, 302, 401]}
+{"url" : "/delete", "description" : "Backup Directory", "expected_response" : [200, 302, 401]}
+{"url" : "/deleteme", "description" : "Backup Directory", "expected_response" : [200, 302, 401]}
 {"url" : "/db", "description" : "Database directory", "expected_response" : [200, 302, 401]}
 {"url" : "/dev", "description" : "Dev directory", "expected_response" : [200, 302, 401]}
 {"url" : "/img", "description" : "Readable images directory", "expected_response" : [200, 302, 401]}
@@ -44,9 +46,11 @@
 {"url" : "/stats", "description" : "Stats directory", "expected_response" : [200, 302, 401]}
 {"url" : "/upload", "description" : "Upload directory", "expected_response" : [200, 302, 401]}
 {"url" : "/tmp", "description" : "Temp directory", "expected_response" : [200, 302, 401]}
+{"url" : "/todel", "description" : "Backup Directory", "expected_response" : [200, 302, 401]}
 {"url" : "/webadmin", "description" : "Admin section", "expected_response" : [200, 302, 401]}
 {"url" : "/webadm", "description" : "Admin section", "expected_response" : [200, 302, 401]}
 {"url" : "/webedit", "description" : "Admin directory", "expected_response" : [200, 302, 401]}
 {"url" : "/WEB-INF", "description" : "web-inf directory", "expected_response" : [200, 302, 401]}
 {"url" : "/wp-admin", "description" : "Wordpress admin section", "expected_response" : [200, 302, 401]}
+
 

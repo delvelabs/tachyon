@@ -43,15 +43,17 @@ class FetchUrlWorker(Thread):
                 if not content_type_blacklist:
                     content_type_blacklist = []
 
-                if conf.use_get:
-                    method = 'GET'
-                else:
+                if conf.use_head:
                     method = 'HEAD'
+                    fetch_content = False
+                else:
+                    method = 'GET'
+                    fetch_content = True
 
-                response_code, content, headers = self.fetcher.fetch_url(url, method, conf.user_agent, False, conf.fetch_timeout_secs)
+                response_code, content, headers = self.fetcher.fetch_url(url, method, conf.user_agent, fetch_content, conf.fetch_timeout_secs)
 
                 if conf.debug:
-                    utils.output_info("Thread #" + str(self.thread_id) + ": " + str(queued))
+                    utils.output_info("Thread #" + str(self.thread_id) + ', Resp: ' + str(response_code)  + ": " + str(queued))
 
                 if response_code is 0: # timeout
                     if queued.get('timeout_count') < conf.max_timeout_count:

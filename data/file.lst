@@ -18,9 +18,6 @@
 {"url" : "/access.txt", "description" : "access log", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/access_log", "description" : "access log", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/access.log", "description" : "access log", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/admin.php", "description" : "Admin interface", "expected_response" : [200, 302], "blacklist_content_types" : []}
-{"url" : "/admin.asp", "description" : "Admin interface", "expected_response" : [200, 302], "blacklist_content_types" : []}
-{"url" : "/admin.html", "description" : "Admin interface", "expected_response" : [200, 302], "blacklist_content_types" : []}
 {"url" : "/admin.xls", "description" : "Admin xls file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/administrators.pwd", "description" : "Password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/authors.pwd", "description" : "Password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}

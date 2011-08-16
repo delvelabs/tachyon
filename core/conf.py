@@ -18,7 +18,7 @@
 
 version = '0.2'
 debug = False
-use_get = False
+use_head = False
 search_files = True
 fetch_timeout_secs = 3
 max_timeout_count = 5

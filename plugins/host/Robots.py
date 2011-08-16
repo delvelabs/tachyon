@@ -32,23 +32,36 @@ def execute():
         if conf.debug:
             utils.output_debug(content)
 
-        match = re.findall(r'Disallow:\s*[a-zA-Z0-9-/.]*', content)
+        matches = re.findall(r'Disallow:\s*/[a-zA-Z0-9-/\r]+\n', content)
         added = 0
-        for match_obj in match:
-            if '?' not in match_obj and '.' not in match_obj:                
-                splitted = match_obj.split(':')
-                if splitted[1]:
-                    path = splitted[1].strip() 
-                    if path != '/' or path != '':
-                        new_path = urljoin(conf.target_host, path)
-                        current_template = dict(worker_template)
-                        current_template['url'] = new_path
-                        database.paths.append(current_template)
-        
-                        if conf.debug:
-                            utils.output_debug(str(current_template))
-                            
-                        added += 1
+        for match in matches:
+            # Filter out some characters
+            match = filter(lambda c: c not in ' *?.\n\r', match)
+            
+            if conf.debug:
+                utils.output_debug(match)
+                
+            # Split on ':'               
+            splitted = match.split(':')
+            if splitted[1]:
+                target_path = splitted[1]
+                
+                # Remove trailing /
+                if target_path.endswith('/'):
+                    target_path = target_path[:-1]   
+                     
+                path = urljoin(conf.target_host, target_path)
+                
+                current_template = dict(worker_template)
+                current_template['url'] = path
+                
+                if current_template not in database.paths: 
+                    database.paths.append(current_template)
+
+                if conf.debug:
+                    utils.output_debug('Added: ' + str(path) + ' from robots.txt')
+                    
+                added += 1
                     
         if added > 0:
             utils.output_info('Robots plugin: added ' + str(added) + ' base paths using /robots.txt')
