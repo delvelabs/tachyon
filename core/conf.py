@@ -19,6 +19,7 @@
 version = '0.1'
 debug = False
 use_get = False
+search_files = True
 fetch_timeout_secs = 3
 max_timeout_count = 5
 thread_count = 25
@@ -26,5 +27,6 @@ target_host = ''
 use_tor = False
 content_type_blacklist = True
 user_agent = 'Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US)' # maximum compatibility
+
 
   

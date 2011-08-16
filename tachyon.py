@@ -23,82 +23,119 @@ from core import conf, database, loaders, utils
 from core.workers import FetchUrlWorker, PrintWorker
 from optparse import OptionParser
 from plugins import host, path
+from urlparse import urljoin
 
-def main():
-    # Keep track of all worker threads
-    workers = list()
-
-    # Ensure the host is of the right format
-    utils.sanitize_config()
-
-    utils.output_info('Loading targets')
-    # Load target paths
-    loaders.load_path_file('data/path.lst')
-    # Load target files
-    loaders.load_file_list('data/file.lst')
-
-
-    utils.output_info('Executing ' + str(len(host.__all__) + len(path.__all__)) + ' plugins')
-    # Import and run host plugins
-    for plugin_name in host.__all__:
-        plugin = __import__ ("plugins.host." + plugin_name, fromlist=[plugin_name])
-        if hasattr(plugin , 'execute'):
-             plugin.execute()
-
-    # Import and run file plugins
-    for plugin_name in path.__all__:
-        plugin = __import__ ("plugins.path." + plugin_name, fromlist=[plugin_name])
-        if hasattr(plugin , 'execute'):
-             plugin.execute()
-    
-    # Spawn workers
-    for thread_id in range(conf.thread_count):
-        worker = FetchUrlWorker(thread_id)
-        worker.daemon = True
-        workers.append(worker)
-        worker.start()
-
-    # Fill work queue with fetch list
-    utils.output_info('Probing ' + str(len(database.preload_list)) + ' items...')
-    for item in database.preload_list:
-        database.fetch_queue.put(item)
-
-    # Free some memory
-    database.preload_list = None
-
-    # Wait for task completion and handle keyboard interrupt
+def wait_for_idle(workers, queue):
+    """ Wait until fetch queue is empty and handle user interrupt """
     while len(workers) > 0:
         try:
-            if database.fetch_queue.empty():
+            if queue.empty():
                 # Wait for all threads to return their state
-                database.fetch_queue.join() 
+                queue.join()
                 workers = []
         except KeyboardInterrupt:
             utils.output_raw('')
             utils.output_info('Keyboard Interrupt Received, cleaning up threads')
-
-            # Kill remaining workers    
+            # Kill remaining workers
             for worker in workers:
                 worker.kill_received = True
                 if worker is not None and worker.isAlive():
                     worker.join(1)
-            
-            # All workers still alive should have been joined at this point.
-            workers = []
+
+            sys.exit()
+
+def spawn_workers(count, output=True):
+    """ Spawn a given number of workers and return a reference list to them """
+    # Keep track of all worker threads
+    workers = list()
+    for thread_id in range(count):
+        worker = FetchUrlWorker(thread_id, output)
+        worker.daemon = True
+        workers.append(worker)
+        worker.start()
+    return workers
 
 
-    # Print all remaining messages
-    utils.output_info('Done.\n')    
-    database.output_queue.join()
-  
+def main():
+    """ Main app logic """
+    # Ensure the host is of the right format
+    utils.sanitize_config()
+
+    # Load target paths
+    utils.output_info('Loading target paths')
+    database.paths = loaders.load_targets('data/path.lst')
+
+    # Import and run host plugins
+    utils.output_info('Executing ' + str(len(host.__all__)) + ' host plugins')
+    for plugin_name in host.__all__:
+        plugin = __import__ ("plugins.host." + plugin_name, fromlist=[plugin_name])
+        if hasattr(plugin , 'execute'):
+             plugin.execute()
+    
+    # Spawn workers
+    if conf.search_files or conf.debug:
+        workers = spawn_workers(conf.thread_count, output=False)
+    else:
+        workers = spawn_workers(conf.thread_count)
+
+    # Fill work queue with fetch list
+    utils.output_info('Probing ' + str(len(database.paths)) + ' paths')
+    for item in database.paths:
+        database.fetch_queue.put(item)
+
+    # Wait for initial valid path lookup
+    wait_for_idle(workers, database.fetch_queue)
+    utils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
+
+    if conf.search_files:
+        # Load target files
+        utils.output_info('Loading target files')
+        database.files = loaders.load_targets('data/file.lst')
+
+        # Combine files with '/' and all valid paths
+        tmp_list = list()
+        for file in database.files:
+            file_copy = dict(file)
+            file_copy['url'] = urljoin(conf.target_host, file_copy['url'])
+            tmp_list.append(file_copy)
+            for valid_url in database.valid_paths:
+                file['url'] = urljoin(conf.target_host, valid_url['url'] + file['url'])
+                tmp_list.append(file)
+
+        # Fill Valid path with generated urls
+        for item in tmp_list:
+            database.valid_paths.append(item)
+
+        if conf.debug:
+            for item in database.valid_paths:
+                utils.output_debug(str(item))
+
+        # Add to valid paths
+        # Import and run file plugins
+        utils.output_info('Executing ' + str(len(path.__all__)) + ' file plugins')
+        for plugin_name in path.__all__:
+            plugin = __import__ ("plugins.path." + plugin_name, fromlist=[plugin_name])
+            if hasattr(plugin , 'execute'):
+                 plugin.execute()
+
+        # Spawn workers
+        workers = spawn_workers(conf.thread_count)
+
+        # Fill work queue with fetch list
+        utils.output_info('Probing ' + str(len(database.valid_paths)) + ' items...')
+        for item in database.valid_paths:
+            database.fetch_queue.put(item)
+
+        # Wait for file lookup
+        wait_for_idle(workers, database.fetch_queue)
+
 
 def print_program_header():
     """ Print a _cute_ program header """
     print "\n\t Tachyon - Fast Multi-Threaded Web Discovery Tool"
     print "\t https://github.com/initnull/tachyon\n" 
- 
- 
- 
+
+
 def generate_options():
     """ Generate command line parser """
     usage_str = "usage: %prog <host> [options]"
@@ -109,24 +146,24 @@ def generate_options():
                     dest="debug", help="Enable debug [default: %default]", default=conf.debug)
     parser.add_option("-g", action="store_true",
                     dest="use_get", help="Use GET instead of HEAD [default: %default]", default=conf.use_get)
+    parser.add_option("-f", action="store_false",
+                    dest="search_files", help="Disable file searching [default: %default]", default=conf.search_files)
+    parser.add_option("-m", metavar="MAXTIMEOUT", dest="max_timeout",
+                    help="Max number of timeouts for a given request [default: %default]", default=conf.max_timeout_count)
+    parser.add_option("-p", metavar="TOR", dest="use_tor",
+                    help="Use Tor [default: %default]", default=conf.use_tor)
     parser.add_option("-t", metavar="TIMEOUT", dest="timeout", 
-                    help="Request timeout [default: %default]", default=conf.fetch_timeout_secs)   
-    parser.add_option("-m", metavar="MAXTIMEOUT", dest="max_timeout", 
-                    help="Max number of timeouts for a given request [default: %default]", default=conf.max_timeout_count)                 
+                    help="Request timeout [default: %default]", default=conf.fetch_timeout_secs)
+    parser.add_option("-u", metavar="AGENT", dest="user_agent",
+                    help="User-agent [default: %default]", default=conf.user_agent)
     parser.add_option("-w", metavar="WORKERS", dest="workers", 
-                    help="Number of worker threads [default: %default]", default=conf.thread_count) 
-    parser.add_option("-p", metavar="TOR", dest="use_tor", 
-                    help="Use Tor [default: %default]", default=conf.use_tor)      
-    parser.add_option("-u", metavar="AGENT", dest="user_agent", 
-                    help="User-agent [default: %default]", default=conf.user_agent)              
-      
+                    help="Number of worker threads [default: %default]", default=conf.thread_count)
     return parser
     
     
 def parse_args(parser, system_args):
     """ Parse and assign options """
     (options, args) = parser.parse_args(system_args)
- 
     conf.debug = options.debug
     conf.content_type_blacklist = options.blacklist
     conf.use_get = options.use_get
@@ -135,18 +172,18 @@ def parse_args(parser, system_args):
     conf.thread_count = int(options.workers)
     conf.user_agent = options.user_agent
     conf.use_tor = options.use_tor
-        
-    return options, args    
-    
-    
 
+    return options, args    
+
+
+# Entry point
 if __name__ == "__main__":
-    # Cute program output
     print_program_header()
     
     # Parse command line
     parser = generate_options()
     options, args = parse_args(parser, sys.argv)
+
     if len(sys.argv) <= 1:
         parser.print_help()
         print ''
@@ -169,20 +206,18 @@ if __name__ == "__main__":
         utils.output_debug('Using Tor: ' + str(conf.use_tor))
         utils.output_debug('Content-type Blacklisting: ' + str(conf.content_type_blacklist))
         utils.output_debug('Using User-Agent: ' + str(conf.user_agent))
-        
      
     utils.output_info('Starting Discovery on ' + conf.target_host)
-    
-    
+
     # Handle keyboard exit before multi-thread operations
     try:
+        # Launch main loop
         main()
+        # Print all remaining messages
+        utils.output_info('Done.\n')
+        database.output_queue.join()
     except KeyboardInterrupt:
         utils.output_raw('')
         utils.output_info('Keyboard Interrupt Received')
         database.output_queue.join()
-        sys.exit(0)    
-    
-
-
-
+        sys.exit(0)

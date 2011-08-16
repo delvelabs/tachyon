@@ -18,17 +18,17 @@
 
 import Queue
 
-""" Preload List is used at load-time to temporarily hold loaded value for single-thread operations)"""
-preload_list = list()
+""" Path list is used to hold loaded path from disk """
+paths = list()
+
+""" File list is used to hold loaded filenames from disk """
+files = list()
+
+""" Valid path is used to store the path that were found before merging with filenames """
+valid_paths = list()
 
 """ Fetch List contains all the url that have to be fetched by the workers """
 fetch_queue = Queue.Queue(maxsize=0)
-
-""" Host plugins contains all the loaded host plugins and are ran once by the workers at the begining"""
-host_plugins = list()
-
-""" Path plugins are ran on each path by the worker """
-path_plugins = list()
 
 """ output contains the scan results """
 output_queue = Queue.Queue(maxsize=0)

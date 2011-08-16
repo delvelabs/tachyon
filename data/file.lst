@@ -86,5 +86,4 @@
 {"url" : "/site.sql", "description" : "database backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/users.pwd", "description" : "Password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/WS_FTP.LOG", "description" : "WS_FTP client logs", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/WSFTP.LOG", "description" : "WS_FTP client logs", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
 {"url" : "/ws_ftp.ini", "description" : "WS_FTP client config", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}

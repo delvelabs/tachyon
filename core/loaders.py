@@ -18,55 +18,23 @@
 
 import ast
 import codecs
-from core import database
 from exceptions import SyntaxError
 
-def load_file_list(file):
-    """ Load the list of target files and combines them with paths"""
-    file_list = codecs.open(file, 'r', 'UTF-8')
-    tmp_list = list()
-
-    for file in file_list:
-        file = file.strip()
-        if len(file) > 0 and '#' not in file:
-            parsed_path = ast.literal_eval(file)
-            
-            # Add processing values
-            parsed_path['timeout_count'] = 0
-            
-            # Add on root
-            tmp_list.append(parsed_path)
-
-            # Combine with preload list
-            for item in database.preload_list:
-                try:
-                    # copy before adding
-                    file_path = dict(parsed_path)
-                    file_path['url'] = item.get('url') + file_path.get('url')
-                    tmp_list.append(file_path)
-                except SyntaxError as (errno, strerror):
-                    print 'File parsing error: ', strerror
-
-    for loaded in tmp_list:
-        database.preload_list.append(loaded)
-
-    file_list.close()
-
-
-def load_path_file(file):
+def load_targets(file):
     """ Load the list of target paths """
-    path_list = codecs.open(file, 'r', 'UTF-8')
-
-    for path in path_list:
+    loaded = list()
+    f = codecs.open(file, 'r', 'UTF-8')
+    for path in f:
         path = path.strip()
         if len(path) > 0 and '#' not in path:
             try:
                 # Add processing values
                 parsed_path = ast.literal_eval(path)
                 parsed_path['timeout_count'] = 0
-                database.preload_list.append(parsed_path)
+                loaded.append(parsed_path)
             except SyntaxError as (errno, strerror):
                 print 'Path parsing error: ', strerror
 
-    path_list.close()
+    f.close()
+    return loaded
 

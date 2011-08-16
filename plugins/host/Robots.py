@@ -43,12 +43,12 @@ def execute():
                         new_path = urljoin(conf.target_host, path)
                         current_template = dict(worker_template)
                         current_template['url'] = new_path
-                        database.preload_list.append(current_template)
+                        database.paths.append(current_template)
         
                         if conf.debug:
                             utils.output_debug(str(current_template))
                             
-                        added = added + 1       
+                        added += 1
                     
         if added > 0:
             utils.output_info('Robots plugin: added ' + str(added) + ' base paths using /robots.txt')

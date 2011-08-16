@@ -23,11 +23,12 @@ from threading import Thread
 
 class FetchUrlWorker(Thread):
     """ This worker get an url from the work queue and call the url fetcher """
-    def __init__(self, thread_id):
+    def __init__(self, thread_id, output=True):
         Thread.__init__(self)
         self.kill_received = False
         self.thread_id = thread_id
         self.fetcher = Fetcher()
+        self.output = output
        
 
     def run(self):
@@ -40,8 +41,7 @@ class FetchUrlWorker(Thread):
             
             if not content_type_blacklist:
                 content_type_blacklist = []
-            
-            
+
             if conf.use_get:
                 method = 'GET'
             else:
@@ -51,9 +51,7 @@ class FetchUrlWorker(Thread):
             
             if conf.debug:
                 utils.output_info("Thread #" + str(self.thread_id) + ": " + str(queued))
-           
-            found = False
-                 
+
             if response_code is 0: # timeout
                 if queued.get('timeout_count') < conf.max_timeout_count:
                     new_timeout_count = queued.get('timeout_count') + 1
@@ -74,29 +72,37 @@ class FetchUrlWorker(Thread):
                 
                 # If we don't blacklist, just show the result    
                 if not conf.content_type_blacklist:
-                    if response_code == 401:
-                        utils.output_found('*Password Protected* ' + description + ' at: ' + url)
-                    else:
-                        utils.output_found(description + ' at: ' + url) 
+                    if self.output:
+                        if response_code == 401:
+                            utils.output_found('*Password Protected* ' + description + ' at: ' + url)
+                        else:
+                            utils.output_found(description + ' at: ' + url)
+
+                    # Add to valid path
+                    database.valid_paths.append(queued)
+
                 # if we DO blacklist but content is not blacklisted, show the result         
-                elif content_type not in content_type_blacklist:
-                    if response_code == 401:
-                        utils.output_found('*Password Protected* ' + description + ' at: ' + url)
-                    else:
-                        utils.output_found(description + ' at: ' + url)
-                 
-                    
+                elif conf.content_type_blacklist and content_type not in content_type_blacklist:
+                    if self.output:
+                        if response_code == 401:
+                            utils.output_found('*Password Protected* ' + description + ' at: ' + url)
+                        else:
+                            utils.output_found(description + ' at: ' + url)
+
+                    # Add to valid path
+                    database.valid_paths.append(queued)
 
             # Mark item as processed
             database.fetch_queue.task_done()
 
 
 class PrintWorker(Thread):
+    """ This worker is used to generate a synchronized non-overlapping console output. """
+
     def __init__(self):
         Thread.__init__(self)
         self.kill_received = False
-     
-    """ This worker is used to generate a synchronized non-overlapping console output. """
+
     def run(self):
         while not self.kill_received:
             text = database.output_queue.get()
