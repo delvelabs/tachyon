@@ -30,11 +30,14 @@
 {"url" : "/cgi-bin", "description" : "Cgi-bin directory"}
 {"url" : "/data", "description" : "Static data directory"}
 {"url" : "/database", "description" : "Database directory"}
+{"url" : "/document", "description" : "document directory"}
+{"url" : "/documents", "description" : "document directory"}
 {"url" : "/delete", "description" : "Backup Directory"}
 {"url" : "/deleteme", "description" : "Backup Directory"}
 {"url" : "/db", "description" : "Database directory"}
 {"url" : "/dev", "description" : "Dev directory"}
 {"url" : "/files", "description" : "Static files directory"}
+{"url" : "/file", "description" : "Static files directory"}
 {"url" : "/ftp", "description" : "Ftp directory"}
 {"url" : "/img", "description" : "Readable images directory"}
 {"url" : "/images", "description" : "Readable images directory"}

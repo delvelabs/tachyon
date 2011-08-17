@@ -20,42 +20,11 @@
 
 import sys
 from core import conf, database, loaders, utils
-from core.workers import FetchUrlWorker, PrintWorker
+from core.workers import PrintWorker
+from core.threading import wait_for_idle, spawn_workers
 from optparse import OptionParser
 from plugins import host, path
 from urlparse import urljoin
-
-def wait_for_idle(workers, queue):
-    """ Wait until fetch queue is empty and handle user interrupt """
-    while len(workers) > 0:
-        try:
-            if queue.empty():
-                # Wait for all threads to return their state
-                queue.join()
-                for worker in workers:
-                    worker.kill_received = True
-                workers = []
-        except KeyboardInterrupt:
-            utils.output_raw('')
-            utils.output_info('Keyboard Interrupt Received, cleaning up threads')
-            # Kill remaining workers
-            for worker in workers:
-                worker.kill_received = True
-                if worker is not None and worker.isAlive():
-                    worker.join(1)
-
-            sys.exit()
-
-def spawn_workers(count, output=True):
-    """ Spawn a given number of workers and return a reference list to them """
-    # Keep track of all worker threads
-    workers = list()
-    for thread_id in range(count):
-        worker = FetchUrlWorker(thread_id, output)
-        worker.daemon = True
-        workers.append(worker)
-        worker.start()
-    return workers
 
 
 def main():
@@ -64,6 +33,7 @@ def main():
     utils.sanitize_config()
 
 
+    # 0. Pre-test and CRC /uuid to figure out what is a classic 404
     # 1. Pre-test urls to make sure we don't get path with classic errors such as 404, 301 and 307
     # 2. if we get 200 OK, calculate the crc of a failed attempt to this file
     # 3. When testing the PATH, don't consider the 404 crc

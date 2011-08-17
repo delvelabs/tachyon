@@ -20,6 +20,7 @@
 version = '0.2'
 expected_path_responses = [200, 302, 401]
 expected_file_responses = [200, 302]
+crc_sample_len = 2048
 
 # Templates, used by plugins
 path_template = {'url': '', 'expected_response': [200, 302, 401], 'timeout_count': 0, 'description': ''}

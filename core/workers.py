@@ -74,7 +74,11 @@ class Compute404CRCWorker(Thread):
                 # All subsequent files that will be joined to those path will use the path crc value since
                 # I think a given 404 will mostly be bound to a directory, and not to a specific file.
                 # This step is only made in initial discovery mode. (Should be moved to a separate worker)
-                queued['computed_404_crc'] = crc32(content)
+                if len(content) < conf.crc_sample_len:
+                    queued['computed_404_crc'] = crc32(content[0:len(content) - 1]) 
+                else:            
+                    queued['computed_404_crc'] = crc32(content[0:conf.crc_sample_len - 1])
+
 
                 # The path is then added back to a validated list
                 database.valid_paths.append(queued)
