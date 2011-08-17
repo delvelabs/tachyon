@@ -16,58 +16,58 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 # Interresting path
-{"url" : "/_assets", "description" : "_assets directory"}
-{"url" : "/adm", "description" : "Admin section"}
-{"url" : "/admin", "description" : "Admin section"}
-{"url" : "/administration", "description" : "Admin section"}
-{"url" : "/administrator", "description" : "Admin section"}
-{"url" : "/backup", "description" : "Backup directory"}
-{"url" : "/cfg", "description" : "Config directory"}
-{"url" : "/conf", "description" : "Config directory"}
-{"url" : "/config", "description" : "Config directory"}
-{"url" : "/configuration", "description" : "Config directory"}
-{"url" : "/content", "description" : "Static content directory"}
-{"url" : "/cgi-bin", "description" : "Cgi-bin directory"}
-{"url" : "/data", "description" : "Static data directory"}
-{"url" : "/database", "description" : "Database directory"}
-{"url" : "/delete", "description" : "Backup Directory"}
-{"url" : "/deleteme", "description" : "Backup Directory"}
-{"url" : "/db", "description" : "Database directory"}
-{"url" : "/dev", "description" : "Dev directory"}
-{"url" : "/files", "description" : "Static files directory"}
-{"url" : "/ftp", "description" : "Ftp directory"}
-{"url" : "/img", "description" : "Readable images directory"}
-{"url" : "/images", "description" : "Readable images directory"}
-{"url" : "/inc", "description" : "Includes directory"}
-{"url" : "/include", "description" : "Includes directory"}
-{"url" : "/includes", "description" : "Includes directory"}
-{"url" : "/_inc", "description" : "Includes directory"}
-{"url" : "/_include", "description" : "Includes directory"}
-{"url" : "/_includes", "description" : "Includes directory"}
-{"url" : "/_layouts", "description" : "Sharepoint directory"}
-{"url" : "/old", "description" : "Old website version"}
-{"url" : "/phpMyAdmin", "description" : "phpMyAdmin installation"}
-{"url" : "/phpmyadmin", "description" : "phpMyAdmin installation"}
-{"url" : "/private", "description" : "Private directory"}
-{"url" : "/protected", "description" : "_Protected_ directory"}
-{"url" : "/secret", "description" : "_Secret_ directory"}
-{"url" : "/secure", "description" : "_Secure_ directory"}
-{"url" : "/settings", "description" : "Settings directory"}
-{"url" : "/sql", "description" : "Sql backups directory"}
-{"url" : "/src", "description" : "Source directory"}
-{"url" : "/.ssh", "description" : "SSH config directory"}
-{"url" : "/static", "description" : "Static files directory"}
-{"url" : "/stats", "description" : "Stats directory"}
-{"url" : "/statistics", "description" : "Stats directory"}
-{"url" : "/upload", "description" : "Upload directory"}
-{"url" : "/tmp", "description" : "Temp directory"}
-{"url" : "/todel", "description" : "Backup Directory"}
-{"url" : "/temp", "description" : "Temp directory"}
-{"url" : "/test", "description" : "Test Directory"}
-{"url" : "/tests", "description" : "Test Directory"}
-{"url" : "/webadmin", "description" : "Admin section"}
-{"url" : "/webadm", "description" : "Admin section"}
-{"url" : "/webedit", "description" : "Admin directory"}
-{"url" : "/WEB-INF", "description" : "web-inf directory"}
-{"url" : "/wp-admin", "description" : "Wordpress admin section"}
-{"url" : "/xml", "description" : "Static xml directory"}
+{"url" : "/_assets", "description" : "_assets directory", "expected_response" : [200, 302, 401]}
+{"url" : "/adm", "description" : "Admin section", "expected_response" : [200, 302, 401]}
+{"url" : "/admin", "description" : "Admin section", "expected_response" : [200, 302, 401]}
+{"url" : "/administration", "description" : "Admin section", "expected_response" : [200, 302, 401]}
+{"url" : "/administrator", "description" : "Admin section", "expected_response" : [200, 302, 401]}
+{"url" : "/backup", "description" : "Backup directory", "expected_response" : [200, 302, 401]}
+{"url" : "/cfg", "description" : "Config directory", "expected_response" : [200, 302, 401]}
+{"url" : "/conf", "description" : "Config directory", "expected_response" : [200, 302, 401]}
+{"url" : "/config", "description" : "Config directory", "expected_response" : [200, 302, 401]}
+{"url" : "/configuration", "description" : "Config directory", "expected_response" : [200, 302, 401]}
+{"url" : "/content", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/cgi-bin", "description" : "Cgi-bin directory", "expected_response" : [200, 302, 401]}
+{"url" : "/data", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/database", "description" : "Database directory", "expected_response" : [200, 302, 401]}
+{"url" : "/delete", "description" : "Backup Directory", "expected_response" : [200, 302, 401]}
+{"url" : "/deleteme", "description" : "Backup Directory", "expected_response" : [200, 302, 401]}
+{"url" : "/db", "description" : "Database directory", "expected_response" : [200, 302, 401]}
+{"url" : "/dev", "description" : "Dev directory", "expected_response" : [200, 302, 401]}
+{"url" : "/files", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/ftp", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/img", "description" : "Readable images directory", "expected_response" : [200, 302, 401]}
+{"url" : "/images", "description" : "Readable images directory", "expected_response" : [200, 302, 401]}
+{"url" : "/inc", "description" : "Includes directory", "expected_response" : [200, 302, 401]}
+{"url" : "/include", "description" : "Includes directory", "expected_response" : [200, 302, 401]}
+{"url" : "/includes", "description" : "Includes directory", "expected_response" : [200, 302, 401]}
+{"url" : "/_inc", "description" : "Includes directory", "expected_response" : [200, 302, 401]}
+{"url" : "/_include", "description" : "Includes directory", "expected_response" : [200, 302, 401]}
+{"url" : "/_includes", "description" : "Includes directory", "expected_response" : [200, 302, 401]}
+{"url" : "/_layouts", "description" : "Sharepoint directory", "expected_response" : [200, 302, 401]}
+{"url" : "/old", "description" : "Old website version", "expected_response" : [200, 302, 401]}
+{"url" : "/phpMyAdmin", "description" : "phpMyAdmin installation", "expected_response" : [200, 302, 401]}
+{"url" : "/phpmyadmin", "description" : "phpMyAdmin installation", "expected_response" : [200, 302, 401]}
+{"url" : "/private", "description" : "Private directory", "expected_response" : [200, 302, 401]}
+{"url" : "/protected", "description" : "_Protected_ directory", "expected_response" : [200, 302, 401]}
+{"url" : "/secret", "description" : "_Secret_ directory", "expected_response" : [200, 302, 401]}
+{"url" : "/secure", "description" : "_Secure_ directory", "expected_response" : [200, 302, 401]}
+{"url" : "/settings", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/sql", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/src", "description" : "Source directory", "expected_response" : [200, 302, 401]}
+{"url" : "/.ssh", "description" : "SSH config directory", "expected_response" : [200, 302, 401]}
+{"url" : "/static", "description" : "Static files directory", "expected_response" : [200, 302, 401]}
+{"url" : "/stats", "description" : "Stats directory", "expected_response" : [200, 302, 401]}
+{"url" : "/statistics", "description" : "Stats directory", "expected_response" : [200, 302, 401]}
+{"url" : "/upload", "description" : "Upload directory", "expected_response" : [200, 302, 401]}
+{"url" : "/tmp", "description" : "Temp directory", "expected_response" : [200, 302, 401]}
+{"url" : "/todel", "description" : "Backup Directory", "expected_response" : [200, 302, 401]}
+{"url" : "/temp", "description" : "Temp directory", "expected_response" : [200, 302, 401]}
+{"url" : "/test", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/tests", "description" : "", "expected_response" : [200, 302, 401]}
+{"url" : "/webadmin", "description" : "Admin section", "expected_response" : [200, 302, 401]}
+{"url" : "/webadm", "description" : "Admin section", "expected_response" : [200, 302, 401]}
+{"url" : "/webedit", "description" : "Admin directory", "expected_response" : [200, 302, 401]}
+{"url" : "/WEB-INF", "description" : "web-inf directory", "expected_response" : [200, 302, 401]}
+{"url" : "/wp-admin", "description" : "Wordpress admin section", "expected_response" : [200, 302, 401]}
+{"url" : "/xml", "description" : "", "expected_response" : [200, 302, 401]}

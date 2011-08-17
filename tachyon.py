@@ -63,13 +63,6 @@ def main():
     # Ensure the host is of the right format
     utils.sanitize_config()
 
-
-    # 1. Pre-test urls to make sure we don't get path with classic errors such as 404, 301 and 307
-    # 2. if we get 200 OK, calculate the crc of a failed attempt to this file
-    # 3. When testing the PATH, don't consider the 404 crc
-    # 4. When testing a FILE, check the crc.
-
-
     # Load target paths
     utils.output_info('Loading target paths')
     database.paths = loaders.load_targets('data/path.lst')
@@ -163,6 +156,8 @@ def generate_options():
     """ Generate command line parser """
     usage_str = "usage: %prog <host> [options]"
     parser = OptionParser(usage=usage_str)
+    parser.add_option("-b", action="store_false",
+                    dest="blacklist", help="Disable content type blacklisting [default: %default]", default=True)
     parser.add_option("-d", action="store_true",
                     dest="debug", help="Enable debug [default: %default]", default=False)
     parser.add_option("-g", action="store_true",
@@ -186,6 +181,7 @@ def parse_args(parser, system_args):
     """ Parse and assign options """
     (options, args) = parser.parse_args(system_args)
     conf.debug = options.debug
+    conf.content_type_blacklist = options.blacklist
     conf.use_head = options.use_head
     conf.fetch_timeout_secs = int(options.timeout)
     conf.max_timeout_count = int(options.max_timeout)
@@ -224,6 +220,7 @@ if __name__ == "__main__":
         utils.output_debug('Worker threads: ' + str(conf.thread_count))
         utils.output_debug('Target Host: ' + str(conf.target_host))
         utils.output_debug('Using Tor: ' + str(conf.use_tor))
+        utils.output_debug('Content-type Blacklisting: ' + str(conf.content_type_blacklist))
         utils.output_debug('Using User-Agent: ' + str(conf.user_agent))
      
     utils.output_info('Starting Discovery on ' + conf.target_host)
