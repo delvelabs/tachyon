@@ -16,11 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-#    >>> for char in range(ord('a'), ord('z')):
-#    print chr(char)
-
 from core import conf, database, utils
-from urlparse import urljoin
 
 def add_generated_path(char):
     """ Add path to database """
