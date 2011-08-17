@@ -23,7 +23,9 @@ from urlparse import urljoin
 
 def execute():
     """ Fetch /robots.txt and add the disallowed paths as target """
-    worker_template = {'url': '', 'expected_response': [200, 302], 'timeout_count': 0, 'description': 'Robots.txt entry'}
+    current_template = conf.path_template
+    current_template['description'] = 'Robots.txt entry'
+
     target_url = urljoin(conf.target_host, "/robots.txt")
     fetcher = Fetcher()
     response_code, content, headers = fetcher.fetch_url(target_url, 'GET', conf.user_agent, True, conf.fetch_timeout_secs)
@@ -52,7 +54,7 @@ def execute():
                      
                 path = urljoin(conf.target_host, target_path)
                 
-                current_template = dict(worker_template)
+                current_template = dict(current_template)
                 current_template['url'] = path
                 
                 if current_template not in database.paths: 
@@ -64,10 +66,10 @@ def execute():
                 added += 1
                     
         if added > 0:
-            utils.output_info('Robots plugin: added ' + str(added) + ' base paths using /robots.txt')
+            utils.output_info('Robots Plugin: added ' + str(added) + ' base paths using /robots.txt')
         else :
-            utils.output_info('Robots plugin: no usable entries in /robots.txt')     
+            utils.output_info('Robots Plugin: no usable entries in /robots.txt')
                
     else:
-        utils.output_info('Robots plugin: /robots.txt not found on target site')
+        utils.output_info('Robots Plugin: /robots.txt not found on target site')
 

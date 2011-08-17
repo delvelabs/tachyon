@@ -29,4 +29,6 @@ content_type_blacklist = True
 user_agent = 'Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US)' # maximum compatibility
 
 
+# Templates, used by plugins
+path_template = {'url': '', 'expected_response': [200, 302, 401], 'timeout_count': 0, 'description': ''}
   

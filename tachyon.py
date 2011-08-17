@@ -157,13 +157,13 @@ def generate_options():
     usage_str = "usage: %prog <host> [options]"
     parser = OptionParser(usage=usage_str)
     parser.add_option("-b", action="store_false",
-                    dest="blacklist", help="Disable content type blacklisting [default: %default]", default=conf.content_type_blacklist)
+                    dest="blacklist", help="Disable content type blacklisting [default: %default]", default=True)
     parser.add_option("-d", action="store_true",
-                    dest="debug", help="Enable debug [default: %default]", default=conf.debug)
+                    dest="debug", help="Enable debug [default: %default]", default=False)
     parser.add_option("-g", action="store_true",
-                    dest="use_head", help="Use HEAD instead of GET (Faster but error-prone) [default: %default]", default=conf.use_head)
+                    dest="use_head", help="Use HEAD instead of GET (Faster but error-prone) [default: %default]", default=False)
     parser.add_option("-f", action="store_false",
-                    dest="search_files", help="Disable file searching [default: %default]", default=conf.search_files)
+                    dest="search_files", help="Disable file searching [default: %default]", default=True)
     parser.add_option("-m", metavar="MAXTIMEOUT", dest="max_timeout",
                     help="Max number of timeouts for a given request [default: %default]", default=conf.max_timeout_count)
     parser.add_option("-p", metavar="TOR", dest="use_tor",
@@ -214,7 +214,7 @@ if __name__ == "__main__":
     
     if conf.debug:
         utils.output_debug('Version: ' + str(conf.version))
-        utils.output_debug('Use GET instead of HEAD: ' + str(conf.use_get))
+        utils.output_debug('Use GET instead of HEAD: ' + str(conf.use_head))
         utils.output_debug('Fetch timeout: ' + str(conf.fetch_timeout_secs))
         utils.output_debug('Max timeouts per url: ' + str(conf.max_timeout_count))
         utils.output_debug('Worker threads: ' + str(conf.thread_count))

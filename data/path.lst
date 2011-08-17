@@ -71,33 +71,3 @@
 {"url" : "/WEB-INF", "description" : "web-inf directory", "expected_response" : [200, 302, 401]}
 {"url" : "/wp-admin", "description" : "Wordpress admin section", "expected_response" : [200, 302, 401]}
 {"url" : "/xml", "description" : "", "expected_response" : [200, 302, 401]}
-
-
-# Testing the alphabet
-{"url" : "/a", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/b", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/c", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/d", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/e", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/f", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/g", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/h", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/i", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/j", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/k", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/l", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/m", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/n", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/o", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/p", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/q", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/r", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/s", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/t", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/u", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/v", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/w", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/x", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/y", "description" : "", "expected_response" : [200, 302, 401]}
-{"url" : "/z", "description" : "", "expected_response" : [200, 302, 401]}
-
