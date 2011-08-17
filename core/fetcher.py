@@ -19,34 +19,31 @@
 from urllib2 import URLError, HTTPError, urlopen, Request
 
 class Fetcher(object):
-    def fetch_url(self, url, method, user_agent, fetch_content, timeout):
+    def fetch_url(self, url, user_agent, timeout):
         try:
             request = Request(url)
             request.addheaders = [('User-agent', user_agent)]
-            request.get_method = lambda : method
             response = urlopen(request, timeout=timeout)
             content = ''
 
-            if fetch_content:
-                while True:
-                    tmp = response.read(1024)
-                    if tmp == '':
-                        break
-                    else:
-                        content = content + tmp
-            else:
-                content = None
+            # Fetch content
+            while True:
+                tmp = response.read(1024)
+                if tmp == '':
+                    break
+                else:
+                    content = content + tmp
 
             code = response.code
             headers = dict(response.headers)
             response.close()
         except HTTPError as httpe:
             code = httpe.code
-            content = None
+            content = ''
             headers = dict(httpe.headers)
         except URLError:
             code = 0
-            content = None
+            content = ''
             headers = dict()
 
         return code, content, headers

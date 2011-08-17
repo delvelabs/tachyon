@@ -16,7 +16,15 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+# Internal config and consts
 version = '0.2'
+expected_path_responses = [200, 302, 401]
+expected_file_responses = [200, 302]
+
+# Templates, used by plugins
+path_template = {'url': '', 'expected_response': [200, 302, 401], 'timeout_count': 0, 'description': ''}
+
+# User config
 debug = False
 use_head = False
 search_files = True
@@ -25,10 +33,5 @@ max_timeout_count = 5
 thread_count = 25
 target_host = ''
 use_tor = False
-content_type_blacklist = True
 user_agent = 'Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US)' # maximum compatibility
 
-
-# Templates, used by plugins
-path_template = {'url': '', 'expected_response': [200, 302, 401], 'timeout_count': 0, 'description': ''}
-  

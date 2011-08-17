@@ -15,83 +15,83 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
-{"url" : "/access.txt", "description" : "access log", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/access_log", "description" : "access log", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/access.log", "description" : "access log", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/admin.xls", "description" : "Admin xls file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/administrators.pwd", "description" : "Password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/authors.pwd", "description" : "Password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/backup.csv", "description" : "database backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/backup.zip", "description" : "Site backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html", "text/plain"]}
-{"url" : "/backup.tar.gz", "description" : "Site backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html", "text/plain"]}
-{"url" : "/backup.tar.bz2", "description" : "Site backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html", "text/plain"]}
-{"url" : "/backup.sql", "description" : "database backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/cachemgr.cgi", "description" : "Squid proxy admin interface", "expected_response" : [200, 302], "blacklist_content_types" : []}
-{"url" : "/ccbill.log", "description" : "CCBill.com logs", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/config.ini", "description" : "Config file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/data.csv", "description" : "database backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/data.sql", "description" : "database backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/deploy.zip", "description" : "Site backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html", "text/plain"]}
-{"url" : "/deploy.tar.gz", "description" : "Site backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html", "text/plain"]}
-{"url" : "/deploy.tar.bz2", "description" : "Site backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html", "text/plain"]}
-{"url" : "/error_log", "description" : "error log", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/error.log", "description" : "error log", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/errors.log", "description" : "errors log", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/errors.txt", "description" : "access log", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/export.csv", "description" : "database backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/export.sql", "description" : "database backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/.htaccess", "description" : "htacces file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/.htpasswd", "description" : "htpasswd file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/id_rsa", "description" : "rsa private key", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/import.sql", "description" : "database backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/index.php.old", "description" : "index.php backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/index.php.bak", "description" : "index.php backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/index.php~", "description" : "index.php backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/infos.txt", "description" : "info file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/login.log", "description" : "login log", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/login.txt", "description" : "access log", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/main.mdb", "description" : "ASP-Nuke db", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/my.cnf", "description" : "Mysql config file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/my.cnf.old", "description" : "Mysql config file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/my.cnf.bak", "description" : "Mysql config file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/pass.txt", "description" : "Password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/password", "description" : "password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/passwords", "description" : "password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/password.txt", "description" : "password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/passwords.txt", "description" : "password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/password.dat", "description" : "Password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/password.log", "description" : "Password log file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/password.bak", "description" : "Password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/passwd.bak", "description" : "Password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/php.ini", "description" : "php config", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/proftpd.conf", "description" : "ProFTPD config", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/proftpd.old", "description" : "ProFTPD config", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/proftpd.bak", "description" : "ProFTPD config", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/proftpd.conf~", "description" : "ProFTPD config", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/putty.log", "description" : "PuTTY logs", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/putty.reg", "description" : "PuTTY logs", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/service.pwd", "description" : "Password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/settings.ini", "description" : "settings file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/settings", "description" : "settings file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/site.csv", "description" : "database backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/site.zip", "description" : "Site backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html", "text/plain"] }
-{"url" : "/site.tar.gz", "description" : "Site backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html", "text/plain"]}
-{"url" : "/site.tar.bz2", "description" : "Site backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html", "text/plain"]}
-{"url" : "/site.sql", "description" : "database backup", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/users.pwd", "description" : "Password file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/WS_FTP.LOG", "description" : "WS_FTP client logs", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/ws_ftp.ini", "description" : "WS_FTP client config", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
+{"url" : "/access.txt", "description" : "access log"}
+{"url" : "/access_log", "description" : "access log"}
+{"url" : "/access.log", "description" : "access log"}
+{"url" : "/admin.xls", "description" : "Admin xls file"}
+{"url" : "/administrators.pwd", "description" : "Password file"}
+{"url" : "/authors.pwd", "description" : "Password file"}
+{"url" : "/backup.csv", "description" : "database backup"}
+{"url" : "/backup.zip", "description" : "Site backup",}
+{"url" : "/backup.tar.gz", "description" : "Site backup",}
+{"url" : "/backup.tar.bz2", "description" : "Site backup",}
+{"url" : "/backup.sql", "description" : "database backup"}
+{"url" : "/cachemgr.cgi", "description" : "Squid proxy admin interface"}
+{"url" : "/ccbill.log", "description" : "CCBill.com logs"}
+{"url" : "/config.ini", "description" : "Config file"}
+{"url" : "/data.csv", "description" : "database backup"}
+{"url" : "/data.sql", "description" : "database backup"}
+{"url" : "/deploy.zip", "description" : "Site backup",}
+{"url" : "/deploy.tar.gz", "description" : "Site backup",}
+{"url" : "/deploy.tar.bz2", "description" : "Site backup",}
+{"url" : "/error_log", "description" : "error log"}
+{"url" : "/error.log", "description" : "error log"}
+{"url" : "/errors.log", "description" : "errors log"}
+{"url" : "/errors.txt", "description" : "access log"}
+{"url" : "/export.csv", "description" : "database backup"}
+{"url" : "/export.sql", "description" : "database backup"}
+{"url" : "/.htaccess", "description" : "htacces file"}
+{"url" : "/.htpasswd", "description" : "htpasswd file"}
+{"url" : "/id_rsa", "description" : "rsa private key"}
+{"url" : "/import.sql", "description" : "database backup"}
+{"url" : "/index.php.old", "description" : "index.php backup"}
+{"url" : "/index.php.bak", "description" : "index.php backup"}
+{"url" : "/index.php~", "description" : "index.php backup"}
+{"url" : "/infos.txt", "description" : "info file"}
+{"url" : "/login.log", "description" : "login log"}
+{"url" : "/login.txt", "description" : "access log"}
+{"url" : "/main.mdb", "description" : "ASP-Nuke db"}
+{"url" : "/my.cnf", "description" : "Mysql config file"}
+{"url" : "/my.cnf.old", "description" : "Mysql config file"}
+{"url" : "/my.cnf.bak", "description" : "Mysql config file"}
+{"url" : "/pass.txt", "description" : "Password file"}
+{"url" : "/password", "description" : "password file"}
+{"url" : "/passwords", "description" : "password file"}
+{"url" : "/password.txt", "description" : "password file"}
+{"url" : "/passwords.txt", "description" : "password file"}
+{"url" : "/password.dat", "description" : "Password file"}
+{"url" : "/password.log", "description" : "Password log file"}
+{"url" : "/password.bak", "description" : "Password file"}
+{"url" : "/passwd.bak", "description" : "Password file"}
+{"url" : "/php.ini", "description" : "php config"}
+{"url" : "/proftpd.conf", "description" : "ProFTPD config"}
+{"url" : "/proftpd.old", "description" : "ProFTPD config"}
+{"url" : "/proftpd.bak", "description" : "ProFTPD config"}
+{"url" : "/proftpd.conf~", "description" : "ProFTPD config"}
+{"url" : "/putty.log", "description" : "PuTTY logs"}
+{"url" : "/putty.reg", "description" : "PuTTY logs"}
+{"url" : "/service.pwd", "description" : "Password file"}
+{"url" : "/settings.ini", "description" : "settings file"}
+{"url" : "/settings", "description" : "settings file"}
+{"url" : "/site.csv", "description" : "database backup"}
+{"url" : "/site.zip", "description" : "Site backup"}
+{"url" : "/site.tar.gz", "description" : "Site backup"}
+{"url" : "/site.tar.bz2", "description" : "Site backup"}
+{"url" : "/site.sql", "description" : "database backup"}
+{"url" : "/users.pwd", "description" : "Password file"}
+{"url" : "/WS_FTP.LOG", "description" : "WS_FTP client logs"}
+{"url" : "/ws_ftp.ini", "description" : "WS_FTP client config"}
 
 # PHP common developer files
-{"url" : "/info.php", "description" : "Common phpinfo() wrapper script", "expected_response" : [200, 302], "blacklist_content_types" : []}
-{"url" : "/infos.php", "description" : "Common phpinfo() wrapper script", "expected_response" : [200, 302], "blacklist_content_types" : []}
-{"url" : "/phpinfo.php", "description" : "Common phpinfo() wrapper script", "expected_response" : [200, 302], "blacklist_content_types" : []}
-{"url" : "/phpinfos.php", "description" : "Common phpinfo() wrapper script", "expected_response" : [200, 302], "blacklist_content_types" : []}
+{"url" : "/info.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42"}
+{"url" : "/infos.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42"}
+{"url" : "/phpinfo.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42"}
+{"url" : "/phpinfos.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42"}
 
 # Home shell temporary files
-{"url" : "/.bash_history", "description" : "Bash history", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/.bashrc", "description" : "Bash default config file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/.config", "description" : "Generic config", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/.mysql_history", "description" : "mysql history", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/.profile", "description" : "Common default shell config file", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
-{"url" : "/.sh_history", "description" : "sh history", "expected_response" : [200, 302], "blacklist_content_types" : ["text/html"]}
+{"url" : "/.bash_history", "description" : "Bash history"}
+{"url" : "/.bashrc", "description" : "Bash default config file"}
+{"url" : "/.config", "description" : "Generic config"}
+{"url" : "/.mysql_history", "description" : "mysql history"}
+{"url" : "/.profile", "description" : "Common default shell config file"}
+{"url" : "/.sh_history", "description" : "sh history"}
