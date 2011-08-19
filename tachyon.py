@@ -27,13 +27,18 @@ from plugins import host, path
 from urlparse import urljoin
 
 def load_target_paths():
-    # Load target path database
+    """ Load the target paths in the database """
     utils.output_info('Loading target paths')
-    database.paths += loaders.load_targets('data/path.lst')    
+    database.paths += loaders.load_targets('data/path.lst')   
+    
+def load_target_files():
+    """ Load the target files in the database """
+    utils.output_info('Loading target files')
+    database.files += loaders.load_targets('data/file.lst')
     
     
 def benchmark_root_404():
-    # Get the root 404 CRC, this has to be done as soon as possible since plugins could use this information.
+    """ Get the root 404 CRC, this has to be done as soon as possible since plugins could use this information. """
     utils.output_info('Benchmarking root 404')
     path = dict(conf.path_template)
     path['url'] = '/'
@@ -43,8 +48,10 @@ def benchmark_root_404():
   
     
 def test_paths_existence():
-    # Test for path existence using http codes and computed 404
-    # Spawn workers and turn off output for now, it would be irrelevant at this point.
+    """ 
+    Test for path existence using http codes and computed 404
+    Spawn workers and turn off output for now, it would be irrelevant at this point. 
+    """
     workers = spawn_workers(conf.thread_count, TestUrlExistsWorker, display_output=False)
 
     # Fill work queue with fetch list
@@ -56,16 +63,21 @@ def test_paths_existence():
     # Wait for initial valid path lookup
     wait_for_idle(workers, database.fetch_queue)
     clean_workers(workers)
+    
+    # For each valid path, compute the 404 CRC
+    
+   
     utils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
 
 
 def load_execute_host_plugins():
-    # Import and run host plugins
+    """ Import and run host plugins """
     utils.output_info('Executing ' + str(len(host.__all__)) + ' host plugins')
     for plugin_name in host.__all__:
         plugin = __import__ ("plugins.host." + plugin_name, fromlist=[plugin_name])
         if hasattr(plugin , 'execute'):
              plugin.execute()
+
 
 
 def main():
@@ -76,8 +88,9 @@ def main():
     # 0. Pre-test and CRC /uuid to figure out what is a classic 404 and set value in database
     benchmark_root_404()
     
-    # Load the target paths
+    # Load the target paths and files
     load_target_paths()
+    load_target_files()
 
     # Execute all Host plugins
     load_execute_host_plugins()
@@ -87,6 +100,11 @@ def main():
     
     # Compute the 404 CRC for existing paths
     
+    # Generate filenames
+    
+    # Combine generated filenames with urls
+    
+    # Poke
     
     
     database.output_queue.join()
