@@ -15,25 +15,31 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
-
+import urllib2
 from urllib2 import URLError, HTTPError, urlopen, Request
 
+
 class Fetcher(object):
+    def read_content(self, response):
+        """ Reads the content from the response and build a string with it """
+        content = ''
+        while True:
+            tmp = response.read(1024)
+            if tmp == '':
+                break
+            else:
+                content = content + tmp
+                
+        return content    
+        
+        
     def fetch_url(self, url, user_agent, timeout):
+        """ Fetch a given url, with a given user_agent and timeout"""
         try:
             request = Request(url)
             request.addheaders = [('User-agent', user_agent)]
             response = urlopen(request, timeout=timeout)
-            content = ''
-
-            # Fetch content
-            while True:
-                tmp = response.read(1024)
-                if tmp == '':
-                    break
-                else:
-                    content = content + tmp
-
+            content = self.read_content(response)
             code = response.code
             headers = dict(response.headers)
             response.close()

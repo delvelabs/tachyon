@@ -32,3 +32,6 @@ fetch_queue = Queue.Queue(maxsize=0)
 
 """ output contains the scan results """
 output_queue = Queue.Queue(maxsize=0)
+
+""" Contains the initial 404 hash value for the domain root """
+root_404_crc = ''

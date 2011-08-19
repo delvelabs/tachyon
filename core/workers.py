@@ -23,8 +23,8 @@ from urlparse import urljoin
 from threading import Thread
 from binascii import crc32
 
-def handle_queue_timeout(queued, url, thread_id):
-    """ Handle queue timeout operation for workers"""
+def handle_timeout(queued, url, thread_id):
+    """ Handle timeout operation for workers"""
     if not queued['timeout_count']:
         queued['timeout_count'] = 0
 
@@ -41,6 +41,13 @@ def handle_queue_timeout(queued, url, thread_id):
         # We definitely timed out
         utils.output_timeout(url)
 
+def compute_limited_crc(content, length):
+    """ Compute the CRC of len bytes, use everything is len(content) is smaller than asked """
+    if len(content) < length:
+        return crc32(content[0:len(content) - 1]) 
+    else:            
+        return crc32(content[0:length - 1])
+
 
 class Compute404CRCWorker(Thread):
     """
@@ -48,11 +55,12 @@ class Compute404CRCWorker(Thread):
     of this error page is then sticked to the path to use it to validate all subsequent request to files under
     that same path.
     """
-    def __init__(self, thread_id):
+    def __init__(self, thread_id, display_output=True):
         Thread.__init__(self)
         self.kill_received = False
         self.thread_id = thread_id
         self.fetcher = Fetcher()
+        self.display_output = display_output
 
     def run(self):
         while not self.kill_received:
@@ -60,45 +68,53 @@ class Compute404CRCWorker(Thread):
             if not database.fetch_queue.empty():
                 queued = database.fetch_queue.get()
                 random_file = str(uuid.uuid4())
-                url = urljoin(conf.target_host, queued.get('url') + '/' + random_file)
+                base_url = queued.get('url') 
+                
+                if base_url == '/':
+                    url = urljoin(conf.target_host, base_url + random_file)
+                else :
+                    url = urljoin(conf.target_host, base_url + '/' + random_file)
+
+                if conf.debug:
+                    utils.output_debug(str(url))
 
                 # Fetch the target url
                 response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)
 
                 # Handle fetch timeouts by re-adding the url back to the global fetch queue
                 # if timeout count is under max timeout count
-                if response_code is 0:
-                    handle_queue_timeout(queued, url, self.thread_id)
-
-                # Compute the CRC32 of this url. This is used mainly to validate a fetch against a model 404
-                # All subsequent files that will be joined to those path will use the path crc value since
-                # I think a given 404 will mostly be bound to a directory, and not to a specific file.
-                # This step is only made in initial discovery mode. (Should be moved to a separate worker)
-                if len(content) < conf.crc_sample_len:
-                    queued['computed_404_crc'] = crc32(content[0:len(content) - 1]) 
-                else:            
-                    queued['computed_404_crc'] = crc32(content[0:conf.crc_sample_len - 1])
-
-
-                # The path is then added back to a validated list
-                database.valid_paths.append(queued)
-
-                if conf.debug:
-                    utils.output_debug("Computed Checksum for: " + str(queued))
-
-                # We are done
-                database.fetch_queue.task_done()
-
-
+                if response_code is 0 or response_code is 500:
+                    handle_timeout(queued, url, self.thread_id)
+                else:
+                    # Compute the CRC32 of this url. This is used mainly to validate a fetch against a model 404
+                    # All subsequent files that will be joined to those path will use the path crc value since
+                    # I think a given 404 will mostly be bound to a directory, and not to a specific file.
+                    # This step is only made in initial discovery mode. (Should be moved to a separate worker)
+                    queued['computed_404_crc'] = compute_limited_crc(content, conf.crc_sample_len)
+    
+                    # Exception case for root 404, since it's used as a model for other directories
+                    if queued.get('url') == '/':
+                        database.root_404_crc = queued['computed_404_crc']
+                         
+                    # The path is then added back to a validated list
+                    database.valid_paths.append(queued)
+    
+                    if conf.debug:
+                        utils.output_debug("Computed Checksum for: " + str(queued))
+    
+                    # We are done
+                    database.fetch_queue.task_done()    
 
 
-class FetchUrlWorker(Thread):
+
+class TestUrlExistsWorker(Thread):
     """ This worker get an url from the work queue and call the url fetcher """
-    def __init__(self, thread_id, discovery):
+    def __init__(self, thread_id, display_output=True):
         Thread.__init__(self)
         self.kill_received = False
         self.thread_id = thread_id
         self.fetcher = Fetcher()
+        self.display_output = display_output
 
     def run(self):
         while not self.kill_received:
@@ -106,7 +122,6 @@ class FetchUrlWorker(Thread):
             if not database.fetch_queue.empty():
                 queued = database.fetch_queue.get()
                 url = urljoin(conf.target_host, queued.get('url'))
-                expected_responses = queued.get('expected_response')
                 description = queued.get('description')
                 match_string = queued.get('match_string')
                 computed_404_crc = queued.get('computed_404_crc')
@@ -118,47 +133,27 @@ class FetchUrlWorker(Thread):
                 # Fetch the target url
                 response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)
 
-                if response_code is 0:
-                    handle_queue_timeout(queued, url, self.thread_id)
-
-
-                # Response is good, test if the crc match a 404
-                if response_code in expected_responses:
-                    if computed_404_crc:
-                        actual_crc = crc32(content)
-
-                        # if the CRC differ, we have a legitimate hit.
-                        if actual_crc != computed_404_crc:
-
-                            pass
-
-
-
-                    # Fuse with current url. (/test become url.dom/test)
-                    queued['url'] = urljoin(conf.target_host, queued['url'])
-
-                    # If we don't blacklist, just show the result
-                    if not conf.content_type_blacklist:
-                        if self.discovery:
+                # handle timeout
+                if response_code is 0 or response_code is 500:
+                    handle_timeout(queued, url, self.thread_id)
+                else:
+                    # Test classic html response code
+                    if response_code in conf.expected_path_responses:
+                        # At this point each directory should have had his 404 crc computed (tachyon main loop)
+                        crc = compute_limited_crc(content, conf.crc_sample_len)
+                        
+                        # If the CRC missmatch, and we have an expected code, we found a valid link
+                        if crc != computed_404_crc:
                             if response_code == 401:
-                                utils.output_found('*Password Protected* ' + description + ' at: ' + url)
+                                # Output result, but don't keep the url since we can't poke in protected folder
+                                if self.display_output or conf.debug:
+                                    utils.output_found('*Password Protected* ' + description + ' at: ' + url)
                             else:
-                                utils.output_found(description + ' at: ' + url)
-
-                        # Add to valid path
-                        database.valid_paths.append(queued)
-
-                    # if we DO blacklist but content is not blacklisted, show the result
-                    elif content_type not in content_type_blacklist:
-                        if self.discovery:
-                            if response_code == 401:
-                                utils.output_found('*Password Protected* ' + description + ' at: ' + url)
-                            else:
-                                utils.output_found(description + ' at: ' + url)
-
-                        # Add to valid path
-                        database.valid_paths.append(queued)
-
+                                # Add path to valid_path for future actions
+                                database.valid_paths.append(queued)
+                                if self.display_output or conf.debug:
+                                    utils.output_found(description + ' at: ' + url)
+                                                      
                 # Mark item as processed
                 database.fetch_queue.task_done()
 

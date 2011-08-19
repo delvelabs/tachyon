@@ -1,0 +1,10 @@
+- Finish the worker rewrite
+- Finish the hashing
+- Implement the hostprocessor
+- Clean up files and use the suffixes instead of flat name + exclusion (if there's already a .?)
+- Add callbacks method to plugins
+- raw pipe and filter mode (only output found items with no prefix or suffix)
+
+The simple crawler option (not likely to happen)
+- vhost discovery
+- php include error parser

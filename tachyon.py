@@ -20,42 +20,32 @@
 
 import sys
 from core import conf, database, loaders, utils
-from core.workers import PrintWorker
-from core.threading import wait_for_idle, spawn_workers
+from core.workers import PrintWorker, Compute404CRCWorker, TestUrlExistsWorker
+from core.threads import wait_for_idle, spawn_workers, clean_workers
 from optparse import OptionParser
 from plugins import host, path
 from urlparse import urljoin
 
-
-def main():
-    """ Main app logic """
-    # Ensure the host is of the right format
-    utils.sanitize_config()
-
-
-    # 0. Pre-test and CRC /uuid to figure out what is a classic 404
-    # 1. Pre-test urls to make sure we don't get path with classic errors such as 404, 301 and 307
-    # 2. if we get 200 OK, calculate the crc of a failed attempt to this file
-    # 3. When testing the PATH, don't consider the 404 crc
-    # 4. When testing a FILE, check the crc.
-
-
-    # Load target paths
+def load_target_paths():
+    # Load target path database
     utils.output_info('Loading target paths')
-    database.paths = loaders.load_targets('data/path.lst')
-
-    # Import and run host plugins
-    utils.output_info('Executing ' + str(len(host.__all__)) + ' host plugins')
-    for plugin_name in host.__all__:
-        plugin = __import__ ("plugins.host." + plugin_name, fromlist=[plugin_name])
-        if hasattr(plugin , 'execute'):
-             plugin.execute()
+    database.paths += loaders.load_targets('data/path.lst')    
     
-    # Spawn workers
-    if conf.search_files or conf.debug:
-        workers = spawn_workers(conf.thread_count, output=False)
-    else:
-        workers = spawn_workers(conf.thread_count)
+    
+def benchmark_root_404():
+    # Get the root 404 CRC, this has to be done as soon as possible since plugins could use this information.
+    utils.output_info('Benchmarking root 404')
+    path = dict(conf.path_template)
+    path['url'] = '/'
+    workers = spawn_workers(1, Compute404CRCWorker)
+    database.fetch_queue.put(path)
+    wait_for_idle(workers, database.fetch_queue)
+  
+    
+def test_paths_existence():
+    # Test for path existence using http codes and computed 404
+    # Spawn workers and turn off output for now, it would be irrelevant at this point.
+    workers = spawn_workers(conf.thread_count, TestUrlExistsWorker, display_output=False)
 
     # Fill work queue with fetch list
     utils.output_info('Probing ' + str(len(database.paths)) + ' paths')
@@ -65,7 +55,42 @@ def main():
 
     # Wait for initial valid path lookup
     wait_for_idle(workers, database.fetch_queue)
+    clean_workers(workers)
     utils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
+
+
+def load_execute_host_plugins():
+    # Import and run host plugins
+    utils.output_info('Executing ' + str(len(host.__all__)) + ' host plugins')
+    for plugin_name in host.__all__:
+        plugin = __import__ ("plugins.host." + plugin_name, fromlist=[plugin_name])
+        if hasattr(plugin , 'execute'):
+             plugin.execute()
+
+
+def main():
+    """ Main app logic """
+    # Ensure the host is of the right format
+    utils.sanitize_config()
+
+    # 0. Pre-test and CRC /uuid to figure out what is a classic 404 and set value in database
+    benchmark_root_404()
+    
+    # Load the target paths
+    load_target_paths()
+
+    # Execute all Host plugins
+    load_execute_host_plugins()
+    
+    # Test the existence of all input path (loaded + plugins)
+    test_paths_existence()
+    
+    # Compute the 404 CRC for existing paths
+    
+    
+    
+    database.output_queue.join()
+    sys.exit()
 
     if conf.debug:
         for item in database.valid_paths:

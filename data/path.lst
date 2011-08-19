@@ -21,12 +21,16 @@
 {"url" : "/admin", "description" : "Admin section"}
 {"url" : "/administration", "description" : "Admin section"}
 {"url" : "/administrator", "description" : "Admin section"}
+{"url" : "/ajax", "description" : "Ajax section"}
+{"url" : "/applet", "description" : "Applet directory"}
 {"url" : "/backup", "description" : "Backup directory"}
 {"url" : "/cfg", "description" : "Config directory"}
 {"url" : "/conf", "description" : "Config directory"}
+{"url" : "/css", "description" : "CSS directory"}
 {"url" : "/config", "description" : "Config directory"}
 {"url" : "/configuration", "description" : "Config directory"}
 {"url" : "/content", "description" : "Static content directory"}
+{"url" : "/classes", "description" : "code classes directory"}
 {"url" : "/cgi-bin", "description" : "Cgi-bin directory"}
 {"url" : "/data", "description" : "Static data directory"}
 {"url" : "/database", "description" : "Database directory"}

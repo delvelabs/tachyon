@@ -15,31 +15,18 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from core import conf
 
-# Internal config and consts
-version = '0.2'
-expected_path_responses = [200, 302, 401]
-crc_sample_len = 2048
-
-# Templates, used by plugins
-path_template = {'url': '', 'expected_response': [200, 302, 401], 'timeout_count': 0, 'description': ''}
-
-# Values used to generate file list
-file_suffixes = ['.sql', '.bak', '.old', '_old', '.dmp', '.dump', '.zip', 
-                '.tar.gz', '.tar.bz2', '.tar', '_bak', '~', '.swp', '.conf', '.ini', 
-                '.txt', '.php.old', '.log', '.pwd', '.sql.old', '0','1','2', '.new',
-                '.xml']
-                
-            
-
-# User config
-debug = False
-use_head = False
-search_files = True
-fetch_timeout_secs = 3
-max_timeout_count = 5
-thread_count = 25
-target_host = ''
-use_tor = False
-user_agent = 'Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US)' # maximum compatibility
-
+def execute():
+    """ This plugin process the hostname to generate host and filenames relatives to it """
+    target = conf.target_host
+    
+    # Remove char to figure out the human-likely expressed domain name
+    # www.test.ca = testca, test
+    # host.host.host.com = hosthosthost.com. host.com hostcom, host
+    
+        
+    
+    # We don't test for directory like domain.dom/domain since "cp * ./sitename" is unlikely to happen (questionable)    
+        
+    

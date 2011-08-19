@@ -29,8 +29,14 @@
 {"url" : "/cachemgr.cgi", "description" : "Squid proxy admin interface"}
 {"url" : "/ccbill.log", "description" : "CCBill.com logs"}
 {"url" : "/config.ini", "description" : "Config file"}
+{"url" : "/config.php.old", "description" : "Config file"}
+{"url" : "/config.php.bak", "description" : "Config file"}
+{"url" : "/config.php2", "description" : "Config file"}
+{"url" : "/config.php~", "description" : "Config file"}
+{"url" : "/config.swp", "description" : "Config file"}
 {"url" : "/data.csv", "description" : "database backup"}
 {"url" : "/data.sql", "description" : "database backup"}
+{"url" : "/db.php~", "description" : "database backup"}
 {"url" : "/deploy.zip", "description" : "Site backup",}
 {"url" : "/deploy.tar.gz", "description" : "Site backup",}
 {"url" : "/deploy.tar.bz2", "description" : "Site backup",}
@@ -47,6 +53,7 @@
 {"url" : "/index.php.old", "description" : "index.php backup"}
 {"url" : "/index.php.bak", "description" : "index.php backup"}
 {"url" : "/index.php~", "description" : "index.php backup"}
+{"url" : "/install.txt", "description" : "index.php backup"}
 {"url" : "/infos.txt", "description" : "info file"}
 {"url" : "/login.log", "description" : "login log"}
 {"url" : "/login.txt", "description" : "access log"}
@@ -54,6 +61,7 @@
 {"url" : "/my.cnf", "description" : "Mysql config file"}
 {"url" : "/my.cnf.old", "description" : "Mysql config file"}
 {"url" : "/my.cnf.bak", "description" : "Mysql config file"}
+{"url" : "/notes.txt", "description" : "index.php backup"}
 {"url" : "/pass.txt", "description" : "Password file"}
 {"url" : "/password", "description" : "password file"}
 {"url" : "/passwords", "description" : "password file"}
@@ -78,6 +86,10 @@
 {"url" : "/site.tar.gz", "description" : "Site backup"}
 {"url" : "/site.tar.bz2", "description" : "Site backup"}
 {"url" : "/site.sql", "description" : "database backup"}
+{"url" : "/test.php~", "description" : "database backup"}
+{"url" : "/test_db.php~", "description" : "database backup"}
+{"url" : "/transactions.log", "description" : "transactions log"}
+{"url" : "/transaction.log", "description" : "transactions log"}
 {"url" : "/users.pwd", "description" : "Password file"}
 {"url" : "/WS_FTP.LOG", "description" : "WS_FTP client logs"}
 {"url" : "/ws_ftp.ini", "description" : "WS_FTP client config"}

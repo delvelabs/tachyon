@@ -28,12 +28,9 @@ def execute():
 
     target_url = urljoin(conf.target_host, "/robots.txt")
     fetcher = Fetcher()
-    response_code, content, headers = fetcher.fetch_url(target_url, 'GET', conf.user_agent, True, conf.fetch_timeout_secs)
+    response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs)
 
     if response_code is 200 or response_code is 302 and content:
-        if conf.debug:
-            utils.output_debug(content)
-
         matches = re.findall(r'Disallow:\s*/[a-zA-Z0-9-/\r]+\n', content)
         added = 0
         for match in matches:
