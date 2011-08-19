@@ -24,6 +24,7 @@ def execute():
     # Remove char to figure out the human-likely expressed domain name
     # www.test.ca = testca, test
     # host.host.host.com = hosthosthost.com. host.com hostcom, host
+    # /host.ext
     
         
     
