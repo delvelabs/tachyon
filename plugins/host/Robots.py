@@ -23,17 +23,14 @@ from urlparse import urljoin
 
 def execute():
     """ Fetch /robots.txt and add the disallowed paths as target """
-    current_template = conf.path_template
+    current_template = dict(conf.path_template)
     current_template['description'] = 'Robots.txt entry'
 
     target_url = urljoin(conf.target_host, "/robots.txt")
     fetcher = Fetcher()
-    response_code, content, headers = fetcher.fetch_url(target_url, 'GET', conf.user_agent, True, conf.fetch_timeout_secs)
+    response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs)
 
     if response_code is 200 or response_code is 302 and content:
-        if conf.debug:
-            utils.output_debug(content)
-
         matches = re.findall(r'Disallow:\s*/[a-zA-Z0-9-/\r]+\n', content)
         added = 0
         for match in matches:
@@ -51,25 +48,23 @@ def execute():
                 # Remove trailing /
                 if target_path.endswith('/'):
                     target_path = target_path[:-1]   
-                     
-                path = urljoin(conf.target_host, target_path)
-                
+
                 current_template = dict(current_template)
-                current_template['url'] = path
+                current_template['url'] = target_path
                 
                 if current_template not in database.paths: 
                     database.paths.append(current_template)
 
                 if conf.debug:
-                    utils.output_debug('Added: ' + str(path) + ' from robots.txt')
+                    utils.output_debug(' - Robots Plugin Added: ' + str(target_path) + ' from robots.txt')
                     
                 added += 1
                     
         if added > 0:
-            utils.output_info('Robots Plugin: added ' + str(added) + ' base paths using /robots.txt')
+            utils.output_info(' - Robots Plugin: added ' + str(added) + ' base paths using /robots.txt')
         else :
-            utils.output_info('Robots Plugin: no usable entries in /robots.txt')
+            utils.output_info(' - Robots Plugin: no usable entries in /robots.txt')
                
     else:
-        utils.output_info('Robots Plugin: /robots.txt not found on target site')
+        utils.output_info(' - Robots Plugin: /robots.txt not found on target site')
 

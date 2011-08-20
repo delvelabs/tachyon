@@ -17,4 +17,4 @@
 #
 
 # Add all path plugins here
-__all__ = []
+__all__ = ["SpeedBenchmark"]

@@ -16,7 +16,21 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-version = '0.2'
+# Internal config and consts
+version = '0.3'
+expected_path_responses = [200, 302, 401]
+crc_sample_len = 2048
+
+# Templates, used by plugins
+path_template = {'url': '', 'timeout_count': 0, 'description': ''}
+
+# Values used to generate file list (maybe this sould be configurable)
+file_suffixes = ['.sql', '.bak', '.old', '_old', '-old', '.dmp', '.dump', '.zip',
+                '.tar.gz', '.tar.bz2', '.tar', '_bak', '-bak', '~', '.swp', '.conf', '.ini',
+                '.txt', '.php.old', '.log', '.pwd', '.sql.old', '0', '1', '2', '.new',
+                '.xml', '_log', '-log', '.csv']
+
+# User config
 debug = False
 use_head = False
 search_files = True
