@@ -25,12 +25,10 @@ crc_sample_len = 2048
 path_template = {'url': '', 'expected_response': [200, 302, 401], 'timeout_count': 0, 'description': ''}
 
 # Values used to generate file list (maybe this sould be configurable)
-file_suffixes = ['.sql', '.bak', '.old', '_old', '.dmp', '.dump', '.zip', 
-                '.tar.gz', '.tar.bz2', '.tar', '_bak', '~', '.swp', '.conf', '.ini', 
-                '.txt', '.php.old', '.log', '.pwd', '.sql.old', '0','1','2', '.new',
-                '.xml', '_log', '.csv']
-                
-            
+file_suffixes = ['.sql', '.bak', '.old', '_old', '-old', '.dmp', '.dump', '.zip',
+                '.tar.gz', '.tar.bz2', '.tar', '_bak', '-bak', '~', '.swp', '.conf', '.ini',
+                '.txt', '.php.old', '.log', '.pwd', '.sql.old', '0', '1', '2', '.new',
+                '.xml', '_log', '-log', '.csv']
 
 # User config
 debug = False

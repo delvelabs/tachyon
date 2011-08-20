@@ -29,15 +29,15 @@
 {"url" : "error", "description" : "error log"}
 {"url" : "errors", "description" : "errors log"}
 {"url" : "export", "description" : "database backup"}
-{"url" : ".htaccess", "description" : "htacces file", "no_extension": True}
-{"url" : ".htpasswd", "description" : "htpasswd file", "no_extension": True}
-{"url" : "id_rsa", "description" : "rsa private key", "no_extension": True}
+{"url" : ".htaccess", "description" : "htacces file", "no_suffix": True}
+{"url" : ".htpasswd", "description" : "htpasswd file", "no_suffix": True}
+{"url" : "id_rsa", "description" : "rsa private key", "no_suffix": True}
 {"url" : "import", "description" : "database backup"}
 {"url" : "index", "description" : "index.php backup"}
 {"url" : "install", "description" : "index.php backup"}
 {"url" : "infos", "description" : "info file"}
-{"url" : "login", "description" : "login log"}
-{"url" : "main.mdb", "description" : "ASP-Nuke db", "no_extension": True}
+{"url" : "login", "description" : "login log (login.txt could be Gallery key)"}
+{"url" : "main.mdb", "description" : "ASP-Nuke db", "no_suffix": True}
 {"url" : "notes", "description" : "index.php backup"}
 {"url" : "pass", "description" : "Password file"}
 {"url" : "password", "description" : "password file"}
@@ -46,7 +46,7 @@
 {"url" : "php", "description" : "php config"}
 {"url" : "proftpd", "description" : "ProFTPD config"}
 {"url" : "putty", "description" : "PuTTY logs"}
-{"url" : "putty.reg", "description" : "PuTTY logs", "no_extension": True}
+{"url" : "putty.reg", "description" : "PuTTY logs", "no_suffix": True}
 {"url" : "service", "description" : "Password file"}
 {"url" : "settings", "description" : "settings file"}
 {"url" : "site", "description" : "database backup"}
@@ -55,19 +55,19 @@
 {"url" : "transactions", "description" : "transactions log"}
 {"url" : "transaction", "description" : "transactions log"}
 {"url" : "users", "description" : "Password file"}
-{"url" : "WS_FTP.LOG", "description" : "WS_FTP client logs", "no_extension": True}
+{"url" : "WS_FTP.LOG", "description" : "WS_FTP client logs", "no_suffix": True}
 {"url" : "ws_ftp", "description" : "WS_FTP client config"}
 
 # PHP common developer files
-{"url" : "info.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42", "no_extension": True}
-{"url" : "infos.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42", "no_extension": True}
-{"url" : "phpinfo.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42", "no_extension": True}
-{"url" : "phpinfos.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42", "no_extension": True}
+{"url" : "info.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42", "no_suffix": True}
+{"url" : "infos.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42", "no_suffix": True}
+{"url" : "phpinfo.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42", "no_suffix": True}
+{"url" : "phpinfos.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42", "no_suffix": True}
 
 # Home shell temporary files
-{"url" : ".bash_history", "description" : "Bash history", "no_extension": True}
-{"url" : ".bashrc", "description" : "Bash default config file", "no_extension": True}
-{"url" : ".config", "description" : "Generic config", "no_extension": True}
-{"url" : ".mysql_history", "description" : "mysql history", "no_extension": True}
-{"url" : ".profile", "description" : "Common default shell config file", "no_extension": True}
-{"url" : ".sh_history", "description" : "sh history", "no_extension": True}
+{"url" : ".bash_history", "description" : "Bash history", "no_suffix": True}
+{"url" : ".bashrc", "description" : "Bash default config file", "no_suffix": True}
+{"url" : ".config", "description" : "Generic config", "no_suffix": True}
+{"url" : ".mysql_history", "description" : "mysql history", "no_suffix": True}
+{"url" : ".profile", "description" : "Common default shell config file", "no_suffix": True}
+{"url" : ".sh_history", "description" : "sh history", "no_suffix": True}

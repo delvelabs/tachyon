@@ -24,7 +24,6 @@ from core.workers import PrintWorker, Compute404CRCWorker, TestUrlExistsWorker
 from core.threads import wait_for_idle, spawn_workers, clean_workers
 from optparse import OptionParser
 from plugins import host, path
-from urlparse import urljoin
 
 def load_target_paths():
     """ Load the target paths in the database """
@@ -47,7 +46,7 @@ def benchmark_root_404():
     wait_for_idle(workers, database.fetch_queue)
   
     
-def test_paths_existence():
+def test_paths_exists():
     """ 
     Test for path existence using http codes and computed 404
     Spawn workers and turn off output for now, it would be irrelevant at this point. 
@@ -57,16 +56,12 @@ def test_paths_existence():
     # Fill work queue with fetch list
     utils.output_info('Probing ' + str(len(database.paths)) + ' paths')
     for item in database.paths:
-        item['url'] = urljoin(conf.target_host, item['url'])
         database.fetch_queue.put(item)
 
     # Wait for initial valid path lookup
     wait_for_idle(workers, database.fetch_queue)
     clean_workers(workers)
-    
-    # For each valid path, compute the 404 CRC
-    
-   
+
     utils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
 
 
@@ -78,93 +73,56 @@ def load_execute_host_plugins():
         if hasattr(plugin , 'execute'):
              plugin.execute()
 
+def load_execute_path_plugins():
+    """ Import and run path plugins """
+    utils.output_info('Executing ' + str(len(path.__all__)) + ' file plugins')
+    for plugin_name in path.__all__:
+        plugin = __import__ ("plugins.path." + plugin_name, fromlist=[plugin_name])
+        if hasattr(plugin , 'execute'):
+             plugin.execute()
 
+def add_files_to_paths():
+    """ Combine all path, filenames and suffixes to build the target list """
+    work_list = list()
+    for path in database.valid_paths:
+        for filename in database.files:
+            if filename.get('no_suffix'):
+                new_filename = dict(filename)
+                if path['url'] == '/':
+                    new_filename['url'] = path['url'] + filename['url']
+                else:
+                    new_filename['url'] = path['url'] + '/' + filename['url']
 
-def main():
-    """ Main app logic """
-    # Ensure the host is of the right format
-    utils.sanitize_config()
+                work_list.append(new_filename)
 
-    # 0. Pre-test and CRC /uuid to figure out what is a classic 404 and set value in database
-    benchmark_root_404()
-    
-    # Load the target paths and files
-    load_target_paths()
-    load_target_files()
-
-    # Execute all Host plugins
-    load_execute_host_plugins()
-    
-    # Test the existence of all input path (loaded + plugins)
-    test_paths_existence()
-    
-    # Compute the 404 CRC for existing paths
-    
-    # Generate filenames
-    
-    # Combine generated filenames with urls
-    
-    # Poke
-    
-    
-    database.output_queue.join()
-    sys.exit()
-
-    if conf.debug:
-        for item in database.valid_paths:
-            utils.output_debug(str(item))
-
-    if conf.search_files:
-        # Load target files
-        utils.output_info('Loading target files')
-        database.files = loaders.load_targets('data/file.lst')
-        if conf.debug:
-            for item in database.files:
-                utils.output_debug('Target file added: ' + str(item))
-
-        # Combine files with '/' and all valid paths
-        tmp_list = list()
-        for file in database.files:
-            file_copy = dict(file)
-            file_copy['url'] = urljoin(conf.target_host, file_copy['url'])
-            if conf.debug:
-                utils.output('Adding base target: ' + str(file_copy))
-            tmp_list.append(file_copy)
-
-            for valid_url in database.valid_paths:
-                file_copy = dict(file)
-                file_copy['url'] = valid_url['url'] + file['url']
                 if conf.debug:
-                    utils.output('Adding combined target: ' + str(file_copy))
-                tmp_list.append(file_copy)
+                    utils.output_debug("No Suffix file added: " + str(new_filename))
+            else :
+                for suffix in conf.file_suffixes:
+                    new_filename = dict(filename)
+                    if path['url'] == '/':
+                        new_filename['url'] = path['url'] + filename['url'] + suffix
+                    else:
+                        new_filename['url'] = path['url'] + '/' + filename['url'] + suffix
+                    work_list.append(new_filename)
 
-        # Fill Valid path with generated urls
-        for item in tmp_list:
-            database.valid_paths.append(item)
+                    if conf.debug:
+                        utils.output_debug("File added: " + str(new_filename))
 
-        if conf.debug:
-            for item in database.valid_paths:
-                utils.output_debug('Path to test: ' + str(item))
+    database.valid_paths += work_list
 
-        # Add to valid paths
-        # Import and run file plugins
-        utils.output_info('Executing ' + str(len(path.__all__)) + ' file plugins')
-        for plugin_name in path.__all__:
-            plugin = __import__ ("plugins.path." + plugin_name, fromlist=[plugin_name])
-            if hasattr(plugin , 'execute'):
-                 plugin.execute()
+def test_file_exists():
+    """ Test for file existence using http codes and computed 404 """
+    workers = spawn_workers(conf.thread_count, TestUrlExistsWorker, display_output=True)
 
-        # Spawn workers
-        workers = spawn_workers(conf.thread_count)
+    # Fill work queue with fetch list
+    utils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
+    for item in database.valid_paths:
+        database.fetch_queue.put(item)
 
-        # Fill work queue with fetch list
-        utils.output_info('Probing ' + str(len(database.valid_paths)) + ' items...')
-        for item in database.valid_paths:
-            database.fetch_queue.put(item)
-
-        # Wait for file lookup
-        wait_for_idle(workers, database.fetch_queue)
-
+    # Wait for initial valid path lookup
+    wait_for_idle(workers, database.fetch_queue)
+    clean_workers(workers)
 
 def print_program_header():
     """ Print a _cute_ program header """
@@ -209,7 +167,7 @@ def parse_args(parser, system_args):
     return options, args    
 
 
-# Entry point
+# Entry point / main application logic
 if __name__ == "__main__":
     print_program_header()
     
@@ -243,8 +201,31 @@ if __name__ == "__main__":
 
     # Handle keyboard exit before multi-thread operations
     try:
-        # Launch main loop
-        main()
+        # Ensure the host is of the right format
+        utils.sanitize_config()
+
+        # 0. Pre-test and CRC /uuid to figure out what is a classic 404 and set value in database
+        benchmark_root_404()
+
+        # Load the target paths and files
+        load_target_paths()
+        load_target_files()
+
+        # Execute all Host plugins
+        load_execute_host_plugins()
+
+        # Test the existence of all input path (loaded + plugins)
+        test_paths_exists()
+
+        # Combine generated filenames with urls
+        add_files_to_paths()
+
+        # Execute all path plugins
+        load_execute_path_plugins()
+
+        # Poke
+        test_file_exists()
+
         # Print all remaining messages
         utils.output_info('Done.\n')
         database.output_queue.join()

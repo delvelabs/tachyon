@@ -57,6 +57,7 @@
 {"url" : "/phpmyadmin", "description" : "phpMyAdmin installation"}
 {"url" : "/private", "description" : "Private directory"}
 {"url" : "/protected", "description" : "_Protected_ directory"}
+{"url" : "/random", "description" : "Random stuff directory"}
 {"url" : "/secret", "description" : "_Secret_ directory"}
 {"url" : "/secure", "description" : "_Secure_ directory"}
 {"url" : "/settings", "description" : "Settings directory"}
@@ -72,6 +73,8 @@
 {"url" : "/temp", "description" : "Temp directory"}
 {"url" : "/test", "description" : "Test Directory"}
 {"url" : "/tests", "description" : "Test Directory"}
+{"url" : "/tx", "description" : "Transfer directory"}
+{"url" : "/var", "description" : "Variable directory"}
 {"url" : "/webadmin", "description" : "Admin section"}
 {"url" : "/webadm", "description" : "Admin section"}
 {"url" : "/webedit", "description" : "Admin directory"}

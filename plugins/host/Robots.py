@@ -48,11 +48,9 @@ def execute():
                 # Remove trailing /
                 if target_path.endswith('/'):
                     target_path = target_path[:-1]   
-                     
-                path = urljoin(conf.target_host, target_path)
-                
+
                 current_template = dict(current_template)
-                current_template['url'] = path
+                current_template['url'] = target_path
                 
                 if current_template not in database.paths: 
                     database.paths.append(current_template)

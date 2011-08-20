@@ -16,6 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+import re
 import uuid
 from core import database, conf, utils
 from core.fetcher import Fetcher
@@ -24,7 +25,7 @@ from threading import Thread
 from binascii import crc32
 
 def handle_timeout(queued, url, thread_id):
-    """ Handle timeout operation for workers"""
+    """ Handle timeout operation for workers """
     if not queued['timeout_count']:
         queued['timeout_count'] = 0
 
@@ -69,7 +70,7 @@ class Compute404CRCWorker(Thread):
                 queued = database.fetch_queue.get()
                 random_file = str(uuid.uuid4())
                 base_url = queued.get('url') 
-                
+
                 if base_url == '/':
                     url = urljoin(conf.target_host, base_url + random_file)
                 else :
@@ -124,12 +125,19 @@ class TestUrlExistsWorker(Thread):
                 url = urljoin(conf.target_host, queued.get('url'))
                 description = queued.get('description')
                 match_string = queued.get('match_string')
-                computed_404_crc = queued.get('computed_404_crc')
+                #computed_404_crc = queued.get('computed_404_crc')
+
+                # don't test '/' for existence :)
+                if queued.get('url') == '/':
+                    database.fetch_queue.task_done()
+                    continue
 
                 # Check if a timeout value is present
                 if not queued['timeout_count']:
                     queued['timeout_count'] = 0
 
+                if conf.debug:
+                    utils.output_debug("Testing: " + url)
                 # Fetch the target url
                 response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)
 
@@ -143,16 +151,24 @@ class TestUrlExistsWorker(Thread):
                         crc = compute_limited_crc(content, conf.crc_sample_len)
                         
                         # If the CRC missmatch, and we have an expected code, we found a valid link
-                        if crc != computed_404_crc:
+                        if crc != database.root_404_crc:
                             if response_code == 401:
                                 # Output result, but don't keep the url since we can't poke in protected folder
                                 if self.display_output or conf.debug:
                                     utils.output_found('*Password Protected* ' + description + ' at: ' + url)
                             else:
-                                # Add path to valid_path for future actions
-                                database.valid_paths.append(queued)
-                                if self.display_output or conf.debug:
-                                    utils.output_found(description + ' at: ' + url)
+                                # Content Test if match_string provided
+                                if match_string:
+                                    if re.search(re.escape(match_string), content, re.I):
+                                        # Add path to valid_path for future actions
+                                        database.valid_paths.append(queued)
+                                        if self.display_output or conf.debug:
+                                            utils.output_found("String-Matched " + description + ' at: ' + url)
+                                else:
+                                    # Add path to valid_path for future actions
+                                    database.valid_paths.append(queued)
+                                    if self.display_output or conf.debug:
+                                        utils.output_found(description + ' at: ' + url)
                                                       
                 # Mark item as processed
                 database.fetch_queue.task_done()
