@@ -21,7 +21,7 @@ from datetime import datetime
 
 
 def output_raw(text):
-    """ Output text to the synchronized output queue """
+    """ Output raw text to the synchronized output queue """
     database.output_queue.put(text)
       
 def output(text):
@@ -30,23 +30,32 @@ def output(text):
 
 def output_error(text):
     """ Output text to the synchronized output queue """
-    output('[ERROR] ' + text)
+    if not conf.raw_output:
+        output('[ERROR] ' + text)
     
 def output_info(text):
     """ Output text to the synchronized output queue """
-    output('[INFO] ' + text)
-    
+    if conf.raw_output:
+        output_raw( text)
+    else:
+        output('[INFO] ' + text)
+
 def output_timeout(text):
     """ Output text to the synchronized output queue """
-    output('[TIMEOUT] ' + text)
+    if not conf.raw_output:
+        output('[TIMEOUT] ' + text)
     
 def output_found(text):
     """ Output text to the synchronized output queue """
-    output('[FOUND] ' + text)
+    if conf.raw_output:
+        output_raw( text)
+    else:
+        output('[FOUND] ' + text)
     
 def output_debug(text):
     """ Output text to the synchronized output queue """
-    output('[DEBUG] ' + text)
+    if conf.debug:
+        output('[DEBUG] ' + text)
         
 
 def sanitize_config():

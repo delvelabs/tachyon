@@ -55,8 +55,7 @@ def execute():
                 if current_template not in database.paths: 
                     database.paths.append(current_template)
 
-                if conf.debug:
-                    utils.output_debug(' - Robots Plugin Added: ' + str(target_path) + ' from robots.txt')
+                utils.output_debug(' - Robots Plugin Added: ' + str(target_path) + ' from robots.txt')
                     
                 added += 1
                     

@@ -43,9 +43,8 @@ def execute():
     # Compute the _approximate_ operation time
     estimated_time = total_time * (len(database.valid_paths) / conf.thread_count)
 
-    if conf.debug:
-        utils.output_debug(" - SpeedBenchmark Plugin: " + str(total_time) + " elapsed.")
-        utils.output_debug(" - SpeedBenchmark Plugin: " + str(estimated_time) + " estimated")
+    utils.output_debug(" - SpeedBenchmark Plugin: " + str(total_time) + " elapsed.")
+    utils.output_debug(" - SpeedBenchmark Plugin: " + str(estimated_time) + " estimated")
 
     # Pretty output
     minutes, remainder = divmod(estimated_time.seconds, 3600)

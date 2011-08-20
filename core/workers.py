@@ -33,9 +33,7 @@ def handle_timeout(queued, url, thread_id):
     if queued.get('timeout_count') < conf.max_timeout_count:
         new_timeout_count = queued.get('timeout_count') + 1
         queued['timeout_count'] = new_timeout_count
-
-        if conf.debug:
-            utils.output_info('Thread #' + str(thread_id) + ': re-queuing ' + str(queued))
+        utils.output_debug('Thread #' + str(thread_id) + ': re-queuing ' + str(queued))
 
         # Add back the timed-out item
         database.fetch_queue.put(queued)
@@ -77,8 +75,7 @@ class Compute404CRCWorker(Thread):
                 else :
                     url = urljoin(conf.target_host, base_url + '/' + random_file)
 
-                if conf.debug:
-                    utils.output_debug(str(url))
+                utils.output_debug(str(url))
 
                 # Fetch the target url
                 response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)
@@ -100,9 +97,7 @@ class Compute404CRCWorker(Thread):
                          
                     # The path is then added back to a validated list
                     database.valid_paths.append(queued)
-    
-                    if conf.debug:
-                        utils.output_debug("Computed Checksum for: " + str(queued))
+                    utils.output_debug("Computed Checksum for: " + str(queued))
     
                     # We are done
                     database.fetch_queue.task_done()    
@@ -133,8 +128,7 @@ class TestUrlExistsWorker(Thread):
                     database.fetch_queue.task_done()
                     continue
 
-                if conf.debug:
-                    utils.output_debug("Testing: " + url)
+                utils.output_debug("Testing: " + url)
 
                 # Fetch the target url
                 response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)

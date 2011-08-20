@@ -101,9 +101,7 @@ def add_files_to_paths():
 
                 if new_filename not in work_list:
                     work_list.append(new_filename)
-
-                    if conf.debug:
-                        utils.output_debug("No Suffix file added: " + str(new_filename))
+                    utils.output_debug("No Suffix file added: " + str(new_filename))
 
             else :
                 for suffix in conf.file_suffixes:
@@ -116,9 +114,7 @@ def add_files_to_paths():
 
                     if new_filename not in work_list:
                         work_list.append(new_filename)
-
-                        if conf.debug:
-                            utils.output_debug("File added: " + str(new_filename))
+                        utils.output_debug("File added: " + str(new_filename))
 
     # Since we have already output the found directories, replace the valid path list
     database.valid_paths = work_list
@@ -201,17 +197,16 @@ if __name__ == "__main__":
     print_worker = PrintWorker()
     print_worker.daemon = True
     print_worker.start()
-    
-    if conf.debug:
-        utils.output_debug('Version: ' + str(conf.version))
-        utils.output_debug('Use GET instead of HEAD: ' + str(conf.use_head))
-        utils.output_debug('Fetch timeout: ' + str(conf.fetch_timeout_secs))
-        utils.output_debug('Max timeouts per url: ' + str(conf.max_timeout_count))
-        utils.output_debug('Worker threads: ' + str(conf.thread_count))
-        utils.output_debug('Target Host: ' + str(conf.target_host))
-        utils.output_debug('Using Tor: ' + str(conf.use_tor))
-        utils.output_debug('Content-type Blacklisting: ' + str(conf.content_type_blacklist))
-        utils.output_debug('Using User-Agent: ' + str(conf.user_agent))
+
+    utils.output_debug('Version: ' + str(conf.version))
+    utils.output_debug('Use GET instead of HEAD: ' + str(conf.use_head))
+    utils.output_debug('Fetch timeout: ' + str(conf.fetch_timeout_secs))
+    utils.output_debug('Max timeouts per url: ' + str(conf.max_timeout_count))
+    utils.output_debug('Worker threads: ' + str(conf.thread_count))
+    utils.output_debug('Target Host: ' + str(conf.target_host))
+    utils.output_debug('Using Tor: ' + str(conf.use_tor))
+    utils.output_debug('Content-type Blacklisting: ' + str(conf.content_type_blacklist))
+    utils.output_debug('Using User-Agent: ' + str(conf.user_agent))
      
     utils.output_info('Starting Discovery on ' + conf.target_host)
 

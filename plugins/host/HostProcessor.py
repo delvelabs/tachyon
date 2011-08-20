@@ -33,9 +33,7 @@ def execute():
     new_target['url'] = target
     new_target['description'] = "HostProcessor generated filename"
     database.files.append(new_target)
-
-    if conf.debug:
-        utils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
+    utils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
 
     # www.oksala.org -> oksala.org
     target = target.replace('www.', '')
@@ -43,9 +41,7 @@ def execute():
     new_target['url'] = target
     new_target['description'] = "HostProcessor generated filename"
     database.files.append(new_target)
-
-    if conf.debug:
-        utils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
+    utils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
 
     # oksala.org -> oksala
     dom_pos = target.rfind('.')
@@ -54,9 +50,7 @@ def execute():
     new_target['url'] = nodom_target
     new_target['description'] = "HostProcessor generated filename"
     database.files.append(new_target)
-
-    if conf.debug:
-        utils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
+    utils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
 
     # shortdom (blabla.ok.ok.test.com -> test)
     new_target = dict(conf.path_template)
@@ -72,9 +66,7 @@ def execute():
         new_target['url'] = short_dom
         new_target['description'] = "HostProcessor generated filename"
         database.files.append(new_target)
-
-        if conf.debug:
-            utils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
+        utils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
 
     # flatten subdomains
     target = target.replace('.', '')
@@ -82,9 +74,7 @@ def execute():
     new_target['url'] = target
     new_target['description'] = "HostProcessor generated filename"
     database.files.append(new_target)
-
-    if conf.debug:
-        utils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
+    utils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
 
     utils.output_info(" - HostProcessor Plugin: added 4 new filename")
 
