@@ -24,6 +24,8 @@ from core.fetcher import Fetcher
 from urlparse import urljoin
 from threading import Thread
 from binascii import crc32
+from Queue import Empty
+from time import sleep
 
 def handle_timeout(queued, url, thread_id):
     """ Handle timeout operation for workers """
@@ -55,18 +57,17 @@ class Compute404CRCWorker(Thread):
     of this error page is then sticked to the path to use it to validate all subsequent request to files under
     that same path.
     """
-    def __init__(self, thread_id, display_output=True):
+    def __init__(self, thread_id):
         Thread.__init__(self)
         self.kill_received = False
         self.thread_id = thread_id
         self.fetcher = Fetcher()
-        self.display_output = display_output
 
     def run(self):
         while not self.kill_received:
-            # don't wait for any items if empty
-            if not database.fetch_queue.empty():
-                queued = database.fetch_queue.get()
+            try:
+                # Non-Blocking get since we use the queue as a ringbuffer
+                queued = database.fetch_queue.get(False)
                 random_file = str(uuid.uuid4())
                 base_url = queued.get('url') 
 
@@ -102,25 +103,29 @@ class Compute404CRCWorker(Thread):
                     # The path is then added back to a validated list
                     database.valid_paths.append(queued)
 
-                    # We are done
-                    database.fetch_queue.task_done()    
+                # We are done
+                database.fetch_queue.task_done()
 
+            except Empty:
+                # Queue was empty but thread not killed, it means that more items could be added to the queue.
+                continue
+
+        utils.output_debug("Thread #" + str(self.thread_id) + " killed.")
 
 
 class TestUrlExistsWorker(Thread):
     """ This worker get an url from the work queue and call the url fetcher """
-    def __init__(self, thread_id, display_output=True):
+    def __init__(self, thread_id):
         Thread.__init__(self)
         self.kill_received = False
         self.thread_id = thread_id
         self.fetcher = Fetcher()
-        self.display_output = display_output
 
     def run(self):
-        while not self.kill_received:
-            # don't wait for any items if empty
-            if not database.fetch_queue.empty():
-                queued = database.fetch_queue.get()
+         while not self.kill_received:
+            try:
+                # Non-Blocking get since we use the queue as a ringbuffer
+                queued = database.fetch_queue.get(False)
                 url = urljoin(conf.target_host, queued.get('url'))
                 description = queued.get('description')
                 match_string = queued.get('match_string')
@@ -129,16 +134,19 @@ class TestUrlExistsWorker(Thread):
                 if not computed_directory_404_crc:
                     computed_directory_404_crc = database.root_404_crc
 
-                # don't test '/' for existence :)
-                if queued.get('url') == '/':
-                    database.valid_paths.append(queued)
-                    database.fetch_queue.task_done()
-                    continue
-
-                utils.output_debug("Testing: " + url)
+                utils.output_debug("Testing: " + str(queued))
 
                 # Fetch the target url
                 response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)
+
+                # Fetch '/' but don't submit it to more logging/existence tests
+                if queued.get('url') == '/':
+                    compute_limited_crc(content, conf.crc_sample_len)
+                    if queued not in database.valid_paths:
+                        database.valid_paths.append(queued)
+
+                    database.fetch_queue.task_done()
+                    continue
 
                 # handle timeout
                 if response_code is 0 or response_code is 500:
@@ -153,24 +161,24 @@ class TestUrlExistsWorker(Thread):
                         if crc != database.root_404_crc and crc != computed_directory_404_crc:
                             if response_code == 401:
                                 # Output result, but don't keep the url since we can't poke in protected folder
-                                if self.display_output or conf.debug:
-                                    utils.output_found('*Password Protected* ' + description + ' at: ' + url)
+                                utils.output_found('*Password Protected* ' + description + ' at: ' + url)
                             else:
                                 # Content Test if match_string provided
                                 if match_string:
                                     if re.search(re.escape(match_string), content, re.I):
                                         # Add path to valid_path for future actions
                                         database.valid_paths.append(queued)
-                                        if self.display_output or conf.debug:
-                                            utils.output_found("String-Matched " + description + ' at: ' + url)
+                                        utils.output_found("String-Matched " + description + ' at: ' + url)
                                 else:
                                     # Add path to valid_path for future actions
                                     database.valid_paths.append(queued)
-                                    if self.display_output or conf.debug:
-                                        utils.output_found(description + ' at: ' + url)
+                                    utils.output_found(description + ' at: ' + url)
 
                 # Mark item as processed
                 database.fetch_queue.task_done()
+            except Empty:
+                # Queue was empty but thread not killed, it means that more items could be added to the queue.
+                continue
 
 
 class PrintWorker(Thread):
@@ -185,6 +193,7 @@ class PrintWorker(Thread):
             text = database.messages_output_queue.get()
             print text
             database.messages_output_queue.task_done()
+
 
 class PrintResultsWorker(Thread):
     """ This worker is used to generate a synchronized non-overlapping console output for results """

@@ -15,31 +15,31 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from core import conf, database, threads, utils
+from core import conf, database, utils
 from core.workers import TestUrlExistsWorker
-from datetime import datetime
+from core.threads import spawn_workers, wait_for_idle
+from datetime import datetime, timedelta
 
 def execute():
     utils.output_info(" - SpeedBenchmark Plugin: Starting speed benchmark on " + conf.target_host +
                       " with " + str(conf.thread_count) + " threads.")
 
-    workers = threads.spawn_workers(conf.thread_count, TestUrlExistsWorker, display_output=False)
     # Fetch the root once with each thread to get an averaged timing value
     start_time = datetime.now()
-    for thread_count in range(0, conf.thread_count - 1):
+    workers = spawn_workers(conf.thread_count, TestUrlExistsWorker)
+
+    for thread_count in range(0, conf.thread_count):
         test_url = dict(conf.path_template)
         test_url['url'] = '/'
-        test_url['description'] = 'SpeedBenchmark test point'
+        test_url['description'] = 'SpeedBenchmark test point #' + str(thread_count)
         database.fetch_queue.put(test_url)
 
-    threads.wait_for_idle(workers, database.fetch_queue)
+    wait_for_idle(workers, database.fetch_queue)
     end_time = datetime.now()
-
-    # Compute the average time per request, including timeouts.
-    total_time = end_time - start_time
+    total_time = (end_time - start_time)
 
     # Compute the _approximate_ operation time
-    estimated_time = total_time * (len(database.valid_paths) / conf.thread_count)
+    estimated_time = total_time * len(database.valid_paths)
 
     utils.output_debug(" - SpeedBenchmark Plugin: " + str(total_time) + " elapsed.")
     utils.output_debug(" - SpeedBenchmark Plugin: " + str(estimated_time) + " estimated")

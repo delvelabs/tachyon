@@ -40,10 +40,10 @@ def load_target_files():
 def benchmark_root_404():
     """ Get the root 404 CRC, this has to be done as soon as possible since plugins could use this information. """
     utils.output_info('Benchmarking root 404')
-    workers = spawn_workers(1, Compute404CRCWorker)
     path = dict(conf.path_template)
     path['url'] = '/'
     database.fetch_queue.put(path)
+    workers = spawn_workers(1, Compute404CRCWorker)
     wait_for_idle(workers, database.fetch_queue)
 
 
@@ -52,14 +52,13 @@ def test_paths_exists():
     Test for path existence using http codes and computed 404
     Spawn workers and turn off output for now, it would be irrelevant at this point. 
     """
-    workers = spawn_workers(conf.thread_count, TestUrlExistsWorker)
-
     # Fill work queue with fetch list
     utils.output_info('Probing ' + str(len(database.paths)) + ' paths')
     for path in database.paths:
         database.fetch_queue.put(path)
 
     # Wait for initial valid path lookup
+    workers = spawn_workers(conf.thread_count, TestUrlExistsWorker)
     wait_for_idle(workers, database.fetch_queue)
 
     utils.output_info('Found ' + str(len(database.valid_paths) - 1) + ' valid paths')
@@ -68,14 +67,12 @@ def test_paths_exists():
 
 def compute_existing_path_404_crc():
     """ For all existing path, compute the 404 CRC so we don't get trapped in a tarpit """
-    workers = spawn_workers(conf.thread_count, Compute404CRCWorker)
-
     for path in database.valid_paths:
         database.fetch_queue.put(path)
 
     # Emty valid path database since this code will add every path back with their CRC value added
     database.valid_paths = list()
-
+    workers = spawn_workers(conf.thread_count, Compute404CRCWorker)
     wait_for_idle(workers, database.fetch_queue)
 
     # print valid path
@@ -144,13 +141,12 @@ def add_files_to_paths():
 
 def test_file_exists():
     """ Test for file existence using http codes and computed 404 """
-    workers = spawn_workers(conf.thread_count, TestUrlExistsWorker)
-
     # Fill work queue with fetch list
     for item in database.valid_paths:
         database.fetch_queue.put(item)
 
     # Wait for initial valid path lookup
+    workers = spawn_workers(conf.thread_count, TestUrlExistsWorker)
     wait_for_idle(workers, database.fetch_queue)
 
 
@@ -273,10 +269,8 @@ if __name__ == "__main__":
 
         # Print all remaining messages
         utils.output_info('Done.\n')
-
         database.results_output_queue.join()
         database.messages_output_queue.join()
-
     except KeyboardInterrupt:
         utils.output_message_raw('')
         utils.output_info('Keyboard Interrupt Received')

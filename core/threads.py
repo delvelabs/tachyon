@@ -19,23 +19,19 @@
 #
 
 import sys
-from core import utils
+from core import utils, database
 
 def wait_for_idle(workers, queue):
-    """ Wait until fetch queue is empty and handle user interrupt """
-    done = False
-    
-    while not done:
+        """ Wait until fetch queue is empty and handle user interrupt """
         try:
-            if queue.empty():
-                # Wait for all threads to return their stat
-                queue.join()
-                for worker in workers:
-                    if worker is not None and worker.isAlive():
-                        worker.kill_received = True
+            utils.output_debug("Threads: joining queue of size: " + str(queue.qsize()))
+            queue.join()
+            utils.output_debug("Threads: join done")
 
-                # We are done!
-                done = True
+            for worker in workers:
+                worker.kill_received = True
+                worker.join()
+
         except KeyboardInterrupt:
             utils.output_message_raw('')
             utils.output_info('Keyboard Interrupt Received, cleaning up threads')
@@ -44,22 +40,17 @@ def wait_for_idle(workers, queue):
                 worker.kill_received = True
                 if worker is not None and worker.isAlive():
                     worker.join(1)
-                    
+
             # Kill the soft
             sys.exit()
 
-    # Clean up threads
-    for worker in workers:
-        if worker is not None and worker.isAlive():
-            worker.join(1)
 
-    
-def spawn_workers(count, worker_type, display_output=True):
+def spawn_workers(count, worker_type):
     """ Spawn a given number of workers and return a reference list to them """
     # Keep track of all worker threads
     workers = list()
     for thread_id in range(count):
-        worker = worker_type(thread_id, display_output)
+        worker = worker_type(thread_id)
         worker.daemon = True
         workers.append(worker)
         worker.start()
