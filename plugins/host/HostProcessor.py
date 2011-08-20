@@ -15,19 +15,62 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from core import conf
+from core import conf, database, utils
 
 def execute():
     """ This plugin process the hostname to generate host and filenames relatives to it """
     target = conf.target_host
-    
+
     # Remove char to figure out the human-likely expressed domain name
-    # www.test.ca = testca, test
-    # host.host.host.com = hosthosthost.com. host.com hostcom, host
-    # /host.ext
-    
-        
-    
-    # We don't test for directory like domain.dom/domain since "cp * ./sitename" is unlikely to happen (questionable)    
+    # host.host.host.com = hosthosthost.com. host.com hostcom, host, /host.ext
+    # We don't test for domain.dom/domain since "cp * ./sitename" is unlikely to happen (questionable)
+
+    # http://oksala.org -> oksala.org
+    target = target.replace('http://', '')
+    target = target.replace('https://', '')
+    target = target.replace('/', '')
+    new_target = dict(conf.path_template)
+    new_target['url'] = target
+    new_target['description'] = "HostProcessor generated filename"
+    database.files.append(new_target)
+
+    if conf.debug:
+        utils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
+
+    # www.oksala.org -> oksala.org
+    target = target.replace('www.', '')
+    new_target = dict(conf.path_template)
+    new_target['url'] = target
+    new_target['description'] = "HostProcessor generated filename"
+    database.files.append(new_target)
+
+    if conf.debug:
+        utils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
+
+    # oksala.org -> oksala
+    dom_pos = target.rfind('.')
+    nodom_target = target[0:dom_pos]
+    new_target = dict(conf.path_template)
+    new_target['url'] = nodom_target
+    new_target['description'] = "HostProcessor generated filename"
+    database.files.append(new_target)
+
+    if conf.debug:
+        utils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
+
+    # flatten subdomains
+    target = target.replace('.', '')
+    new_target = dict(conf.path_template)
+    new_target['url'] = target
+    new_target['description'] = "HostProcessor generated filename"
+    database.files.append(new_target)
+
+    if conf.debug:
+        utils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
+
+    utils.output_info(" - HostProcessor Plugin: added 4 new filename")
+
+
+
         
     

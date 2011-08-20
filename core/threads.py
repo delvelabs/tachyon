@@ -32,7 +32,7 @@ def wait_for_idle(workers, queue):
                 queue.join()
                 for worker in workers:
                     worker.kill_received = True
-                
+
                 # We are done!
                 done = True
         except KeyboardInterrupt:

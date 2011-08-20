@@ -25,7 +25,7 @@ def add_generated_path(char):
     current_template['url'] = '/' + chr(char)
     if current_template not in database.paths:
         if conf.debug:
-            utils.output_debug('Generated: ' + str(current_template))
+            utils.output_debug(' - PathGenerator Plugin Generated: ' + str(current_template))
         database.paths.append(current_template)
 
 
@@ -40,5 +40,5 @@ def execute():
         add_generated_path(char)
         added += 1
 
-    utils.output_info('PathGenerator Plugin: added ' + str(added) + ' computer generated path.')
+    utils.output_info(' - PathGenerator Plugin: added ' + str(added) + ' computer generated path.')
 

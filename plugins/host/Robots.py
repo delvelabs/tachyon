@@ -23,7 +23,7 @@ from urlparse import urljoin
 
 def execute():
     """ Fetch /robots.txt and add the disallowed paths as target """
-    current_template = conf.path_template
+    current_template = dict(conf.path_template)
     current_template['description'] = 'Robots.txt entry'
 
     target_url = urljoin(conf.target_host, "/robots.txt")
@@ -56,15 +56,15 @@ def execute():
                     database.paths.append(current_template)
 
                 if conf.debug:
-                    utils.output_debug('Added: ' + str(path) + ' from robots.txt')
+                    utils.output_debug(' - Robots Plugin Added: ' + str(target_path) + ' from robots.txt')
                     
                 added += 1
                     
         if added > 0:
-            utils.output_info('Robots Plugin: added ' + str(added) + ' base paths using /robots.txt')
+            utils.output_info(' - Robots Plugin: added ' + str(added) + ' base paths using /robots.txt')
         else :
-            utils.output_info('Robots Plugin: no usable entries in /robots.txt')
+            utils.output_info(' - Robots Plugin: no usable entries in /robots.txt')
                
     else:
-        utils.output_info('Robots Plugin: /robots.txt not found on target site')
+        utils.output_info(' - Robots Plugin: /robots.txt not found on target site')
 

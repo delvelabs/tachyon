@@ -1,7 +1,5 @@
-- Finish the worker rewrite
-- Finish the hashing
-- Implement the hostprocessor
-- Clean up files and use the suffixes instead of flat name + exclusion (if there's already a .?)
+- Fix 404 CRC support for files in auto-redirecting folders (hackfest.ca/admin)
+- test subpath support (host.com/test/*)
 - Add callbacks method to plugins
 - raw pipe and filter mode (only output found items with no prefix or suffix)
 

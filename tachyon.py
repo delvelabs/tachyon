@@ -23,7 +23,7 @@ from core import conf, database, loaders, utils
 from core.workers import PrintWorker, Compute404CRCWorker, TestUrlExistsWorker
 from core.threads import wait_for_idle, spawn_workers, clean_workers
 from optparse import OptionParser
-from plugins import host, path
+from plugins import host, file
 
 def load_target_paths():
     """ Load the target paths in the database """
@@ -73,11 +73,11 @@ def load_execute_host_plugins():
         if hasattr(plugin , 'execute'):
              plugin.execute()
 
-def load_execute_path_plugins():
+def load_execute_file_plugins():
     """ Import and run path plugins """
-    utils.output_info('Executing ' + str(len(path.__all__)) + ' file plugins')
-    for plugin_name in path.__all__:
-        plugin = __import__ ("plugins.path." + plugin_name, fromlist=[plugin_name])
+    utils.output_info('Executing ' + str(len(file.__all__)) + ' file plugins')
+    for plugin_name in file.__all__:
+        plugin = __import__ ("plugins.file." + plugin_name, fromlist=[plugin_name])
         if hasattr(plugin , 'execute'):
              plugin.execute()
 
@@ -221,7 +221,7 @@ if __name__ == "__main__":
         add_files_to_paths()
 
         # Execute all path plugins
-        load_execute_path_plugins()
+        load_execute_file_plugins()
 
         # Poke
         test_file_exists()
