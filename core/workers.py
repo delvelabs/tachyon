@@ -108,6 +108,9 @@ class Compute404CRCWorker(Thread):
 
             except Empty:
                 # Queue was empty but thread not killed, it means that more items could be added to the queue.
+                # We sleep here to give a break to the scheduler/cpu. Since we are in a complete non-blocking mode
+                # avoiding this raises the cpu usage to 100%
+                sleep(0.1)
                 continue
 
         utils.output_debug("Thread #" + str(self.thread_id) + " killed.")
@@ -177,7 +180,9 @@ class TestUrlExistsWorker(Thread):
                 # Mark item as processed
                 database.fetch_queue.task_done()
             except Empty:
-                # Queue was empty but thread not killed, it means that more items could be added to the queue.
+                # We sleep here to give a break to the scheduler/cpu. Since we are in a complete non-blocking mode
+                # avoiding this raises the cpu usage to 100%
+                sleep(0.1)
                 continue
 
 
