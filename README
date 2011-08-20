@@ -15,8 +15,8 @@ It provides:
 
 
 TODO:
-- separate print queue for results
 - optmize thread_stop by spawning less thread if item count is under conf.thread_count
+- Fix thread weird behaviors after cleanup
 - Add read() limit in fetcher so we don't download large files
 - test subpath support (host.com/test/*)
 - Add Tor support

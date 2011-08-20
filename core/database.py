@@ -28,10 +28,13 @@ files = list()
 valid_paths = list()
 
 """ Fetch List contains all the url that have to be fetched by the workers """
-fetch_queue = Queue.Queue(maxsize=0)
+fetch_queue = Queue.Queue()
 
-""" output contains the scan results """
-output_queue = Queue.Queue(maxsize=0)
+""" messages output queue contains all the information,debug and timeout messages """
+messages_output_queue = Queue.Queue()
+
+""" results output contains the scan results """
+results_output_queue = Queue.Queue()
 
 """ Contains the initial 404 hash value for the domain root """
 root_404_crc = ''

@@ -37,7 +37,7 @@ def wait_for_idle(workers, queue):
                 # We are done!
                 done = True
         except KeyboardInterrupt:
-            utils.output_raw('')
+            utils.output_message_raw('')
             utils.output_info('Keyboard Interrupt Received, cleaning up threads')
             # Kill remaining workers
             for worker in workers:

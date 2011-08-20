@@ -182,7 +182,20 @@ class PrintWorker(Thread):
 
     def run(self):
         while not self.kill_received:
-            text = database.output_queue.get()
+            text = database.messages_output_queue.get()
             print text
-            database.output_queue.task_done()
+            database.messages_output_queue.task_done()
+
+class PrintResultsWorker(Thread):
+    """ This worker is used to generate a synchronized non-overlapping console output for results """
+
+    def __init__(self):
+        Thread.__init__(self)
+        self.kill_received = False
+
+    def run(self):
+        while not self.kill_received:
+            text = database.results_output_queue.get()
+            print text
+            database.results_output_queue.task_done()
 

@@ -20,42 +20,58 @@ from core import database, conf
 from datetime import datetime
 
 
-def output_raw(text):
+def output_result_raw(text):
+    """ Output raw result text to the synchronized result output queue """
+    database.results_output_queue.put(text)
+
+
+def output_result(text):
+    """ Output result text to the synchronized result output queue """
+    output_result_raw('[' + str(datetime.now().strftime("%H:%M:%S")) + '] ' + text)
+
+
+def output_message_raw(text):
     """ Output raw text to the synchronized output queue """
-    database.output_queue.put(text)
-      
-def output(text):
+    database.messages_output_queue.put(text)
+
+
+def output_message(text):
     """ Output text to the synchronized output queue """
-    output_raw('[' + str(datetime.now().strftime("%H:%M:%S")) + '] ' + text)
+    output_message_raw('[' + str(datetime.now().strftime("%H:%M:%S")) + '] ' + text)
+
 
 def output_error(text):
     """ Output text to the synchronized output queue """
     if not conf.raw_output:
-        output('[ERROR] ' + text)
-    
+        output_message('[ERROR] ' + text)
+
+
 def output_info(text):
     """ Output text to the synchronized output queue """
     if conf.raw_output:
-        output_raw( text)
+        output_message_raw( text)
     else:
-        output('[INFO] ' + text)
+        output_message('[INFO] ' + text)
+
 
 def output_timeout(text):
     """ Output text to the synchronized output queue """
     if not conf.raw_output:
-        output('[TIMEOUT] ' + text)
-    
+        output_message('[TIMEOUT] ' + text)
+
+
 def output_found(text):
     """ Output text to the synchronized output queue """
     if conf.raw_output:
-        output_raw( text)
+        output_result_raw( text)
     else:
-        output('[FOUND] ' + text)
-    
+        output_result('[FOUND] ' + text)
+
+
 def output_debug(text):
     """ Output text to the synchronized output queue """
     if conf.debug:
-        output('[DEBUG] ' + text)
+        output_message('[DEBUG] ' + text)
         
 
 def sanitize_config():

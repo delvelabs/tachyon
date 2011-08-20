@@ -20,7 +20,7 @@
 
 import sys
 from core import conf, database, loaders, utils
-from core.workers import PrintWorker, Compute404CRCWorker, TestUrlExistsWorker
+from core.workers import PrintWorker, PrintResultsWorker, Compute404CRCWorker, TestUrlExistsWorker
 from core.threads import wait_for_idle, spawn_workers
 from optparse import OptionParser
 from plugins import host, file
@@ -147,7 +147,6 @@ def test_file_exists():
     workers = spawn_workers(conf.thread_count, TestUrlExistsWorker)
 
     # Fill work queue with fetch list
-    utils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
     for item in database.valid_paths:
         database.fetch_queue.put(item)
 
@@ -260,14 +259,26 @@ if __name__ == "__main__":
         # Execute all path plugins
         load_execute_file_plugins()
 
-        # Poke
+        # Clean logs output
+        utils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
+        database.messages_output_queue.join()
+
+        # Start print result worker.
+        print_results_worker = PrintResultsWorker()
+        print_results_worker.daemon = True
+        print_results_worker.start()
+
+        # Test all file combination
         test_file_exists()
 
         # Print all remaining messages
         utils.output_info('Done.\n')
-        database.output_queue.join()
+
+        database.results_output_queue.join()
+        database.messages_output_queue.join()
+
     except KeyboardInterrupt:
-        utils.output_raw('')
+        utils.output_message_raw('')
         utils.output_info('Keyboard Interrupt Received')
-        database.output_queue.join()
+        database.messages_output_queue.join()
         sys.exit(0)
