@@ -23,6 +23,8 @@ class Fetcher(object):
         """ Reads the content from the response and build a string with it """
         content = ''
         while True:
+            # We need to handle timeout here on read() timeout: timed out
+
             tmp = response.read(1024)
             if tmp == '':
                 break

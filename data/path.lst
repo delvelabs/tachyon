@@ -42,6 +42,7 @@
 {"url" : "/dev", "description" : "Dev directory"}
 {"url" : "/files", "description" : "Static files directory"}
 {"url" : "/file", "description" : "Static files directory"}
+{"url" : "/fileadmin", "description" : "Static files administration directory"}
 {"url" : "/ftp", "description" : "Ftp directory"}
 {"url" : "/img", "description" : "Readable images directory"}
 {"url" : "/images", "description" : "Readable images directory"}

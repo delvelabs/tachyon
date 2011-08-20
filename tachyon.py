@@ -51,7 +51,7 @@ def test_paths_exists():
     Test for path existence using http codes and computed 404
     Spawn workers and turn off output for now, it would be irrelevant at this point. 
     """
-    workers = spawn_workers(conf.thread_count, TestUrlExistsWorker, display_output=False)
+    workers = spawn_workers(conf.thread_count, TestUrlExistsWorker, display_output=True)
 
     # Fill work queue with fetch list
     utils.output_info('Probing ' + str(len(database.paths)) + ' paths')
@@ -87,8 +87,8 @@ def add_files_to_paths():
     for path in database.valid_paths:
         # Add current path without any file extension to report it on screen.
         # Don't add /, we know it's working ;)
-        if path != '/' and path not in work_list:
-            work_list.append(path)
+        #if path != '/' and path not in work_list:
+          #  work_list.append(path)
 
         # Combine current path with all files and suffixes if enabled
         for filename in database.files:
