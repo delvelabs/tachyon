@@ -58,6 +58,24 @@ def execute():
     if conf.debug:
         utils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
 
+    # shortdom (blabla.ok.ok.test.com -> test)
+    new_target = dict(conf.path_template)
+    dom_pos = target.rfind('.')
+    if dom_pos > 0:
+        nodom_target = target[0:dom_pos]
+        start_pos = nodom_target.rfind('.')
+        if start_pos > 0:
+            short_dom = nodom_target[start_pos+1:]
+        else:
+            short_dom = nodom_target
+
+        new_target['url'] = short_dom
+        new_target['description'] = "HostProcessor generated filename"
+        database.files.append(new_target)
+
+        if conf.debug:
+            utils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
+
     # flatten subdomains
     target = target.replace('.', '')
     new_target = dict(conf.path_template)

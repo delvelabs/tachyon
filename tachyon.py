@@ -85,6 +85,12 @@ def add_files_to_paths():
     """ Combine all path, filenames and suffixes to build the target list """
     work_list = list()
     for path in database.valid_paths:
+        # Add current path without any file extension to report it on screen.
+        # Don't add /, we know it's working ;)
+        if path != '/' and path not in work_list:
+            work_list.append(path)
+
+        # Combine current path with all files and suffixes if enabled
         for filename in database.files:
             if filename.get('no_suffix'):
                 new_filename = dict(filename)
@@ -93,10 +99,12 @@ def add_files_to_paths():
                 else:
                     new_filename['url'] = path['url'] + '/' + filename['url']
 
-                work_list.append(new_filename)
+                if new_filename not in work_list:
+                    work_list.append(new_filename)
 
-                if conf.debug:
-                    utils.output_debug("No Suffix file added: " + str(new_filename))
+                    if conf.debug:
+                        utils.output_debug("No Suffix file added: " + str(new_filename))
+
             else :
                 for suffix in conf.file_suffixes:
                     new_filename = dict(filename)
@@ -104,10 +112,13 @@ def add_files_to_paths():
                         new_filename['url'] = path['url'] + filename['url'] + suffix
                     else:
                         new_filename['url'] = path['url'] + '/' + filename['url'] + suffix
-                    work_list.append(new_filename)
 
-                    if conf.debug:
-                        utils.output_debug("File added: " + str(new_filename))
+
+                    if new_filename not in work_list:
+                        work_list.append(new_filename)
+
+                        if conf.debug:
+                            utils.output_debug("File added: " + str(new_filename))
 
     database.valid_paths += work_list
 

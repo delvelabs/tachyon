@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 {"url" : "access", "description" : "access log"}
-{"url" : "admin", "description" : "Admin xls file"}
+{"url" : "admin", "description" : "Admin file"}
 {"url" : "administrators", "description" : "Password file"}
 {"url" : "authors", "description" : "Password file"}
 {"url" : "backup", "description" : "database backup"}
