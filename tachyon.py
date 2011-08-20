@@ -62,7 +62,7 @@ def test_paths_exists():
     wait_for_idle(workers, database.fetch_queue)
     clean_workers(workers)
 
-    utils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
+    utils.output_info('Found ' + str(len(database.valid_paths) - 1) + ' supplementary valid paths')
 
 
 def load_execute_host_plugins():
@@ -120,7 +120,8 @@ def add_files_to_paths():
                         if conf.debug:
                             utils.output_debug("File added: " + str(new_filename))
 
-    database.valid_paths += work_list
+    # Since we have already output the found directories, replace the valid path list
+    database.valid_paths = work_list
 
 def test_file_exists():
     """ Test for file existence using http codes and computed 404 """
