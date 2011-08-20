@@ -24,7 +24,6 @@ def execute():
                       " with " + str(conf.thread_count) + " threads.")
 
     workers = threads.spawn_workers(conf.thread_count, TestUrlExistsWorker, display_output=False)
-
     # Fetch the root once with each thread to get an averaged timing value
     start_time = datetime.now()
     for thread_count in range(0, conf.thread_count - 1):
@@ -34,7 +33,6 @@ def execute():
         database.fetch_queue.put(test_url)
 
     threads.wait_for_idle(workers, database.fetch_queue)
-    threads.clean_workers(workers)
     end_time = datetime.now()
 
     # Compute the average time per request, including timeouts.

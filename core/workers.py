@@ -75,7 +75,7 @@ class Compute404CRCWorker(Thread):
                 else :
                     url = urljoin(conf.target_host, base_url + '/' + random_file)
 
-                utils.output_debug(str(url))
+                utils.output_debug("Computing specific 404 CRC for: " + str(url))
 
                 # Fetch the target url
                 response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)
@@ -88,17 +88,20 @@ class Compute404CRCWorker(Thread):
                     # Compute the CRC32 of this url. This is used mainly to validate a fetch against a model 404
                     # All subsequent files that will be joined to those path will use the path crc value since
                     # I think a given 404 will mostly be bound to a directory, and not to a specific file.
-                    # This step is only made in initial discovery mode. (Should be moved to a separate worker)
-                    queued['computed_404_crc'] = compute_limited_crc(content, conf.crc_sample_len)
-    
-                    # Exception case for root 404, since it's used as a model for other directories
-                    if queued.get('url') == '/':
-                        database.root_404_crc = queued['computed_404_crc']
-                         
+                    computed_checksum = compute_limited_crc(content, conf.crc_sample_len)
+                    if computed_checksum:
+                        queued['computed_404_crc'] = computed_checksum
+
+                        # Exception case for root 404, since it's used as a model for other directories
+                        if queued.get('url') == '/':
+                            database.root_404_crc = queued['computed_404_crc']
+                            utils.output_debug("Computed root 404 crc: " + str(queued))
+                        else:
+                            utils.output_debug("Computed and saved a different 404 crc for: " + str(queued))
+
                     # The path is then added back to a validated list
                     database.valid_paths.append(queued)
-                    utils.output_debug("Computed Checksum for: " + str(queued))
-    
+
                     # We are done
                     database.fetch_queue.task_done()    
 
@@ -121,10 +124,14 @@ class TestUrlExistsWorker(Thread):
                 url = urljoin(conf.target_host, queued.get('url'))
                 description = queued.get('description')
                 match_string = queued.get('match_string')
-                #computed_404_crc = queued.get('computed_404_crc')
+                computed_directory_404_crc = queued.get('computed_404_crc')
+
+                if not computed_directory_404_crc:
+                    computed_directory_404_crc = database.root_404_crc
 
                 # don't test '/' for existence :)
                 if queued.get('url') == '/':
+                    database.valid_paths.append(queued)
                     database.fetch_queue.task_done()
                     continue
 
@@ -141,9 +148,9 @@ class TestUrlExistsWorker(Thread):
                     if response_code in conf.expected_path_responses:
                         # At this point each directory should have had his 404 crc computed (tachyon main loop)
                         crc = compute_limited_crc(content, conf.crc_sample_len)
-                        
+
                         # If the CRC missmatch, and we have an expected code, we found a valid link
-                        if crc != database.root_404_crc:
+                        if crc != database.root_404_crc and crc != computed_directory_404_crc:
                             if response_code == 401:
                                 # Output result, but don't keep the url since we can't poke in protected folder
                                 if self.display_output or conf.debug:

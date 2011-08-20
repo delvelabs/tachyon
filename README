@@ -12,6 +12,17 @@ It provides:
  - Common directory lookup
  - Fast Multi-Threaded execution
 
+
+
 TODO:
- - Tor support
- - Add more targets
+- separate print queue for results
+- optmize thread_stop by spawning less thread if item count is under conf.thread_count
+- Add read() limit in fetcher so we don't download large files
+- test subpath support (host.com/test/*)
+- Add Tor support
+- Add callbacks method to plugins
+- raw pipe and filter mode (only output found items with no prefix or suffix)
+- The simple crawler option (not likely to happen)
+    - vhost discovery
+    - php include error parser
+

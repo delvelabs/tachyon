@@ -31,7 +31,8 @@ def wait_for_idle(workers, queue):
                 # Wait for all threads to return their stat
                 queue.join()
                 for worker in workers:
-                    worker.kill_received = True
+                    if worker is not None and worker.isAlive():
+                        worker.kill_received = True
 
                 # We are done!
                 done = True
@@ -47,11 +48,11 @@ def wait_for_idle(workers, queue):
             # Kill the soft
             sys.exit()
 
-def clean_workers(workers):
+    # Clean up threads
     for worker in workers:
-        worker.kill_received = True
         if worker is not None and worker.isAlive():
             worker.join(1)
+
     
 def spawn_workers(count, worker_type, display_output=True):
     """ Spawn a given number of workers and return a reference list to them """
