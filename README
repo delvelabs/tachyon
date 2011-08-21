@@ -12,14 +12,10 @@ It provides:
  - Fast Multi-Threaded execution
 
 
-
 TODO:
-- Fix ctrl+c abort during file searching phase
-- Tweak 404/redirect detection algorithm
+- Tweak 404/redirect detection algorithm  (hackfest.ca/img)
+- Fix speedbenchmark to take adverage of x tests instead of 1 test
 - Add Tor support
 - Add callbacks method to plugins
 - raw pipe and filter mode (only output found items with no prefix or suffix)
-- The simple crawler option (not likely to happen)
-    - vhost discovery
-    - php include error parser
-
+- Fix ctrl+c abort during file searching phase (complex. queue.join() blocks)

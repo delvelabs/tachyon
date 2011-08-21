@@ -35,11 +35,11 @@ def wait_for_idle(workers, queue):
         except KeyboardInterrupt:
             utils.output_message_raw('')
             utils.output_info('Keyboard Interrupt Received, cleaning up threads')
+
             # Kill remaining workers
             for worker in workers:
                 worker.kill_received = True
-                if worker is not None and worker.isAlive():
-                    worker.join(1)
+                worker.join(1)
 
             # Kill the soft
             sys.exit()

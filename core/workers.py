@@ -154,7 +154,7 @@ class TestUrlExistsWorker(Thread):
                     continue
 
                 # handle timeout
-                if response_code is 0 or response_code is 500:
+                if response_code is 0 or response_code is 500 or response_code is 503:
                     handle_timeout(queued, url, self.thread_id)
                 else:
                     # Test classic html response code
