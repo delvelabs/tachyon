@@ -16,28 +16,32 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from urllib2 import URLError, HTTPError, urlopen, Request
+from core import conf
 
 
 class Fetcher(object):
-    def read_content(self, response):
+    def read_content(self, response, limit_len=True):
         """ Reads the content from the response and build a string with it """
-        content = ''
-        while True:
-            tmp = response.read(1024)
-            if tmp == '':
-                break
-            else:
-                content = content + tmp
-                
+        if limit_len:
+            content = response.read(conf.crc_sample_len)
+        else:
+            content = ''
+            while True:
+                tmp = response.read(1024)
+                if tmp == '':
+                    break
+                else:
+                    content = content + tmp
+
         return content    
 
-    def fetch_url(self, url, user_agent, timeout):
+    def fetch_url(self, url, user_agent, timeout, limit_len=True):
         """ Fetch a given url, with a given user_agent and timeout"""
         try:
             request = Request(url)
             request.addheaders = [('User-agent', user_agent)]
             response = urlopen(request, timeout=timeout)
-            content = self.read_content(response)
+            content = self.read_content(response, limit_len)
             code = response.code
             headers = dict(response.headers)
             response.close()

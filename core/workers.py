@@ -138,7 +138,11 @@ class TestUrlExistsWorker(Thread):
                 utils.output_debug("Testing: " + url + " " + str(queued))
 
                 # Fetch the target url
-                response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)
+                if match_string:
+                    response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
+                else:
+                    response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)
+
 
                 # Fetch '/' but don't submit it to more logging/existence tests
                 if queued.get('url') == '/':

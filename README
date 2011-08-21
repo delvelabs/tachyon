@@ -14,7 +14,6 @@ It provides:
 
 
 TODO:
-- Add read() limit in fetcher so we don't download large files
 - Fix ctrl+c abort during file searching phase
 - Tweak 404/redirect detection algorithm
 - Add Tor support
