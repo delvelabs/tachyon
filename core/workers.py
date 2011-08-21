@@ -21,7 +21,6 @@ import re
 import uuid
 from core import database, conf, utils
 from core.fetcher import Fetcher
-from urlparse import urljoin
 from threading import Thread
 from binascii import crc32
 from Queue import Empty
@@ -69,12 +68,11 @@ class Compute404CRCWorker(Thread):
                 # Non-Blocking get since we use the queue as a ringbuffer
                 queued = database.fetch_queue.get(False)
                 random_file = str(uuid.uuid4())
-                base_url = queued.get('url') 
-
+                base_url = queued.get('url')
                 if base_url == '/':
-                    url = urljoin(conf.target_host, base_url + random_file)
-                else :
-                    url = urljoin(conf.target_host, base_url + '/' + random_file)
+                    url = conf.target_host + base_url + random_file
+                else:
+                    url = conf.target_host + base_url + '/' + random_file
 
                 utils.output_debug("Computing specific 404 CRC for: " + str(url))
 
@@ -129,7 +127,7 @@ class TestUrlExistsWorker(Thread):
             try:
                 # Non-Blocking get since we use the queue as a ringbuffer
                 queued = database.fetch_queue.get(False)
-                url = urljoin(conf.target_host, queued.get('url'))
+                url = conf.target_host + queued.get('url')
                 description = queued.get('description')
                 match_string = queued.get('match_string')
                 computed_directory_404_crc = queued.get('computed_404_crc')
@@ -137,7 +135,7 @@ class TestUrlExistsWorker(Thread):
                 if not computed_directory_404_crc:
                     computed_directory_404_crc = database.root_404_crc
 
-                utils.output_debug("Testing: " + str(queued))
+                utils.output_debug("Testing: " + url + " " + str(queued))
 
                 # Fetch the target url
                 response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)

@@ -26,13 +26,13 @@ def execute():
 
     # Fetch the root once with each thread to get an averaged timing value
     start_time = datetime.now()
-    workers = spawn_workers(conf.thread_count, TestUrlExistsWorker)
+    workers = spawn_workers(1, TestUrlExistsWorker)
 
-    for thread_count in range(0, conf.thread_count):
-        test_url = dict(conf.path_template)
-        test_url['url'] = '/'
-        test_url['description'] = 'SpeedBenchmark test point #' + str(thread_count)
-        database.fetch_queue.put(test_url)
+    #for thread_count in range(0, conf.thread_count):
+    test_url = dict(conf.path_template)
+    test_url['url'] = '/'
+    test_url['description'] = 'SpeedBenchmark test point'
+    database.fetch_queue.put(test_url)
 
     wait_for_idle(workers, database.fetch_queue)
     end_time = datetime.now()

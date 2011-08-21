@@ -4,7 +4,6 @@ The main goal of tachyon is to help webadmins find leftover files in their
 site installation, permission problems and web server configuration errors.
 
 It provides:
- - Fast website file discovery
  - Plugin support
  - SSL support
  - Tor support (trough privoxy)
@@ -16,7 +15,8 @@ It provides:
 
 TODO:
 - Add read() limit in fetcher so we don't download large files
-- test subpath support (host.com/test/*)
+- Fix ctrl+c abort during file searching phase
+- Tweak 404/redirect detection algorithm
 - Add Tor support
 - Add callbacks method to plugins
 - raw pipe and filter mode (only output found items with no prefix or suffix)

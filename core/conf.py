@@ -17,7 +17,7 @@
 #
 
 # Internal config and consts
-version = '0.3'
+version = '0.4'
 expected_path_responses = [200, 302, 401]
 crc_sample_len = 2048
 

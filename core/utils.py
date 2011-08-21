@@ -79,6 +79,5 @@ def sanitize_config():
     if not conf.target_host.startswith('http://'):
         conf.target_host = 'http://' + conf.target_host
 
-    if not conf.target_host.endswith('/'):
-        conf.target_host += '/'
-        
+    if conf.target_host.endswith('/'):
+        conf.target_host = conf.target_host[0:-1]

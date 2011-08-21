@@ -26,9 +26,16 @@ def execute():
     # We don't test for domain.dom/domain since "cp * ./sitename" is unlikely to happen (questionable)
     added = 0
 
+
     # http://oksala.org -> oksala.org
     target = target.replace('http://', '')
     target = target.replace('https://', '')
+
+    # Remove subpath
+    first_slash = target.find('/')
+    if first_slash > 0:
+        target = target[0:first_slash]
+
     target = target.replace('/', '')
     new_target = dict(conf.path_template)
     new_target['url'] = target
