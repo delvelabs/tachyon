@@ -17,6 +17,7 @@ TODO:
 - Tweak 404/redirect detection algorithm
 - Add Tor support
 - Add callbacks method to plugins
+- Add optional rate-limiter to slow down scan if there's too many timeout in a given time
 - raw pipe and filter mode (only output found items with no prefix or suffix)
 - The simple crawler option (not likely to happen)
     - vhost discovery

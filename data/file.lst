@@ -45,19 +45,19 @@
 {"url" : "passwd", "description" : "Password file"}
 {"url" : "php", "description" : "php config"}
 {"url" : "proftpd", "description" : "ProFTPD config"}
+{"url" : "pixelpost", "description" : "Pixelpost config"}
 {"url" : "putty", "description" : "PuTTY logs"}
 {"url" : "putty.reg", "description" : "PuTTY logs", "no_suffix": True}
 {"url" : "service", "description" : "Password file"}
 {"url" : "settings", "description" : "settings file"}
 {"url" : "site", "description" : "database backup"}
-{"url" : "test", "description" : "database backup"}
+{"url" : "test", "description" : "test dir/file"}
 {"url" : "test_db", "description" : "database backup"}
 {"url" : "transactions", "description" : "transactions log"}
 {"url" : "transaction", "description" : "transactions log"}
 {"url" : "users", "description" : "Password file"}
 {"url" : "WS_FTP.LOG", "description" : "WS_FTP client logs", "no_suffix": True}
 {"url" : "ws_ftp", "description" : "WS_FTP client config"}
-
 
 # PHP common developer files
 {"url" : "info.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42", "no_suffix": True}

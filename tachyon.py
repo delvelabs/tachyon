@@ -110,6 +110,7 @@ def add_files_to_paths():
         for filename in database.files:
             if filename.get('no_suffix'):
                 new_filename = dict(filename)
+                new_filename['is_file'] = True
 
                 if path.get('computed_404_crc'):
                     new_filename['computed_404_crc'] = path.get('computed_404_crc')
@@ -126,6 +127,7 @@ def add_files_to_paths():
             else :
                 for suffix in conf.file_suffixes:
                     new_filename = dict(filename)
+                    new_filename['is_file'] = True
 
                     if path.get('computed_404_crc'):
                         new_filename['computed_404_crc'] = path.get('computed_404_crc')
