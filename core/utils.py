@@ -76,7 +76,7 @@ def output_debug(text):
 
 def sanitize_config():
     """ Sanitize configuration values """
-    if not conf.target_host.startswith('http://'):
+    if not conf.target_host.startswith('http://') and not conf.target_host.startswith('https://'):
         conf.target_host = 'http://' + conf.target_host
 
     if conf.target_host.endswith('/'):
