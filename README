@@ -14,6 +14,7 @@ It provides:
 
 
 TODO:
+- Exclude 403 directories from "FOUND" result but not from further testing
 - Tweak 404/redirect detection algorithm
 - Add Tor support
 - Add callbacks method to plugins
