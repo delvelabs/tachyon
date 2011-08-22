@@ -68,6 +68,7 @@
 {"url" : "/static", "description" : "Static files directory"}
 {"url" : "/stats", "description" : "Stats directory"}
 {"url" : "/statistics", "description" : "Stats directory"}
+{"url" : "/system", "description" : "System directory"}
 {"url" : "/upload", "description" : "Upload directory"}
 {"url" : "/tmp", "description" : "Temp directory"}
 {"url" : "/todel", "description" : "Backup Directory"}

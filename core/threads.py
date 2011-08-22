@@ -20,10 +20,34 @@
 
 import sys
 from core import utils, database
+from time import sleep
 
-def wait_for_idle(workers, queue):
-        """ Wait until fetch queue is empty and handle user interrupt """
-        try:
+class ThreadManager(object):
+    def __init__(self):
+        self.kill_received = False 
+     
+        
+    def wait_for_idle(self, workers, queue):
+            """ Wait until fetch queue is empty and handle user interrupt """
+            while not self.kill_received and not queue.empty():
+                try:
+                    sleep(0.1)
+                except KeyboardInterrupt:
+                    utils.output_message_raw('')
+                    utils.output_info('Keyboard Interrupt Received, cleaning up threads')
+                    self.kill_received = True
+                    
+                    # Kill remaining workers but don't join the queue (we want to abort:))
+                    for worker in workers:
+                        worker.kill_received = True
+                        if worker is not None and worker.isAlive():
+                            worker.join(1)
+        
+                    # Kill the soft
+                    sys.exit()
+           
+           
+            # Make sure everything is done before sending control back to application
             utils.output_debug("Threads: joining queue of size: " + str(queue.qsize()))
             queue.join()
             utils.output_debug("Threads: join done")
@@ -31,27 +55,16 @@ def wait_for_idle(workers, queue):
             for worker in workers:
                 worker.kill_received = True
                 worker.join()
-
-        except KeyboardInterrupt:
-            utils.output_message_raw('')
-            utils.output_info('Keyboard Interrupt Received, cleaning up threads')
-
-            # Kill remaining workers
-            for worker in workers:
-                worker.kill_received = True
-                worker.join(1)
-
-            # Kill the soft
-            sys.exit()
-
-
-def spawn_workers(count, worker_type):
-    """ Spawn a given number of workers and return a reference list to them """
-    # Keep track of all worker threads
-    workers = list()
-    for thread_id in range(count):
-        worker = worker_type(thread_id)
-        worker.daemon = True
-        workers.append(worker)
-        worker.start()
-    return workers
+    
+    
+    def spawn_workers(self, count, worker_type):
+        """ Spawn a given number of workers and return a reference list to them """
+        # Keep track of all worker threads
+        workers = list()
+        for thread_id in range(count):
+            worker = worker_type(thread_id)
+            worker.daemon = True
+            workers.append(worker)
+            worker.start()
+        return workers
+        

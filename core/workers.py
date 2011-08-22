@@ -176,8 +176,12 @@ class TestUrlExistsWorker(Thread):
                                         utils.output_found("String-Matched " + description + ' at: ' + url)
                                 else:
                                     # Add path to valid_path for future actions
-                                    database.valid_paths.append(queued)
-                                    utils.output_found(description + ' at: ' + url)
+                                    if queued.get('is_file') and response_code != 403:
+                                        database.valid_paths.append(queued)
+                                        utils.output_found(description + ' at: ' + url)
+                                    elif not queued.get('is_file'):
+                                        database.valid_paths.append(queued)
+                                        utils.output_found(description + ' at: ' + url)
 
                 # Mark item as processed
                 database.fetch_queue.task_done()

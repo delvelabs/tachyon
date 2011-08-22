@@ -12,9 +12,10 @@ It provides:
  - Fast Multi-Threaded execution
 
 
+
 TODO:
-- Tweak 404/redirect detection algorithm  (hackfest.ca/img)
-- Fix speedbenchmark to take adverage of x tests instead of 1 test
+- Exclude 403 directories from "FOUND" result but not from further testing
+- Tweak 404/redirect detection algorithm
 - Add Tor support
 - Add callbacks method to plugins
 - raw pipe and filter mode (only output found items with no prefix or suffix)
