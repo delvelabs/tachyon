@@ -14,7 +14,6 @@ It provides:
 
 
 TODO:
-- Fix ctrl+c abort during file searching phase
 - Tweak 404/redirect detection algorithm
 - Add Tor support
 - Add callbacks method to plugins

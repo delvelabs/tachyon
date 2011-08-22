@@ -17,16 +17,16 @@
 #
 from core import conf, database, utils
 from core.workers import TestUrlExistsWorker
-from core.threads import spawn_workers, wait_for_idle
+from core.threads import ThreadManager
 from datetime import datetime, timedelta
 
 def execute():
+    manager = ThreadManager()
     utils.output_info(" - SpeedBenchmark Plugin: Starting speed benchmark on " + conf.target_host +
                       " with " + str(conf.thread_count) + " threads.")
 
     # Fetch the root once with each thread to get an averaged timing value
     start_time = datetime.now()
-    workers = spawn_workers(1, TestUrlExistsWorker)
 
     #for thread_count in range(0, conf.thread_count):
     test_url = dict(conf.path_template)
@@ -34,7 +34,8 @@ def execute():
     test_url['description'] = 'SpeedBenchmark test point'
     database.fetch_queue.put(test_url)
 
-    wait_for_idle(workers, database.fetch_queue)
+    workers = manager.spawn_workers(1, TestUrlExistsWorker)
+    manager.wait_for_idle(workers, database.fetch_queue)
     end_time = datetime.now()
     total_time = (end_time - start_time)
 
