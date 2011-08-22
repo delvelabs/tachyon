@@ -57,6 +57,11 @@
 {"url" : "users", "description" : "Password file"}
 {"url" : "WS_FTP.LOG", "description" : "WS_FTP client logs", "no_suffix": True}
 {"url" : "ws_ftp", "description" : "WS_FTP client config"}
+{"url" : "xmlrpc.php", "description" : "Website API", "no_suffix": True}
+{"url" : "xml-rpc", "description" : "Website API"}
+{"url" : "rpc", "description" : "Website API"}
+{"url" : "json", "description" : "Website API"}
+{"url" : "json-api", "description" : "Website API"}
 
 
 # PHP common developer files

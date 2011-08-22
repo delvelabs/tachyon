@@ -15,6 +15,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
+from _socket import timeout
 from urllib2 import URLError, HTTPError, urlopen, Request
 from core import conf
 
@@ -27,11 +28,14 @@ class Fetcher(object):
         else:
             content = ''
             while True:
-                tmp = response.read(1024)
-                if tmp == '':
-                    break
-                else:
-                    content = content + tmp
+                try:
+                    tmp = response.read(1024)
+                    if tmp == '':
+                        break
+                    else:
+                        content = content + tmp
+                except timeout:
+                        raise timeout
 
         return content    
 
