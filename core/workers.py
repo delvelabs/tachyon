@@ -132,6 +132,11 @@ class TestUrlExistsWorker(Thread):
                 match_string = queued.get('match_string')
                 computed_directory_404_crc = queued.get('computed_404_crc')
 
+                if queued.get('is_file'):
+                    expected_responses = conf.expected_file_responses
+                else:
+                    expected_responses = conf.expected_path_responses
+
                 if not computed_directory_404_crc:
                     computed_directory_404_crc = database.root_404_crc
 
@@ -158,7 +163,7 @@ class TestUrlExistsWorker(Thread):
                     handle_timeout(queued, url, self.thread_id)
                 else:
                     # Test classic html response code
-                    if response_code in conf.expected_path_responses:
+                    if response_code in expected_responses:
                         # At this point each directory should have had his 404 crc computed (tachyon main loop)
                         crc = compute_limited_crc(content, conf.crc_sample_len)
 
@@ -176,11 +181,8 @@ class TestUrlExistsWorker(Thread):
                                         utils.output_found("String-Matched " + description + ' at: ' + url)
                                 else:
                                     # Add path to valid_path for future actions
-                                    if queued.get('is_file') and response_code != 403:
-                                        database.valid_paths.append(queued)
-                                        utils.output_found(description + ' at: ' + url)
-                                    elif not queued.get('is_file'):
-                                        database.valid_paths.append(queued)
+                                    database.valid_paths.append(queued)
+                                    if response_code != 304:
                                         utils.output_found(description + ' at: ' + url)
 
                 # Mark item as processed

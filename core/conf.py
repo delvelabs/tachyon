@@ -19,6 +19,7 @@
 # Internal config and consts
 version = '0.4'
 expected_path_responses = [200, 302, 401, 403]
+expected_file_responses = [200, 302, 304]
 crc_sample_len = 2048
 
 # Templates, used by plugins
