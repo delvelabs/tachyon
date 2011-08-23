@@ -13,7 +13,10 @@ It provides:
  - Common directory lookup
  - Fast Multi-Threaded execution
 
-
+HOW TO HELP (for sysadmins)
+- Run tachyon on your domain
+- Run a recursive directory listing of your domain (I don't need to know what is the domain)
+- Send me the result list and the directory listing
 
 TODO:
 - Fix speedtester plugin
