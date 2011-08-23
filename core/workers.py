@@ -88,6 +88,8 @@ class Compute404CRCWorker(Thread):
                     # All subsequent files that will be joined to those path will use the path crc value since
                     # I think a given 404 will mostly be bound to a directory, and not to a specific file.
                     computed_checksum = compute_limited_crc(content, conf.crc_sample_len)
+
+                    # Buggy, if it's 0 the checksum may be valid but the loop wont be taken.
                     if computed_checksum:
                         queued['computed_404_crc'] = computed_checksum
 
