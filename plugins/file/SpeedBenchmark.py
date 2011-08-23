@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from core import conf, database, utils
-from core.workers import TestUrlExistsWorker
+from core.workers import TestPathExistsWorker
 from core.threads import ThreadManager
 from datetime import datetime, timedelta
 
@@ -34,7 +34,7 @@ def execute():
     test_url['description'] = 'SpeedBenchmark test point'
     database.fetch_queue.put(test_url)
 
-    workers = manager.spawn_workers(1, TestUrlExistsWorker)
+    workers = manager.spawn_workers(1, TestPathExistsWorker)
     manager.wait_for_idle(workers, database.fetch_queue)
     end_time = datetime.now()
     total_time = (end_time - start_time)

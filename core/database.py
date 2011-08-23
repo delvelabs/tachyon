@@ -35,6 +35,3 @@ messages_output_queue = Queue.Queue()
 
 """ results output contains the scan results """
 results_output_queue = Queue.Queue()
-
-""" Contains the initial 404 hash value for the domain root """
-root_404_crc = ''

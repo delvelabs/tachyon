@@ -17,6 +17,7 @@
 #
 from _socket import timeout
 from urllib2 import URLError, HTTPError, urlopen, Request
+from httplib import BadStatusLine
 from core import conf
 
 
@@ -43,7 +44,7 @@ class Fetcher(object):
         """ Fetch a given url, with a given user_agent and timeout"""
         try:
             request = Request(url)
-            request.addheaders = [('User-agent', user_agent)]
+            request.add_header('User-Agent', user_agent)
             response = urlopen(request, timeout=timeout)
             content = self.read_content(response, limit_len)
             code = response.code
@@ -53,13 +54,9 @@ class Fetcher(object):
             code = httpe.code
             content = ''
             headers = dict(httpe.headers)
-        except URLError:
+        except (URLError, BadStatusLine, timeout):
             code = 0
             content = ''
             headers = dict()
-        except timeout:
-            code = 0
-            content = ''
-            headers = dict()
-
+            
         return code, content, headers

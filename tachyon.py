@@ -20,7 +20,7 @@
 
 import sys
 from core import conf, database, loaders, utils
-from core.workers import PrintWorker, PrintResultsWorker, Compute404CRCWorker, TestUrlExistsWorker
+from core.workers import PrintWorker, PrintResultsWorker, Compute404CRCWorker, TestPathExistsWorker, TestFileExistsWorker
 from core.threads import ThreadManager
 from optparse import OptionParser
 from plugins import host, file
@@ -60,7 +60,7 @@ def test_paths_exists():
         database.fetch_queue.put(path)
 
     # Wait for initial valid path lookup
-    workers = manager.spawn_workers(conf.thread_count, TestUrlExistsWorker)
+    workers = manager.spawn_workers(conf.thread_count, TestPathExistsWorker)
     manager.wait_for_idle(workers, database.fetch_queue)
 
     utils.output_info('Found ' + str(len(database.valid_paths) - 1) + ' valid paths')
@@ -112,7 +112,7 @@ def add_files_to_paths():
                 new_filename = dict(filename)
                 new_filename['is_file'] = True
 
-                if path.get('computed_404_crc'):
+                if path.get('computed_404_crc') is not None:
                     new_filename['computed_404_crc'] = path.get('computed_404_crc')
 
                 if path['url'] == '/':
@@ -129,7 +129,7 @@ def add_files_to_paths():
                     new_filename = dict(filename)
                     new_filename['is_file'] = True
 
-                    if path.get('computed_404_crc'):
+                    if path.get('computed_404_crc') is not None:
                         new_filename['computed_404_crc'] = path.get('computed_404_crc')
 
                     if path['url'] == '/':
@@ -153,7 +153,7 @@ def test_file_exists():
         database.fetch_queue.put(item)
 
     # Wait for initial valid path lookup
-    workers = manager.spawn_workers(conf.thread_count, TestUrlExistsWorker)
+    workers = manager.spawn_workers(conf.thread_count, TestFileExistsWorker)
     manager.wait_for_idle(workers, database.fetch_queue)
 
 
