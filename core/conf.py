@@ -17,7 +17,7 @@
 #
 
 # Internal config and consts
-version = '0.4'
+version = '0.5'
 expected_path_responses = [200, 302, 401, 403]
 expected_file_responses = [200, 302, 304]
 timeout_codes = [0, 500, 503] 

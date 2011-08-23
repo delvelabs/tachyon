@@ -21,10 +21,17 @@ import re
 import uuid
 from core import database, conf, utils
 from core.fetcher import Fetcher
-from threading import Thread
+from threading import Thread, Lock
 from binascii import crc32
 from Queue import Empty
 from time import sleep
+
+def update_stats(url):
+    lock = Lock()
+    lock.acquire()
+    database.item_count += 1
+    database.current_url = url
+    lock.release()
 
 def handle_timeout(queued, url, thread_id):
     """ Handle timeout operation for workers """
@@ -75,6 +82,7 @@ class Compute404CRCWorker(Thread):
                 else:
                     url = conf.target_host + base_url + '/' + random_file
 
+                update_stats(url)
                 utils.output_debug("Computing specific 404 CRC for: " + str(url))
 
                 # Fetch the target url
@@ -128,7 +136,8 @@ class TestPathExistsWorker(Thread):
                 description = queued.get('description')
                 computed_directory_404_crc = queued.get('computed_404_crc')
                 utils.output_debug("Testing directory: " + url + " " + str(queued))
-
+                update_stats(url)
+                
                 # Fetch directory
                 response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)
                 
@@ -190,7 +199,8 @@ class TestFileExistsWorker(Thread):
                 computed_directory_404_crc = queued.get('computed_404_crc')
 
                 utils.output_debug("Testing: " + url + " " + str(queued))
-
+                update_stats(url)
+                    
                 # Fetch the target url
                 if match_string:
                     response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)

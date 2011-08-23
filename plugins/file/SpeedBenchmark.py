@@ -16,31 +16,28 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from core import conf, database, utils
-from core.workers import TestPathExistsWorker
-from core.threads import ThreadManager
+from core.fetcher import Fetcher
 from datetime import datetime, timedelta
 
 def execute():
-    manager = ThreadManager()
+    benchmark_runs = 10
+
     utils.output_info(" - SpeedBenchmark Plugin: Starting speed benchmark on " + conf.target_host +
-                      " with " + str(conf.thread_count) + " threads.")
+                      " using " + str(benchmark_runs) + " fetches average.")
 
     # Fetch the root once with each thread to get an averaged timing value
-    start_time = datetime.now()
-
-    #for thread_count in range(0, conf.thread_count):
-    test_url = dict(conf.path_template)
-    test_url['url'] = '/'
-    test_url['description'] = 'SpeedBenchmark test point'
-    database.fetch_queue.put(test_url)
-
-    workers = manager.spawn_workers(1, TestPathExistsWorker)
-    manager.wait_for_idle(workers, database.fetch_queue)
-    end_time = datetime.now()
-    total_time = (end_time - start_time)
+    fetcher = Fetcher()
+    
+    total_time = timedelta(0)
+    for count in range(0, benchmark_runs):
+        start_time = datetime.now()
+        response_code, content, headers = fetcher.fetch_url(conf.target_host, conf.user_agent, conf.fetch_timeout_secs)
+        end_time = datetime.now()
+        total_time += (end_time - start_time)
+    
 
     # Compute the _approximate_ operation time
-    estimated_time = total_time * len(database.valid_paths)
+    estimated_time = (total_time / benchmark_runs) * len(database.valid_paths)
 
     utils.output_debug(" - SpeedBenchmark Plugin: " + str(total_time) + " elapsed.")
     utils.output_debug(" - SpeedBenchmark Plugin: " + str(estimated_time) + " estimated")

@@ -21,6 +21,7 @@
 import sys
 from core import utils, database
 from time import sleep
+from threading import Lock
 
 class ThreadManager(object):
     def __init__(self):
@@ -33,18 +34,27 @@ class ThreadManager(object):
                 try:
                     sleep(0.1)
                 except KeyboardInterrupt:
-                    utils.output_message_raw('')
-                    utils.output_info('Keyboard Interrupt Received, cleaning up threads')
-                    self.kill_received = True
-                    
-                    # Kill remaining workers but don't join the queue (we want to abort:))
-                    for worker in workers:
-                        worker.kill_received = True
-                        if worker is not None and worker.isAlive():
-                            worker.join(1)
-        
-                    # Kill the soft
-                    sys.exit()
+                    # output stats
+                    try:
+                        lock = Lock()
+                        lock.acquire()
+                        utils.output_message_raw('')
+                        utils.output_info('Progress: ' + str(database.item_count) + '/' + str(len(database.valid_paths)) + ', current: ' + 
+                            str(database.current_url) + " (press ctrl+c again to exit)")
+                        lock.release()
+                        sleep(1)  
+                    except KeyboardInterrupt:
+                        utils.output_info('Keyboard Interrupt Received, cleaning up threads')
+                        self.kill_received = True
+                        
+                        # Kill remaining workers but don't join the queue (we want to abort:))
+                        for worker in workers:
+                            worker.kill_received = True
+                            if worker is not None and worker.isAlive():
+                                worker.join(1)
+            
+                        # Kill the soft
+                        sys.exit()  
            
            
             # Make sure everything is done before sending control back to application

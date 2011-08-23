@@ -43,7 +43,7 @@ def output_message(text):
 def output_error(text):
     """ Output text to the synchronized output queue """
     if not conf.raw_output:
-        output_message('[ERROR] ' + text)
+        output_result('[ERROR] ' + text)
 
 
 def output_info(text):
@@ -57,7 +57,7 @@ def output_info(text):
 def output_timeout(text):
     """ Output text to the synchronized output queue """
     if not conf.raw_output:
-        output_message('[TIMEOUT] ' + text)
+        output_result('[TIMEOUT] ' + text)
 
 
 def output_found(text):

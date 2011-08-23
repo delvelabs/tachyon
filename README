@@ -3,6 +3,8 @@ Tachyon is a Fast Multi-Threaded Web Discovery Tool.
 The main goal of tachyon is to help webadmins find leftover files in their
 site installation, permission problems and web server configuration errors.
 
+It is not a vulnerability scanner, or a web crawler.
+
 It provides:
  - Plugin support
  - SSL support
@@ -14,8 +16,8 @@ It provides:
 
 
 TODO:
-- Exclude 403 directories from "FOUND" result but not from further testing
-- Tweak 404/redirect detection algorithm
+- Add support for status, using spacebar
+- Fix speedtester plugin
 - Add Tor support
 - Add callbacks method to plugins
 - raw pipe and filter mode (only output found items with no prefix or suffix)

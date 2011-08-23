@@ -17,6 +17,7 @@
 #
 
 import Queue
+from datetime import timedelta, datetime
 
 """ Path list is used to hold loaded path from disk """
 paths = list()
@@ -35,3 +36,8 @@ messages_output_queue = Queue.Queue()
 
 """ results output contains the scan results """
 results_output_queue = Queue.Queue()
+
+
+# Stats values
+item_count = 0
+current_url = ''
