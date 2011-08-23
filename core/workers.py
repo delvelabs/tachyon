@@ -182,7 +182,7 @@ class TestUrlExistsWorker(Thread):
                                 else:
                                     # Add path to valid_path for future actions
                                     database.valid_paths.append(queued)
-                                    if response_code != 304:
+                                    if response_code != 403:
                                         utils.output_found(description + ' at: ' + url)
 
                 # Mark item as processed
