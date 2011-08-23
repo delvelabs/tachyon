@@ -19,7 +19,6 @@ TODO:
 - Fix speedtester plugin
 - Add callbacks method to plugins
 - raw pipe and filter mode (only output found items with no prefix or suffix)
-- Fix ctrl+c abort during file searching phase (complex. queue.join() blocks)
 
 
 Using tor
