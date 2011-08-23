@@ -16,9 +16,9 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 from _socket import timeout
-from urllib2 import URLError, HTTPError, urlopen, Request
+from urllib2 import URLError, HTTPError, urlopen, Request, ProxyHandler, build_opener, install_opener
 from httplib import BadStatusLine
-from core import conf
+from core import conf, utils
 
 
 class Fetcher(object):
@@ -43,9 +43,16 @@ class Fetcher(object):
     def fetch_url(self, url, user_agent, timeout, limit_len=True):
         """ Fetch a given url, with a given user_agent and timeout"""
         try:
-            request = Request(url)
-            request.add_header('User-Agent', user_agent)
-            response = urlopen(request, timeout=timeout)
+            if conf.use_tor:
+                proxy_support = ProxyHandler({'http': 'http://127.0.0.1:8118/'})
+                opener = build_opener(proxy_support)
+                install_opener(opener)
+            else:
+                opener = build_opener()
+                
+            opener.addheaders = [('User-Agent', user_agent)]    
+            response = opener.open(url, timeout=timeout)
+            
             content = self.read_content(response, limit_len)
             code = response.code
             headers = dict(response.headers)

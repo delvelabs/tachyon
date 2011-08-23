@@ -16,9 +16,16 @@ It provides:
 
 
 TODO:
-- Add support for status, using spacebar
 - Fix speedtester plugin
-- Add Tor support
 - Add callbacks method to plugins
 - raw pipe and filter mode (only output found items with no prefix or suffix)
 - Fix ctrl+c abort during file searching phase (complex. queue.join() blocks)
+
+
+Using tor
+- Under Ubuntu:
+	- sudo apt-get install tor, privoxy
+	- open /etc/privoxy/conf, go to section 5.2, uncomment the line concerning Tor on localhost
+	- sudo service privoxy restart
+- Enable the tor switch in tachyon 
+- Be patient, it will be a lot slower.

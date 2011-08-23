@@ -175,10 +175,10 @@ def generate_options():
                     dest="use_head", help="Use HEAD instead of GET (Faster but error-prone) [default: %default]", default=False)
     parser.add_option("-f", action="store_false",
                     dest="search_files", help="Disable file searching [default: %default]", default=True)
+    parser.add_option("-p", action="store_true",
+                    dest="use_tor", help="Use Tor [default: %default]", default=False)
     parser.add_option("-m", metavar="MAXTIMEOUT", dest="max_timeout",
                     help="Max number of timeouts for a given request [default: %default]", default=conf.max_timeout_count)
-    parser.add_option("-p", metavar="TOR", dest="use_tor",
-                    help="Use Tor [default: %default]", default=conf.use_tor)
     parser.add_option("-t", metavar="TIMEOUT", dest="timeout", 
                     help="Request timeout [default: %default]", default=conf.fetch_timeout_secs)
     parser.add_option("-w", metavar="WORKERS", dest="workers", 
@@ -234,6 +234,11 @@ if __name__ == "__main__":
     utils.output_debug('Using User-Agent: ' + str(conf.user_agent))
      
     utils.output_info('Starting Discovery on ' + conf.target_host)
+    
+    if conf.use_tor:
+        utils.output_info('Using Tor, be patient it WILL be slow! :)')
+        utils.output_info('Max timeout count has been doubled for the occasion')
+        conf.max_timeout_count *= 2
 
     # Handle keyboard exit before multi-thread operations
     try:

@@ -39,7 +39,7 @@ class ThreadManager(object):
                         lock = Lock()
                         lock.acquire()
                         utils.output_message_raw('')
-                        utils.output_info('Progress: ' + str(database.item_count) + '/' + str(len(database.valid_paths)) + ', current: ' + 
+                        utils.output_info('Done: ' + str(database.item_count) + ', remaining: ' + str(database.fetch_queue.qsize()) + ', current: ' + 
                             str(database.current_url) + " (press ctrl+c again to exit)")
                         lock.release()
                         sleep(1)  
