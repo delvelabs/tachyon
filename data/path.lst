@@ -44,8 +44,8 @@
 {"url" : "/file", "description" : "Static files directory"}
 {"url" : "/fileadmin", "description" : "Static files administration directory"}
 {"url" : "/ftp", "description" : "Ftp directory"}
-{"url" : "/img", "description" : "Readable images directory"}
-{"url" : "/images", "description" : "Readable images directory"}
+{"url" : "/img", "description" : "Images directory"}
+{"url" : "/images", "description" : "Images directory"}
 {"url" : "/inc", "description" : "Includes directory"}
 {"url" : "/include", "description" : "Includes directory"}
 {"url" : "/includes", "description" : "Includes directory"}
@@ -67,6 +67,7 @@
 {"url" : "/.ssh", "description" : "SSH config directory"}
 {"url" : "/static", "description" : "Static files directory"}
 {"url" : "/stats", "description" : "Stats directory"}
+{"url" : "/status", "description" : "Stats directory"}
 {"url" : "/statistics", "description" : "Stats directory"}
 {"url" : "/system", "description" : "System directory"}
 {"url" : "/upload", "description" : "Upload directory"}

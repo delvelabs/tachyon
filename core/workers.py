@@ -168,6 +168,9 @@ class TestPathExistsWorker(Thread):
                         # We still want to test subfiles.
                         if response_code != 403 and crc != 0:
                             utils.output_found(description + ' at: ' + url)
+                        elif response_code == 403:
+                            utils.output_found('Forbidden ' + description + ' at: ' + url)
+                        
 
 
                 # Mark item as processed
