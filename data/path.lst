@@ -44,6 +44,7 @@
 {"url" : "/file", "description" : "Static files directory"}
 {"url" : "/fileadmin", "description" : "Static files administration directory"}
 {"url" : "/ftp", "description" : "Ftp directory"}
+{"url" : "/.git", "description" : "git directory"}
 {"url" : "/img", "description" : "Images directory"}
 {"url" : "/images", "description" : "Images directory"}
 {"url" : "/inc", "description" : "Includes directory"}
@@ -70,6 +71,7 @@
 {"url" : "/status", "description" : "Stats directory"}
 {"url" : "/statistics", "description" : "Stats directory"}
 {"url" : "/system", "description" : "System directory"}
+{"url" : "/.svn", "description" : "svn directory"}
 {"url" : "/upload", "description" : "Upload directory"}
 {"url" : "/tmp", "description" : "Temp directory"}
 {"url" : "/todel", "description" : "Backup Directory"}
