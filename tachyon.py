@@ -236,9 +236,10 @@ if __name__ == "__main__":
     utils.output_info('Starting Discovery on ' + conf.target_host)
     
     if conf.use_tor:
-        utils.output_info('Using Tor, be patient it WILL be slow! :)')
-        utils.output_info('Max timeout count has been doubled for the occasion')
+        utils.output_info('Using Tor, be patient it WILL be slow!')
+        utils.output_info('Max timeout count and url fetch timeout doubled for the occasion ;)')
         conf.max_timeout_count *= 2
+        conf.fetch_timeout_secs *=2
 
     # Handle keyboard exit before multi-thread operations
     try:
