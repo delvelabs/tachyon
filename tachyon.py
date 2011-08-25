@@ -218,11 +218,15 @@ if __name__ == "__main__":
    
     conf.target_host = args[1]
 
+
     # Spawn synchronized print output worker
     print_worker = PrintWorker()
     print_worker.daemon = True
     print_worker.start()
 
+    # Ensure the host is of the right format
+    utils.sanitize_config()
+    
     utils.output_debug('Version: ' + str(conf.version))
     utils.output_debug('Use GET instead of HEAD: ' + str(conf.use_head))
     utils.output_debug('Fetch timeout: ' + str(conf.fetch_timeout_secs))
@@ -232,7 +236,7 @@ if __name__ == "__main__":
     utils.output_debug('Using Tor: ' + str(conf.use_tor))
     utils.output_debug('Content-type Blacklisting: ' + str(conf.content_type_blacklist))
     utils.output_debug('Using User-Agent: ' + str(conf.user_agent))
-     
+
     utils.output_info('Starting Discovery on ' + conf.target_host)
     
     if conf.use_tor:
@@ -243,8 +247,7 @@ if __name__ == "__main__":
 
     # Handle keyboard exit before multi-thread operations
     try:
-        # Ensure the host is of the right format
-        utils.sanitize_config()
+        
 
         # 0. Pre-test and CRC /uuid to figure out what is a classic 404 and set value in database
         benchmark_root_404()

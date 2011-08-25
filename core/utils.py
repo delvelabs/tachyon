@@ -16,6 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+import re
 from core import database, conf
 from datetime import datetime
 
@@ -76,8 +77,8 @@ def output_debug(text):
 
 def sanitize_config():
     """ Sanitize configuration values """
-    if not conf.target_host.startswith('http://') and not conf.target_host.startswith('https://'):
-        conf.target_host = 'http://' + conf.target_host
+    if not re.search(r'http://', conf.target_host, re.I) and not re.search(r'https://', conf.target_host, re.I):
+        conf.target_host = 'http://' + conf.target_host    
 
     if conf.target_host.endswith('/'):
         conf.target_host = conf.target_host[0:-1]
