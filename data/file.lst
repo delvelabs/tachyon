@@ -16,16 +16,29 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 {"url" : "access", "description" : "access log"}
+{"url" : "account", "description" : "Accounts"}
+{"url" : "accounts", "description" : "Accounts"}
 {"url" : "admin", "description" : "Admin file"}
 {"url" : "administrators", "description" : "Password file"}
+{"url" : "application", "description" : "Application file"}
 {"url" : "authors", "description" : "Password file"}
+{"url" : "auth", "description" : "auth file"}
+{"url" : "authuser", "description" : "auth file"}
+{"url" : "authusers", "description" : "auth file"}
 {"url" : "backup", "description" : "database backup"}
 {"url" : "cachemgr.cgi", "description" : "Squid proxy admin interface", "no_suffix": True}
 {"url" : "ccbill", "description" : "CCBill.com logs"}
 {"url" : "config", "description" : "Config file"}
+{"url" : "common", "description" : "Config file"}
+{"url" : "crypt", "description" : "encryption file"}
+{"url" : "crypto", "description" : "encryption file"}
 {"url" : "data", "description" : "database backup"}
+{"url" : "database", "description" : "database backup"}
 {"url" : "db", "description" : "database backup"}
-{"url" : "deploy", "description" : "Site backup",}
+{"url" : "default", "description" : "default file"}
+{"url" : "deploy", "description" : "Site backup"}
+{"url" : "dokuwiki", "description" : "Dokuwiki backup"}
+{"url" : "encrypt", "description" : "encryption file"}
 {"url" : "error", "description" : "error log"}
 {"url" : "errors", "description" : "errors log"}
 {"url" : "export", "description" : "database backup"}
@@ -36,9 +49,18 @@
 {"url" : "index", "description" : "index.php backup"}
 {"url" : "install", "description" : "index.php backup"}
 {"url" : "infos", "description" : "info file"}
+{"url" : "key", "description" : "key file"}
+{"url" : "keys", "description" : "key file"}
+{"url" : "local", "description" : "Local config"}
 {"url" : "login", "description" : "login log (login.txt could be Gallery key)"}
+{"url" : "log", "description" : "Log file"}
+{"url" : "logs", "description" : "Log file"}
+{"url" : "logger", "description" : "Log file"}
 {"url" : "main.mdb", "description" : "ASP-Nuke db", "no_suffix": True}
-{"url" : "notes", "description" : "index.php backup"}
+{"url" : "mysql", "description" : "Mysql config"}
+{"url" : "my", "description" : "Mysql config"}
+{"url" : "note", "description" : "notes file"}
+{"url" : "notes", "description" : "notes file"}
 {"url" : "pass", "description" : "Password file"}
 {"url" : "password", "description" : "password file"}
 {"url" : "passwords", "description" : "password file"}
@@ -46,8 +68,10 @@
 {"url" : "php", "description" : "php config"}
 {"url" : "proftpd", "description" : "ProFTPD config"}
 {"url" : "pixelpost", "description" : "Pixelpost config"}
+{"url" : "pmwiki", "description" : "pmwiki file"}
 {"url" : "putty", "description" : "PuTTY logs"}
 {"url" : "putty.reg", "description" : "PuTTY logs", "no_suffix": True}
+{"url" : "register", "description" : "Register file"}
 {"url" : "service", "description" : "Password file"}
 {"url" : "settings", "description" : "settings file"}
 {"url" : "site", "description" : "database backup"}
@@ -55,7 +79,9 @@
 {"url" : "test_db", "description" : "database backup"}
 {"url" : "transactions", "description" : "transactions log"}
 {"url" : "transaction", "description" : "transactions log"}
-{"url" : "users", "description" : "Password file"}
+{"url" : "users", "description" : "usernames file"}
+{"url" : "usernames", "description" : "usernames file"}
+{"url" : "username", "description" : "usernames file"}
 {"url" : "WS_FTP.LOG", "description" : "WS_FTP client logs", "no_suffix": True}
 {"url" : "ws_ftp", "description" : "WS_FTP client config"}
 {"url" : "xmlrpc.php", "description" : "Website API", "no_suffix": True}
@@ -78,3 +104,6 @@
 {"url" : ".profile", "description" : "Common default shell config file", "no_suffix": True}
 {"url" : ".sh_history", "description" : "sh history", "no_suffix": True}
 
+# Common guess we don't want to be appended with suffixes
+{"url" : "index2.php", "description" : "Backup index page", "no_suffix": True}
+{"url" : "index3.php", "description" : "Backup index page", "no_suffix": True}

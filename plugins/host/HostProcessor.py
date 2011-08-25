@@ -83,6 +83,20 @@ def execute():
             database.files.append(new_target)
             utils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
             added += 1
+        
+        new_target = dict(new_target)    
+        new_target['url'] = short_dom + 'admin'
+        if new_target not in database.files:
+            database.files.append(new_target)
+            utils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
+            added += 1
+        
+        new_target = dict(new_target)     
+        new_target['url'] = short_dom + '-admin'
+        if new_target not in database.files:
+            database.files.append(new_target)
+            utils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
+            added += 1
 
     # flatten subdomains
     target = target.replace('.', '')

@@ -21,9 +21,14 @@
 {"url" : "/admin", "description" : "Admin section"}
 {"url" : "/administration", "description" : "Admin section"}
 {"url" : "/administrator", "description" : "Admin section"}
+{"url" : "/auth", "description" : "Auth section"}
 {"url" : "/ajax", "description" : "Ajax section"}
+{"url" : "/all", "description" : "Storage directory"}
 {"url" : "/applet", "description" : "Applet directory"}
 {"url" : "/backup", "description" : "Backup directory"}
+{"url" : "/backups", "description" : "Backup directory"}
+{"url" : "/board", "description" : "Forum directory"}
+{"url" : "/cache", "description" : "Cache directory"}
 {"url" : "/cfg", "description" : "Config directory"}
 {"url" : "/conf", "description" : "Config directory"}
 {"url" : "/css", "description" : "CSS directory"}
@@ -31,48 +36,77 @@
 {"url" : "/configuration", "description" : "Config directory"}
 {"url" : "/content", "description" : "Static content directory"}
 {"url" : "/classes", "description" : "code classes directory"}
+{"url" : "/clients", "description" : "client section"}
+{"url" : "/client", "description" : "client section"}
 {"url" : "/cgi-bin", "description" : "Cgi-bin directory"}
 {"url" : "/data", "description" : "Static data directory"}
 {"url" : "/database", "description" : "Database directory"}
 {"url" : "/document", "description" : "document directory"}
 {"url" : "/documents", "description" : "document directory"}
+{"url" : "/download", "description" : "file directory"}
+{"url" : "/downloads", "description" : "file directory"}
 {"url" : "/delete", "description" : "Backup Directory"}
 {"url" : "/deleteme", "description" : "Backup Directory"}
-{"url" : "/db", "description" : "Database directory"}
+{"url" : "/demo", "description" : "Demo Directory"}
 {"url" : "/dev", "description" : "Dev directory"}
+{"url" : "/db", "description" : "Database directory"}
+{"url" : "/dummy", "description" : "Dummy directory"}
+{"url" : "/_dummy", "description" : "Dummy directory"}
 {"url" : "/files", "description" : "Static files directory"}
 {"url" : "/file", "description" : "Static files directory"}
 {"url" : "/fileadmin", "description" : "Static files administration directory"}
 {"url" : "/ftp", "description" : "Ftp directory"}
+{"url" : "/forum", "description" : "Forum directory"}
 {"url" : "/.git", "description" : "git directory"}
+{"url" : "/groupware", "description" : "Groupware directory"}
 {"url" : "/img", "description" : "Images directory"}
 {"url" : "/images", "description" : "Images directory"}
+{"url" : "/import", "description" : "Import directory"}
 {"url" : "/inc", "description" : "Includes directory"}
 {"url" : "/include", "description" : "Includes directory"}
 {"url" : "/includes", "description" : "Includes directory"}
+{"url" : "/intern", "description" : "Intern directory"}
 {"url" : "/_inc", "description" : "Includes directory"}
 {"url" : "/_include", "description" : "Includes directory"}
 {"url" : "/_includes", "description" : "Includes directory"}
 {"url" : "/_layouts", "description" : "Sharepoint directory"}
+{"url" : "/lib", "description" : "Lib directory"}
+{"url" : "/_lib", "description" : "Lib directory"}
+{"url" : "/librairies", "description" : "Lib directory"}
+{"url" : "/local", "description" : "Local directory"}
+{"url" : "/login", "description" : "Login section"}
+{"url" : "/misc", "description" : "Miscellaneous directory"}
+{"url" : "/migrate", "description" : "Database migration directory"}
+{"url" : "/modules", "description" : "Modules directory"}
 {"url" : "/old", "description" : "Old website version"}
 {"url" : "/phpMyAdmin", "description" : "phpMyAdmin installation"}
 {"url" : "/phpmyadmin", "description" : "phpMyAdmin installation"}
 {"url" : "/private", "description" : "Private directory"}
 {"url" : "/protected", "description" : "_Protected_ directory"}
+{"url" : "/pub", "description" : "Public directory"}
 {"url" : "/random", "description" : "Random stuff directory"}
+{"url" : "/rpc", "description" : "Site API"}
+{"url" : "/scripts", "description" : "Scripts directory"}
 {"url" : "/secret", "description" : "_Secret_ directory"}
 {"url" : "/secure", "description" : "_Secure_ directory"}
 {"url" : "/settings", "description" : "Settings directory"}
+{"url" : "/sites", "description" : "Subsites directory"}
+{"url" : "/slimstat", "description" : "SlimStats"}
 {"url" : "/sql", "description" : "Sql backups directory"}
 {"url" : "/src", "description" : "Source directory"}
 {"url" : "/.ssh", "description" : "SSH config directory"}
+{"url" : "/safe", "description" : "_Safe_ directory"}
 {"url" : "/static", "description" : "Static files directory"}
 {"url" : "/stats", "description" : "Stats directory"}
 {"url" : "/status", "description" : "Stats directory"}
 {"url" : "/statistics", "description" : "Stats directory"}
 {"url" : "/system", "description" : "System directory"}
 {"url" : "/.svn", "description" : "svn directory"}
+{"url" : "/update", "description" : "Update directory"}
+{"url" : "/updates", "description" : "Update directory"}
 {"url" : "/upload", "description" : "Upload directory"}
+{"url" : "/uploads", "description" : "Upload directory"}
+{"url" : "/unsafe", "description" : "Unsafe ;) directory"}
 {"url" : "/tmp", "description" : "Temp directory"}
 {"url" : "/todel", "description" : "Backup Directory"}
 {"url" : "/temp", "description" : "Temp directory"}
@@ -83,7 +117,25 @@
 {"url" : "/webadmin", "description" : "Admin section"}
 {"url" : "/webadm", "description" : "Admin section"}
 {"url" : "/webedit", "description" : "Admin directory"}
+{"url" : "/work", "description" : "work directory"}
 {"url" : "/WEB-INF", "description" : "web-inf directory"}
 {"url" : "/wp-admin", "description" : "Wordpress admin section"}
 {"url" : "/xml", "description" : "Static xml directory"}
+
+
+# Drupal
+{"url" : "/sites/default/files/backup_migrate", "description" : "Drupal Migrations"}
+
+# groupware
+{"url" : "/lib/sql", "description" : "Groupware SQL"}
+
+# phpBB
+{"url" : "/phpBB2", "description" : "phpBB"}
+{"url" : "/phpBB", "description" : "phpBB"}
+
+# Textpattern cms
+{"url" : "/textpattern", "description" : "Textpattern CMS"}
+
+# ActiveCollab
+{"url" : "/co", "description" : "ActiveCollab"}
 

@@ -243,12 +243,10 @@ if __name__ == "__main__":
         utils.output_info('Using Tor, be patient it WILL be slow!')
         utils.output_info('Max timeout count and url fetch timeout doubled for the occasion ;)')
         conf.max_timeout_count *= 2
-        conf.fetch_timeout_secs *=2
+        conf.fetch_timeout_secs *= 2
 
     # Handle keyboard exit before multi-thread operations
     try:
-        
-
         # 0. Pre-test and CRC /uuid to figure out what is a classic 404 and set value in database
         benchmark_root_404()
 
