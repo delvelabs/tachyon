@@ -105,6 +105,7 @@ def load_execute_file_plugins():
 def add_files_to_paths():
     """ Combine all path, filenames and suffixes to build the target list """
     work_list = list()
+    cache_test = dict()
     for path in database.valid_paths:
         # Combine current path with all files and suffixes if enabled
         for filename in database.files:
@@ -120,8 +121,9 @@ def add_files_to_paths():
                 else:
                     new_filename['url'] = path['url'] + '/' + filename['url']
 
-                if new_filename not in work_list:
+                if not cache_test.get(new_filename['url']):
                     work_list.append(new_filename)
+                    cache_test[new_filename['url']] = True
                     utils.output_debug("No Suffix file added: " + str(new_filename))
 
             else :
@@ -137,9 +139,11 @@ def add_files_to_paths():
                     else:
                         new_filename['url'] = path['url'] + '/' + filename['url'] + suffix
 
-                    if new_filename not in work_list:
+                    if not cache_test.get(new_filename['url']):
                         work_list.append(new_filename)
+                        cache_test[new_filename['url']] = True
                         utils.output_debug("File added: " + str(new_filename))
+
 
     # Since we have already output the found directories, replace the valid path list
     database.valid_paths = work_list
@@ -171,8 +175,6 @@ def generate_options():
                     dest="blacklist", help="Disable content type blacklisting [default: %default]", default=True)
     parser.add_option("-d", action="store_true",
                     dest="debug", help="Enable debug [default: %default]", default=False)
-    parser.add_option("-g", action="store_true",
-                    dest="use_head", help="Use HEAD instead of GET (Faster but error-prone) [default: %default]", default=False)
     parser.add_option("-f", action="store_false",
                     dest="search_files", help="Disable file searching [default: %default]", default=True)
     parser.add_option("-p", action="store_true",
@@ -193,7 +195,6 @@ def parse_args(parser, system_args):
     (options, args) = parser.parse_args(system_args)
     conf.debug = options.debug
     conf.content_type_blacklist = options.blacklist
-    conf.use_head = options.use_head
     conf.fetch_timeout_secs = int(options.timeout)
     conf.max_timeout_count = int(options.max_timeout)
     conf.thread_count = int(options.workers)
@@ -228,7 +229,6 @@ if __name__ == "__main__":
     utils.sanitize_config()
     
     utils.output_debug('Version: ' + str(conf.version))
-    utils.output_debug('Use GET instead of HEAD: ' + str(conf.use_head))
     utils.output_debug('Fetch timeout: ' + str(conf.fetch_timeout_secs))
     utils.output_debug('Max timeouts per url: ' + str(conf.max_timeout_count))
     utils.output_debug('Worker threads: ' + str(conf.thread_count))

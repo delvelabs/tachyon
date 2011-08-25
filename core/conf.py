@@ -30,12 +30,11 @@ path_template = {'url': '', 'timeout_count': 0, 'description': ''}
 file_suffixes = ['.sql', '.bak', '.old', '_old', '-old', '.dmp', '.dump', '.zip',
                 '.tar.gz', '.tar.bz2', '.tar', '.tgz', '_bak', '-bak', '~', '.swp', '.conf.old','.conf',
                 '.conf.orig', '.conf.bak', '.cnf', '.ini', '.inc', '.inc.old', '.inc.orig', '.txt', '.php.old', 
-                '.php.inc', '.php.orig', '.log', '.pwd', '.sql.old', '0', '1', '2', '.new', '.xml', '_log',
+                '.php.inc', '.php.orig', '.log', '.pwd', '.sql.old', '0', '1', '2', '.xml', '_log',
                 '-log', '.csv']
 
 # User config
 debug = False
-use_head = False
 search_files = True
 fetch_timeout_secs = 3
 max_timeout_count = 5
