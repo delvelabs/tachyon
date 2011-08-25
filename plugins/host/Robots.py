@@ -35,7 +35,7 @@ def execute():
         added = 0
         for match in matches:
             # Filter out some characters
-            match = filter(lambda c: c not in ' *?.\n\r', match)
+            match = filter(lambda c: c not in ' *?.\n\r\t', match)
             
             if conf.debug:
                 utils.output_debug(match)

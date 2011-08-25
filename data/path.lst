@@ -96,6 +96,7 @@
 {"url" : "/src", "description" : "Source directory"}
 {"url" : "/.ssh", "description" : "SSH config directory"}
 {"url" : "/safe", "description" : "_Safe_ directory"}
+{"url" : "/shop", "description" : "Shop directory"}
 {"url" : "/static", "description" : "Static files directory"}
 {"url" : "/stats", "description" : "Stats directory"}
 {"url" : "/status", "description" : "Stats directory"}

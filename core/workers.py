@@ -47,7 +47,8 @@ def handle_timeout(queued, url, thread_id):
         database.fetch_queue.put(queued)
     else:
         # We definitely timed out
-        utils.output_timeout(url)
+        utils.output_timeout(queued.get('description') + ' at ' + url)
+        
 
 def compute_limited_crc(content, length):
     """ Compute the CRC of len bytes, use everything is len(content) is smaller than asked """
