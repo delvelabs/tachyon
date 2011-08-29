@@ -9,7 +9,7 @@
 # version.
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more1336
 # details.
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
@@ -20,32 +20,40 @@ from core.fetcher import Fetcher
 from datetime import datetime, timedelta
 
 def execute():
-    benchmark_runs = 10
-
-    utils.output_info(" - SpeedBenchmark Plugin: Starting speed benchmark on " + conf.target_host +
-                      " using " + str(benchmark_runs) + " fetches average.")
+    num_samples = 25
+    
+    utils.output_info(" - SpeedBenchmark Plugin: Executing " + str(num_samples) + " requests")
 
     # Fetch the root once with each thread to get an averaged timing value
     fetcher = Fetcher()
+    target_url = conf.target_host + '/'
+
     
-    total_time = timedelta(0)
-    for count in range(0, benchmark_runs):
+    max_time = timedelta(0) 
+    for count in range(0, num_samples):
         start_time = datetime.now()
-        response_code, content, headers = fetcher.fetch_url(conf.target_host, conf.user_agent, conf.fetch_timeout_secs)
+        response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, timeout=conf.fetch_timeout_secs)
         end_time = datetime.now()
-        total_time += (end_time - start_time)
+        total_time = end_time - start_time
+        # max function
+        if total_time > max_time:
+            max_time = total_time
+        
+
+    utils.output_debug(" - SpeedBenchmark Plugin: " + str(max_time) + " max time.")
     
-
-    # Compute the _approximate_ operation time
-    estimated_time = (total_time / benchmark_runs) * len(database.valid_paths)
-
-    utils.output_debug(" - SpeedBenchmark Plugin: " + str(total_time) + " elapsed.")
+   
+    # Get average time for fetch op
+    fetch_operations = len(database.valid_paths) / conf.thread_count
+    estimated_time = fetch_operations * max_time
+    
+    
     utils.output_debug(" - SpeedBenchmark Plugin: " + str(estimated_time) + " estimated")
 
     # Pretty output
-    minutes, remainder = divmod(estimated_time.seconds, 3600)
-    seconds, millisecs = divmod(remainder, 60)
+    #minutes, remainder = divmod(estimated_time.total_seconds(), 3600)
+    #seconds, millisecs = divmod(remainder, 60)
 
-    utils.output_info(" - SpeedBenchmark Plugin: host scan is likely to take " +
-                      str(minutes) + " minutes, " +
-                      str(seconds) + " seconds.")
+    utils.output_info(" - SpeedBenchmark Plugin: host scan is likely to take " + str(estimated_time))
+                      #str(minutes) + " minutes, " +
+                      #str(seconds) + " seconds.")

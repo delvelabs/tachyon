@@ -40,4 +40,5 @@ results_output_queue = Queue.Queue()
 
 # Stats values
 item_count = 0
+timeouts = 0
 current_url = ''

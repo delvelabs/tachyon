@@ -15,6 +15,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
+import socket
 from _socket import timeout
 from urllib2 import URLError, HTTPError, urlopen, Request, ProxyHandler, build_opener, install_opener
 from httplib import BadStatusLine
@@ -49,7 +50,8 @@ class Fetcher(object):
                 install_opener(opener)
             else:
                 opener = build_opener()
-                
+
+            socket.setdefaulttimeout(timeout)
             opener.addheaders = [('User-Agent', user_agent)]    
             response = opener.open(url, timeout=timeout)
             

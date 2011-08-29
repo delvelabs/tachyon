@@ -29,11 +29,24 @@ from time import sleep
 def update_stats(url):
     lock = Lock()
     lock.acquire()
-    database.item_count += 1
     database.current_url = url
     lock.release()
+    
+def update_processed_items():
+    lock = Lock()
+    lock.acquire()
+    database.item_count += 1
+    lock.release()
+    
+def update_timeouts():
+    lock = Lock()
+    lock.acquire()
+    database.timeouts += 1
+    lock.release()
+    
+    
 
-def handle_timeout(queued, url, thread_id):
+def handle_timeout(queued, url, thread_id, output=True):
     """ Handle timeout operation for workers """
     if not queued['timeout_count']:
         queued['timeout_count'] = 0
@@ -45,9 +58,12 @@ def handle_timeout(queued, url, thread_id):
 
         # Add back the timed-out item
         database.fetch_queue.put(queued)
-    else:
+    elif output:
         # We definitely timed out
         utils.output_timeout(queued.get('description') + ' at ' + url)
+    
+    # update timeout count   
+    update_timeouts()
         
 
 def compute_limited_crc(content, length):
@@ -64,11 +80,12 @@ class Compute404CRCWorker(Thread):
     of this error page is then sticked to the path to use it to validate all subsequent request to files under
     that same path.
     """
-    def __init__(self, thread_id):
+    def __init__(self, thread_id, output=True):
         Thread.__init__(self)
         self.kill_received = False
         self.thread_id = thread_id
         self.fetcher = Fetcher()
+        self.output = output
 
     def run(self):
         while not self.kill_received:
@@ -92,7 +109,7 @@ class Compute404CRCWorker(Thread):
                 # Handle fetch timeouts by re-adding the url back to the global fetch queue
                 # if timeout count is under max timeout count
                 if response_code is 0 or response_code is 500:
-                    handle_timeout(queued, url, self.thread_id)
+                    handle_timeout(queued, url, self.thread_id, output=self.output)
                 else:
                     # Compute the CRC32 of this url. This is used mainly to validate a fetch against a model 404
                     # All subsequent files that will be joined to those path will use the path crc value since
@@ -109,6 +126,7 @@ class Compute404CRCWorker(Thread):
                     database.valid_paths.append(queued)
 
                 # We are done
+                update_processed_items()
                 database.fetch_queue.task_done()
 
             except Empty:
@@ -123,11 +141,12 @@ class Compute404CRCWorker(Thread):
 
 class TestPathExistsWorker(Thread):
     """ This worker test if a path exists. Each path is matched against a fake generated path while scanning root. """
-    def __init__(self, thread_id):
+    def __init__(self, thread_id, output=True):
         Thread.__init__(self)
         self.kill_received = False
         self.thread_id = thread_id
         self.fetcher = Fetcher()
+        self.output = output
         
     def run(self):
          while not self.kill_received:
@@ -153,7 +172,7 @@ class TestPathExistsWorker(Thread):
                     
                 # handle timeout
                 if response_code in conf.timeout_codes:
-                    handle_timeout(queued, url, self.thread_id)    
+                    handle_timeout(queued, url, self.thread_id, output=self.output)    
                 elif response_code in conf.expected_path_responses:
                     crc = compute_limited_crc(content, conf.crc_sample_len)
 
@@ -175,6 +194,7 @@ class TestPathExistsWorker(Thread):
 
 
                 # Mark item as processed
+                update_processed_items()
                 database.fetch_queue.task_done()
             except Empty:
                 # We sleep here to give a break to the scheduler/cpu. Since we are in a complete non-blocking mode
@@ -186,11 +206,12 @@ class TestPathExistsWorker(Thread):
     
 class TestFileExistsWorker(Thread):
     """ This worker get an url from the work queue and call the url fetcher """
-    def __init__(self, thread_id):
+    def __init__(self, thread_id, output=True):
         Thread.__init__(self)
         self.kill_received = False
         self.thread_id = thread_id
         self.fetcher = Fetcher()
+        self.output = output
 
     def run(self):
          while not self.kill_received:
@@ -213,7 +234,7 @@ class TestFileExistsWorker(Thread):
 
                 # handle timeout
                 if response_code in conf.timeout_codes:
-                    handle_timeout(queued, url, self.thread_id)
+                    handle_timeout(queued, url, self.thread_id, output=self.output)
                 elif response_code in conf.expected_file_responses:
                     # At this point each directory should have had his 404 crc computed (tachyon main loop)
                     crc = compute_limited_crc(content, conf.crc_sample_len)
@@ -233,6 +254,7 @@ class TestFileExistsWorker(Thread):
                             utils.output_found(description + ' at: ' + url)
 
                 # Mark item as processed
+                update_processed_items()
                 database.fetch_queue.task_done()
             except Empty:
                 # We sleep here to give a break to the scheduler/cpu. Since we are in a complete non-blocking mode

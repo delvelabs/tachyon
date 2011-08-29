@@ -21,6 +21,7 @@ HOW TO HELP (for sysadmins)
 TODO:
 - Fix speedtester plugin
 - Add callbacks method to plugins
+- Interractive mode, to remove and add stuff at some points
 - raw pipe and filter mode (only output found items with no prefix or suffix)
 
 

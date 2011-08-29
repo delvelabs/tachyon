@@ -39,8 +39,8 @@ class ThreadManager(object):
                         lock = Lock()
                         lock.acquire()
                         utils.output_message_raw('')
-                        utils.output_info('Done: ' + str(database.item_count) + ', remaining: ' + str(database.fetch_queue.qsize()) + ', current: ' + 
-                            str(database.current_url) + " (press ctrl+c again to exit)")
+                        utils.output_info('Done: ' + str(database.item_count) + ', remaining: ' + str(database.fetch_queue.qsize()) + ', timeouts: ' + 
+                            str(database.timeouts) + ', current: ' + str(database.current_url) + " (press ctrl+c again to exit)")
                         lock.release()
                         sleep(1)  
                     except KeyboardInterrupt:
@@ -67,12 +67,12 @@ class ThreadManager(object):
                 worker.join()
     
     
-    def spawn_workers(self, count, worker_type):
+    def spawn_workers(self, count, worker_type, output=True):
         """ Spawn a given number of workers and return a reference list to them """
         # Keep track of all worker threads
         workers = list()
         for thread_id in range(count):
-            worker = worker_type(thread_id)
+            worker = worker_type(thread_id, output=True)
             worker.daemon = True
             workers.append(worker)
             worker.start()

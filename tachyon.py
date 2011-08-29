@@ -171,14 +171,14 @@ def generate_options():
     """ Generate command line parser """
     usage_str = "usage: %prog <host> [options]"
     parser = OptionParser(usage=usage_str)
-    parser.add_option("-b", action="store_false",
-                    dest="blacklist", help="Disable content type blacklisting [default: %default]", default=True)
     parser.add_option("-d", action="store_true",
                     dest="debug", help="Enable debug [default: %default]", default=False)
     parser.add_option("-f", action="store_false",
                     dest="search_files", help="Disable file searching [default: %default]", default=True)
     parser.add_option("-p", action="store_true",
                     dest="use_tor", help="Use Tor [default: %default]", default=False)
+    parser.add_option("-r", action="store_true",
+                    dest="raw_output", help="Raw output [default: %default]", default=False)
     parser.add_option("-m", metavar="MAXTIMEOUT", dest="max_timeout",
                     help="Max number of timeouts for a given request [default: %default]", default=conf.max_timeout_count)
     parser.add_option("-t", metavar="TIMEOUT", dest="timeout", 
@@ -194,31 +194,32 @@ def parse_args(parser, system_args):
     """ Parse and assign options """
     (options, args) = parser.parse_args(system_args)
     conf.debug = options.debug
-    conf.content_type_blacklist = options.blacklist
     conf.fetch_timeout_secs = int(options.timeout)
     conf.max_timeout_count = int(options.max_timeout)
     conf.thread_count = int(options.workers)
     conf.user_agent = options.user_agent
     conf.use_tor = options.use_tor
     conf.search_files = options.search_files
+    conf.raw_output = options.raw_output
     return options, args    
 
 
 # Entry point / main application logic
 if __name__ == "__main__":
-    print_program_header()
     
     # Parse command line
     parser = generate_options()
     options, args = parse_args(parser, sys.argv)
 
+    if not conf.raw_output:
+        print_program_header()
+        
     if len(sys.argv) <= 1:
         parser.print_help()
         print ''
         sys.exit()
    
     conf.target_host = args[1]
-
 
     # Spawn synchronized print output worker
     print_worker = PrintWorker()
@@ -234,7 +235,7 @@ if __name__ == "__main__":
     utils.output_debug('Worker threads: ' + str(conf.thread_count))
     utils.output_debug('Target Host: ' + str(conf.target_host))
     utils.output_debug('Using Tor: ' + str(conf.use_tor))
-    utils.output_debug('Content-type Blacklisting: ' + str(conf.content_type_blacklist))
+    utils.output_debug('Raw output: ' + str(conf.raw_output))
     utils.output_debug('Using User-Agent: ' + str(conf.user_agent))
 
     utils.output_info('Starting Discovery on ' + conf.target_host)
