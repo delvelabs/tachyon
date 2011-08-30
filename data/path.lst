@@ -87,6 +87,7 @@
 {"url" : "/random", "description" : "Random stuff directory"}
 {"url" : "/rpc", "description" : "Site API"}
 {"url" : "/scripts", "description" : "Scripts directory"}
+{"url" : "/script", "description" : "Scripts directory"}
 {"url" : "/secret", "description" : "_Secret_ directory"}
 {"url" : "/secure", "description" : "_Secure_ directory"}
 {"url" : "/settings", "description" : "Settings directory"}

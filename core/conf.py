@@ -27,7 +27,7 @@ crc_sample_len = 2048
 path_template = {'url': '', 'timeout_count': 0, 'description': ''}
 
 # Extensions used by crc computation
-crc_extensions = ['.php', 'jsp', '.asp', '.aspx', '.html']
+crc_extensions = ['', '.php', '.jsp', '.asp', '.aspx', '.html']
 
 # Values used to generate file list (maybe this sould be configurable)
 file_suffixes = ['.sql', '.bak', '-bak', '.old', '-old', '.dmp', '.dump', '.zip',
