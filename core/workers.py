@@ -116,10 +116,11 @@ class Compute404CRCWorker(Thread):
                     computed_checksum = compute_limited_crc(content, conf.crc_sample_len)
 
                     # Buggy, if it's 0 the checksum may be valid but the loop wont be taken.
-                    queued['computed_404_crc'] = computed_checksum
+                    database.bad_crcs.append(computed_checksum)
 
                     # Exception case for root 404, since it's used as a model for other directories
                     utils.output_debug("Computed and saved a 404 crc for: " + str(queued))
+                    utils.output_debug("404 CRC'S: " + str(database.bad_crcs))
 
                     # The path is then added back to a validated list
                     database.valid_paths.append(queued)
@@ -153,7 +154,6 @@ class TestPathExistsWorker(Thread):
                 queued = database.fetch_queue.get(False)
                 url = conf.target_host + queued.get('url')
                 description = queued.get('description')
-                computed_directory_404_crc = queued.get('computed_404_crc')
                 utils.output_debug("Testing directory: " + url + " " + str(queued))
                 update_stats(url)
                 
@@ -162,7 +162,6 @@ class TestPathExistsWorker(Thread):
                 
                 # Fetch '/' but don't submit it to more logging/existance tests
                 if queued.get('url') == '/':
-                    compute_limited_crc(content, conf.crc_sample_len)
                     if queued not in database.valid_paths:
                         database.valid_paths.append(queued)
 
@@ -176,11 +175,11 @@ class TestPathExistsWorker(Thread):
                 elif response_code in conf.expected_path_responses:
                     crc = compute_limited_crc(content, conf.crc_sample_len)
 
-                    utils.output_debug("Matching directory: " + str(queued) + ", current crc: " + str(computed_directory_404_crc) + " with crc: " + str(crc))
+                    utils.output_debug("Matching directory: " + str(queued) + " with crc: " + str(crc))
                     if response_code == 401:
                         # Output result, but don't keep the url since we can't poke in protected folder
                         utils.output_found('Password Protected - ' + description + ' at: ' + url)
-                    elif crc != computed_directory_404_crc:
+                    elif crc not in database.bad_crcs:
                         # Add path to valid_path for future actions
                         database.valid_paths.append(queued)
                         
@@ -221,7 +220,6 @@ class TestFileExistsWorker(Thread):
                 url = conf.target_host + queued.get('url')
                 description = queued.get('description')
                 match_string = queued.get('match_string')
-                computed_directory_404_crc = queued.get('computed_404_crc')
 
                 utils.output_debug("Testing: " + url + " " + str(queued))
                 update_stats(url)
@@ -239,10 +237,10 @@ class TestFileExistsWorker(Thread):
                     # At this point each directory should have had his 404 crc computed (tachyon main loop)
                     crc = compute_limited_crc(content, conf.crc_sample_len)
                     
-                    utils.output_debug("Matching directory: " + str(queued) + ", current crc: " + str(computed_directory_404_crc) + " with crc: " + str(crc))
+                    utils.output_debug("Matching File: " + str(queued) + " with crc: " + str(crc))
                     
                     # If the CRC missmatch, and we have an expected code, we found a valid link
-                    if crc != computed_directory_404_crc:
+                    if crc not in database.bad_crcs:
                         # Content Test if match_string provided
                         if match_string and re.search(re.escape(match_string), content, re.I):
                             # Add path to valid_path for future actions

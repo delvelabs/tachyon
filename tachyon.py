@@ -42,7 +42,6 @@ def benchmark_root_404():
     manager = ThreadManager()
     utils.output_info('Benchmarking root 404')
     path = dict(conf.path_template)
-    path['url'] = '/'
     database.fetch_queue.put(path)
     workers = manager.spawn_workers(1, Compute404CRCWorker)
     manager.wait_for_idle(workers, database.fetch_queue)
