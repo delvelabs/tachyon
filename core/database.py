@@ -37,6 +37,9 @@ messages_output_queue = Queue.Queue()
 """ results output contains the scan results """
 results_output_queue = Queue.Queue()
 
+""" Bad CRC database includes all computed crc that represents a false positive """
+bad_crcs = list() 
+
 
 # Stats values
 item_count = 0

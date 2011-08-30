@@ -180,7 +180,7 @@ def generate_options():
     parser.add_option("-r", action="store_true",
                     dest="raw_output", help="Raw output [default: %default]", default=False)
     parser.add_option("-m", metavar="MAXTIMEOUT", dest="max_timeout",
-                    help="Max number of timeouts for a given request [default: %default]", default=conf.max_timeout_count)
+                    help="Max number of timeouts for a given request [default: %default]", default=conf.max_timeout_count)               
     parser.add_option("-t", metavar="TIMEOUT", dest="timeout", 
                     help="Request timeout [default: %default]", default=conf.fetch_timeout_secs)
     parser.add_option("-w", metavar="WORKERS", dest="workers", 

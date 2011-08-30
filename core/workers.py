@@ -44,7 +44,6 @@ def update_timeouts():
     database.timeouts += 1
     lock.release()
     
-    
 
 def handle_timeout(queued, url, thread_id, output=True):
     """ Handle timeout operation for workers """
@@ -169,7 +168,8 @@ class TestPathExistsWorker(Thread):
 
                     database.fetch_queue.task_done()
                     continue
-                    
+
+
                 # handle timeout
                 if response_code in conf.timeout_codes:
                     handle_timeout(queued, url, self.thread_id, output=self.output)    

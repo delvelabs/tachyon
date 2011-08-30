@@ -26,12 +26,15 @@ crc_sample_len = 2048
 # Templates, used by plugins
 path_template = {'url': '', 'timeout_count': 0, 'description': ''}
 
+# Extensions used by crc computation
+crc_extensions = ['.php', 'jsp', '.asp', '.aspx', '.html']
+
 # Values used to generate file list (maybe this sould be configurable)
-file_suffixes = ['.sql', '.bak', '.old', '_old', '-old', '.dmp', '.dump', '.zip',
-                '.tar.gz', '.tar.bz2', '.tar', '.tgz', '_bak', '-bak', '~', '.swp', '.conf.old','.conf',
-                '.conf.orig', '.conf.bak', '.cnf', '.ini', '.inc', '.inc.old', '.inc.orig', '.txt', '.php.old', 
-                '.php.inc', '.php.orig', '.log', '.pwd', '.sql.old', '0', '1', '2', '.xml', '_log',
-                '-log', '.csv']
+file_suffixes = ['.sql', '.bak', '-bak', '.old', '-old', '.dmp', '.dump', '.zip',
+                '.tar.gz', '.tar.bz2', '.tar', '.tgz', '-bak', '~', '.swp', '.conf.old','.conf',
+                '.conf.orig', '.conf.bak', '.cnf', '.ini', '.inc', '.inc.old', '.inc.orig', '.log', '.txt', 
+                '.php.old', '.php.inc', '.php.orig', '.pwd', '.sql.old', '.sql.bak', '0', '1', '2', '.xml', 
+                '.csv']
 
 # User config
 debug = False
@@ -46,5 +49,5 @@ user_agent = 'Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US)' # maxim
 
 
 # Templates, used by plugins
-path_template = {'url': '', 'expected_response': [200, 302, 401], 'timeout_count': 0, 'description': ''}
+path_template = {'url': '', 'timeout_count': 0, 'description': ''}
   

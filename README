@@ -19,10 +19,10 @@ HOW TO HELP (for sysadmins)
 - Send me the result list and the directory listing
 
 TODO:
+- Fix 404 detection, it just does not work
 - Fix speedtester plugin
 - Add callbacks method to plugins
 - Interractive mode, to remove and add stuff at some points
-- raw pipe and filter mode (only output found items with no prefix or suffix)
 
 
 Using tor

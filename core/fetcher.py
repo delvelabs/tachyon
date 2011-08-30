@@ -16,11 +16,68 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 import socket
+import re
 from _socket import timeout
-from urllib2 import URLError, HTTPError, urlopen, Request, ProxyHandler, build_opener, install_opener
+from urllib2 import URLError, HTTPError, urlopen, Request
+from urllib2 import ProxyHandler, build_opener, install_opener, HTTPRedirectHandler, HTTPDefaultErrorHandler
 from httplib import BadStatusLine
 from core import conf, utils
 
+
+class SmartRedirectHandler(HTTPRedirectHandler):    
+    """ Handle various bogus redirects """ 
+    def http_error_301(self, req, fp, code, msg, headers):  
+        location = headers.get('location')
+        if location and location.find('404') > 0:
+            utils.output_debug("Hit 301 with 404 redirect to " + str(location)) 
+            # Flip to 404
+            result = HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, 404, msg, headers)
+        else:
+            utils.output_debug("Hit 301 with valid redirect") 
+            result = HTTPRedirectHandler.http_error_301(self, req, fp, code, msg, headers)              
+            result.status = code
+                     
+        return result                                       
+
+    def http_error_302(self, req, fp, code, msg, headers):   
+        location = headers.get('location')
+        if location and location.find('404') > 0:
+            utils.output_debug("Hit 302 with 404 redirect to " + str(location)) 
+            # Flip to 404
+            result = HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, 404, msg, headers)
+        else:
+            utils.output_debug("Hit 302 with valid redirect") 
+            result = HTTPRedirectHandler.http_error_302(self, req, fp, code, msg, headers)              
+            result.status = code
+                   
+        return result
+        
+    def http_error_303(self, req, fp, code, msg, headers):  
+        location = headers.get('location')
+        if location and location.find('404') > 0:
+            utils.output_debug("Hit 303 with 404 redirect to " + str(location)) 
+            # Flip to 404
+            result = HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, 404, msg, headers)
+        else:
+            utils.output_debug("Hit 303 with valid redirect") 
+            result = HTTPRedirectHandler.http_error_303(self, req, fp, code, msg, headers)              
+            result.status = code
+                     
+        return result                                       
+
+    def http_error_307(self, req, fp, code, msg, headers):   
+        location = headers.get('location')
+        if location and location.find('404') > 0:
+            utils.output_debug("Hit 307 with 404 redirect to " + str(location)) 
+            # Flip to 404
+            result = HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, 404, msg, headers)
+        else:
+            utils.output_debug("Hit 307 with valid redirect") 
+            result = HTTPRedirectHandler.http_error_307(self, req, fp, code, msg, headers)              
+            result.status = code
+                   
+        return result
+             
 
 class Fetcher(object):
     def read_content(self, response, limit_len=True):
@@ -41,15 +98,17 @@ class Fetcher(object):
 
         return content    
 
+
     def fetch_url(self, url, user_agent, timeout, limit_len=True):
         """ Fetch a given url, with a given user_agent and timeout"""
         try:
+            redirect_handler = SmartRedirectHandler()
+
             if conf.use_tor:
-                proxy_support = ProxyHandler({'http': 'http://127.0.0.1:8118/'})
-                opener = build_opener(proxy_support)
-                install_opener(opener)
+                proxy_support = ProxyHandler({'http': 'http://localhost:8118'})
+                opener = build_opener(proxy_support, redirect_handler)
             else:
-                opener = build_opener()
+                opener = build_opener(redirect_handler)
 
             socket.setdefaulttimeout(timeout)
             opener.addheaders = [('User-Agent', user_agent)]    

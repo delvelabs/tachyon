@@ -126,6 +126,7 @@
 
 # Drupal
 {"url" : "/sites/default/files/backup_migrate", "description" : "Drupal Migrations"}
+{"url" : "/webfm_send", "description" : "Drupal uploads"}
 
 # groupware
 {"url" : "/lib/sql", "description" : "Groupware SQL"}
