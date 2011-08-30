@@ -41,6 +41,24 @@ def benchmark_root_404():
     """ Get the root 404 CRC, this has to be done as soon as possible since plugins could use this information. """
     manager = ThreadManager()
     utils.output_info('Benchmarking root 404')
+    
+    # spawn the path here instead of in the workers :)
+    #    for extension in conf.crc_extensions:
+    #                if base_url == '/':
+     #                   url = conf.target_host + base_url + random_file + extension
+    #                else:
+   #                     url = conf.target_host + base_url + '/' + random_file + extension
+     #
+     # base_url = queued.get('url')
+    #            random_file = str(uuid.uuid4())
+                
+    #            if base_url == '/':
+     #               url = conf.target_host + base_url + random_file
+      #          else:
+      #              url = conf.target_host + base_url + '/' + random_file
+
+      #          utils.output_debug("Computing specific 404 CRC for: " + str(url))
+      
     path = dict(conf.path_template)
     database.fetch_queue.put(path)
     workers = manager.spawn_workers(1, Compute404CRCWorker)
