@@ -19,6 +19,11 @@ from core import conf, database, utils
 from core.fetcher import Fetcher
 from datetime import datetime, timedelta
 
+
+# This plugin could be used as the first callback-able plugin, to output a statistic on "remaining time"
+# being called at each fetch and doing an average.
+# Stats should be moved to a dictionary of dictionary with value and description so we can have
+# dynamic stats 
 def execute():
     num_samples = 25
     

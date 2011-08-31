@@ -19,6 +19,7 @@
 #
 
 import sys
+import uuid
 from core import conf, database, loaders, utils
 from core.workers import PrintWorker, PrintResultsWorker, Compute404CRCWorker, TestPathExistsWorker, TestFileExistsWorker
 from core.threads import ThreadManager
@@ -28,6 +29,13 @@ from plugins import host, file
 def load_target_paths():
     """ Load the target paths in the database """
     utils.output_info('Loading target paths')
+    
+    # Add root dir
+    root_path = dict(conf.path_template)
+    root_path['url'] = '/'
+    database.paths.append(root_path)
+    
+    # Add files
     database.paths += loaders.load_targets('data/path.lst')   
 
 
@@ -42,26 +50,18 @@ def benchmark_root_404():
     manager = ThreadManager()
     utils.output_info('Benchmarking root 404')
     
-    # spawn the path here instead of in the workers :)
-    #    for extension in conf.crc_extensions:
-    #                if base_url == '/':
-     #                   url = conf.target_host + base_url + random_file + extension
-    #                else:
-   #                     url = conf.target_host + base_url + '/' + random_file + extension
-     #
-     # base_url = queued.get('url')
-    #            random_file = str(uuid.uuid4())
-                
-    #            if base_url == '/':
-     #               url = conf.target_host + base_url + random_file
-      #          else:
-      #              url = conf.target_host + base_url + '/' + random_file
+    for ext in conf.crc_extensions:
+        random_file = str(uuid.uuid4())
+        path = dict(conf.path_template)
+        
+        if path['url'] != '/':
+            path['url'] = '/' + random_file + ext   
+        else:
+            path['url'] = random_file + ext   
+            
+        database.fetch_queue.put(path)
 
-      #          utils.output_debug("Computing specific 404 CRC for: " + str(url))
-      
-    path = dict(conf.path_template)
-    database.fetch_queue.put(path)
-    workers = manager.spawn_workers(1, Compute404CRCWorker)
+    workers = manager.spawn_workers(len(conf.crc_extensions), Compute404CRCWorker)
     manager.wait_for_idle(workers, database.fetch_queue)
 
 
@@ -89,16 +89,21 @@ def compute_existing_path_404_crc():
     manager = ThreadManager()
     
     for path in database.valid_paths:
-        database.fetch_queue.put(path)
+        utils.output_debug("Path in valid path table: " + str(path))
+        for ext in conf.crc_extensions:
+            path_clone = dict(path)
+            random_file = str(uuid.uuid4())
+            
+            # We don't benchmark / since we do it first before path discovery
+            if path_clone['url'] != '/':
+                path_clone['url'] = path_clone['url'] + '/' + random_file + ext   
+                database.fetch_queue.put(path_clone)    
 
-    # Emty valid path database since this code will add every path back with their CRC value added
-    database.valid_paths = list()
     workers = manager.spawn_workers(conf.thread_count, Compute404CRCWorker)
     manager.wait_for_idle(workers, database.fetch_queue)
 
     # print valid path
-    for path in database.valid_paths:
-        utils.output_debug("Valid path after crc: " + str(path))
+    utils.output_debug("Invalid CRCs after global test: " + str(database.bad_crcs))
 
 
 def load_execute_host_plugins():

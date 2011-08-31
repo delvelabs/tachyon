@@ -17,7 +17,7 @@
 #
 
 # Internal config and consts
-version = '0.7'
+version = '0.8'
 expected_path_responses = [200, 302, 401, 403]
 expected_file_responses = [200, 302, 304]
 timeout_codes = [0, 500, 503] 
@@ -27,7 +27,7 @@ crc_sample_len = 2048
 path_template = {'url': '', 'timeout_count': 0, 'description': ''}
 
 # Extensions used by crc computation
-crc_extensions = ['', '.php', '.jsp', '.asp', '.aspx', '.html']
+crc_extensions = ['', '.php', '.jsp', '.asp', '.html']
 
 # Values used to generate file list (maybe this sould be configurable)
 file_suffixes = ['.sql', '.bak', '-bak', '.old', '-old', '.dmp', '.dump', '.zip',

@@ -18,7 +18,6 @@
 
 
 import re
-import uuid
 from core import database, conf, utils
 from core.fetcher import Fetcher
 from threading import Thread, Lock
@@ -91,16 +90,9 @@ class Compute404CRCWorker(Thread):
             try:
                 # Non-Blocking get since we use the queue as a ringbuffer
                 queued = database.fetch_queue.get(False)
-                random_file = str(uuid.uuid4())
-                base_url = queued.get('url')
-                
-                if base_url == '/':
-                    url = conf.target_host + base_url + random_file
-                else:
-                    url = conf.target_host + base_url + '/' + random_file
+                url = conf.target_host + queued.get('url')
 
                 utils.output_debug("Computing specific 404 CRC for: " + str(url))
-                
                 update_stats(url)
                 
                 # Fetch the target url
@@ -110,22 +102,23 @@ class Compute404CRCWorker(Thread):
                 # if timeout count is under max timeout count
                 if response_code is 0 or response_code is 500:
                     handle_timeout(queued, url, self.thread_id, output=self.output)
-                else:
+                elif response_code in conf.expected_file_responses:
                     # Compute the CRC32 of this url. This is used mainly to validate a fetch against a model 404
                     # All subsequent files that will be joined to those path will use the path crc value since
                     # I think a given 404 will mostly be bound to a directory, and not to a specific file.
                     computed_checksum = compute_limited_crc(content, conf.crc_sample_len)
 
-                    # Buggy, if it's 0 the checksum may be valid but the loop wont be taken.
-                    database.bad_crcs.append(computed_checksum)
+                    # Add new CRC to error crc checking
+                    if computed_checksum not in database.bad_crcs:
+                        database.bad_crcs.append(computed_checksum)
 
                     # Exception case for root 404, since it's used as a model for other directories
                     utils.output_debug("Computed and saved a 404 crc for: " + str(queued))
                     utils.output_debug("404 CRC'S: " + str(database.bad_crcs))
 
                     # The path is then added back to a validated list
-                    if queued not in database.valid_paths:
-                        database.valid_paths.append(queued) 
+                    #if queued not in database.valid_paths:
+                       # database.valid_paths.append(queued) 
 
                 # We are done
                 update_processed_items()
@@ -248,7 +241,7 @@ class TestFileExistsWorker(Thread):
                             # Add path to valid_path for future actions
                             database.valid_paths.append(queued)
                             utils.output_found("String-Matched " + description + ' at: ' + url)
-                        else:
+                        elif not match_string:
                             # Add path to valid_path for future actions
                             database.valid_paths.append(queued)
                             utils.output_found(description + ' at: ' + url)
