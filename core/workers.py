@@ -150,6 +150,7 @@ class TestPathExistsWorker(Thread):
                 url = conf.target_host + queued.get('url')
                 description = queued.get('description')
                 utils.output_debug("Testing directory: " + url + " " + str(queued))
+
                 update_stats(url)
                 
                 # Fetch directory
@@ -163,7 +164,10 @@ class TestPathExistsWorker(Thread):
                     database.fetch_queue.task_done()
                     continue
 
-
+                if response_code == 500:
+                    utils.output_debug("HIT 500 on: " + str(queued))
+                    
+                #utils.output_debug("Code: " + str(response_code) + " on: " + url)
                 # handle timeout
                 if response_code in conf.timeout_codes:
                     handle_timeout(queued, url, self.thread_id, output=self.output)    
@@ -171,19 +175,21 @@ class TestPathExistsWorker(Thread):
                     crc = compute_limited_crc(content, conf.crc_sample_len)
 
                     utils.output_debug("Matching directory: " + str(queued) + " with crc: " + str(crc))
+                    
+                    # Skip subfile testing if forbidden
                     if response_code == 401:
                         # Output result, but don't keep the url since we can't poke in protected folder
                         utils.output_found('Password Protected - ' + description + ' at: ' + url)
                     elif crc not in database.bad_crcs:
                         # Add path to valid_path for future actions
                         database.valid_paths.append(queued)
-                        
-                        # Skip logging if directory listing is forbidden
-                        # We still want to test subfiles.
-                        if response_code != 403 and crc != 0:
-                            utils.output_found(description + ' at: ' + url)
+
+                        if response_code == 500:
+                            utils.output_found('Internal Server Error, ' + description + ' at: ' + url)    
                         elif response_code == 403:
                             utils.output_found('Forbidden ' + description + ' at: ' + url)
+                        else:
+                            utils.output_found(description + ' at: ' + url)
                         
 
 

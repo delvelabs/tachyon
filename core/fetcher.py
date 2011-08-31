@@ -22,61 +22,72 @@ from urllib2 import URLError, HTTPError, urlopen, Request
 from urllib2 import ProxyHandler, build_opener, install_opener, HTTPRedirectHandler, HTTPDefaultErrorHandler
 from httplib import BadStatusLine
 from core import conf, utils
+from urlparse import urlparse
 
 
 class SmartRedirectHandler(HTTPRedirectHandler):    
     """ Handle various bogus redirects """ 
-    def http_error_301(self, req, fp, code, msg, headers):  
+    
+    def detect_real_response(self, code, request, headers):
+        """ 
+            This function detects if we are subjected to an invalid redirect
+            If we try to hit /test/file.ext and the server issues a redirect for
+            /404 or /rewritten_path, we know that we didn't hit a flat file.
+            
+            It also detects common redirect such as /test -> /test/ (valid)
+            
+            return the response code if the redirect is valid and 404 if not
+        """
         location = headers.get('location')
-        if location and location.find('404') > 0:
-            utils.output_debug("Hit 301 with 404 redirect to " + str(location)) 
-            # Flip to 404
-            result = HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, 404, msg, headers)
+        if location:
+            parsed_target = urlparse(request.get_full_url())
+            parsed_redirect = urlparse(location)
+            
+            # Simple 401 redirect ON A PATH, www.host.com/folder -> www.host.com/folder/, don't follow redirect.         
+            if parsed_target.path + '/' == parsed_redirect.path:
+                utils.output_debug("Hit directory " + str(code) + " with valid redirect from: " + request.get_full_url() + " to: " + str(location)) 
+                return 200       
+            
+            # Redirected to some other location but with same file target (likely a load balancer proxy)
+            # host.com/folder/ -> www.host.com/folder/
+            # Follow this redirect
+            if parsed_target.path in parsed_redirect.path:
+                utils.output_debug("Hit " + str(code) + " with valid redirect from: " + request.get_full_url() + " to: " + str(location)) 
+                return code           
+            
+            # Else, it's a bogus redirect
+            utils.output_debug("Hit " + str(code) + " with invalid redirect from: " + request.get_full_url()) 
+            return 404    
+                 
+        
+        
+    def http_error_301(self, req, fp, code, msg, headers):  
+        real_code = self.detect_real_response(code, req, headers)
+        if code != real_code:
+            return HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, real_code, msg, headers)
         else:
-            utils.output_debug("Hit 301 with valid redirect") 
-            result = HTTPRedirectHandler.http_error_301(self, req, fp, code, msg, headers)              
-            result.status = code
-                     
-        return result                                       
+            return HTTPRedirectHandler.http_error_301(self, req, fp, code, msg, headers)                                           
 
     def http_error_302(self, req, fp, code, msg, headers):   
-        location = headers.get('location')
-        if location and location.find('404') > 0:
-            utils.output_debug("Hit 302 with 404 redirect to " + str(location)) 
-            # Flip to 404
-            result = HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, 404, msg, headers)
+        real_code = self.detect_real_response(code, req, headers)
+        if code != real_code:
+            return HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, real_code, msg, headers)
         else:
-            utils.output_debug("Hit 302 with valid redirect") 
-            result = HTTPRedirectHandler.http_error_302(self, req, fp, code, msg, headers)              
-            result.status = code
-                   
-        return result
+            return HTTPRedirectHandler.http_error_301(self, req, fp, code, msg, headers)    
         
     def http_error_303(self, req, fp, code, msg, headers):  
-        location = headers.get('location')
-        if location and location.find('404') > 0:
-            utils.output_debug("Hit 303 with 404 redirect to " + str(location)) 
-            # Flip to 404
-            result = HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, 404, msg, headers)
+        real_code = self.detect_real_response(code, req, headers)
+        if code != real_code:
+            return HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, real_code, msg, headers)
         else:
-            utils.output_debug("Hit 303 with valid redirect") 
-            result = HTTPRedirectHandler.http_error_303(self, req, fp, code, msg, headers)              
-            result.status = code
-                     
-        return result                                       
+            return HTTPRedirectHandler.http_error_301(self, req, fp, code, msg, headers)    
 
     def http_error_307(self, req, fp, code, msg, headers):   
-        location = headers.get('location')
-        if location and location.find('404') > 0:
-            utils.output_debug("Hit 307 with 404 redirect to " + str(location)) 
-            # Flip to 404
-            result = HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, 404, msg, headers)
+        real_code = self.detect_real_response(code, req, headers)
+        if code != real_code:
+            return HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, real_code, msg, headers)
         else:
-            utils.output_debug("Hit 307 with valid redirect") 
-            result = HTTPRedirectHandler.http_error_307(self, req, fp, code, msg, headers)              
-            result.status = code
-                   
-        return result
+            return HTTPRedirectHandler.http_error_301(self, req, fp, code, msg, headers)    
              
 
 class Fetcher(object):
