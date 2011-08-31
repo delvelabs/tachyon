@@ -116,10 +116,6 @@ class Compute404CRCWorker(Thread):
                     utils.output_debug("Computed and saved a 404 crc for: " + str(queued))
                     utils.output_debug("404 CRC'S: " + str(database.bad_crcs))
 
-                    # The path is then added back to a validated list
-                    #if queued not in database.valid_paths:
-                       # database.valid_paths.append(queued) 
-
                 # We are done
                 update_processed_items()
                 database.fetch_queue.task_done()

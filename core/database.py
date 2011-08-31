@@ -40,6 +40,9 @@ results_output_queue = Queue.Queue()
 """ Bad CRC database includes all computed crc that represents a false positive """
 bad_crcs = list() 
 
+""" namecache is used across the app to avoid adding duplicates url """
+name_cache = dict()
+
 
 # Stats values
 item_count = 0

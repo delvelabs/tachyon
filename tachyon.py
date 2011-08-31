@@ -36,7 +36,7 @@ def load_target_paths():
     database.paths.append(root_path)
     
     # Add files
-    database.paths += loaders.load_targets('data/path.lst')   
+    database.paths += loaders.load_targets('data/path.lst') 
 
 
 def load_target_files():
