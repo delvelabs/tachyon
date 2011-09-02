@@ -77,6 +77,7 @@
 {"url" : "/librairies", "description" : "Lib directory"}
 {"url" : "/local", "description" : "Local directory"}
 {"url" : "/login", "description" : "Login section"}
+{"url" : "/mail", "description" : "Webmail directory"}
 {"url" : "/misc", "description" : "Miscellaneous directory"}
 {"url" : "/migrate", "description" : "Database migration directory"}
 {"url" : "/modules", "description" : "Modules directory"}
@@ -120,6 +121,7 @@
 {"url" : "/var", "description" : "Variable directory"}
 {"url" : "/webadmin", "description" : "Admin section"}
 {"url" : "/webadm", "description" : "Admin section"}
+{"url" : "/webmail", "description" : "Webmail directory"}
 {"url" : "/webedit", "description" : "Admin directory"}
 {"url" : "/work", "description" : "work directory"}
 {"url" : "/WEB-INF", "description" : "web-inf directory"}
