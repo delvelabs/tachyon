@@ -30,18 +30,33 @@ def add_generated_path(char):
     if current_template not in database.paths:
         utils.output_debug(' - PathGenerator Plugin Generated: ' + str(current_template))
         database.paths.append(current_template)
+        
+def add_generated_file(char):
+    """ Add path to database """
+    current_template = dict(conf.path_template)
+    current_template['description'] = 'Computer generated path'
+    current_template['url'] = chr(char)
+    if current_template not in database.files:
+        utils.output_debug(' - PathGenerator Plugin Generated: ' + str(current_template))
+        database.files.append(current_template)
 
 
 def execute():
     """ Generate common simple paths (a-z, 0-9) """
-    added = 0
+    path_added = 0
+    file_added = 0
     for char in range(ord('a'), ord('z')):
         add_generated_path(char)
-        added += 1
+        path_added += 1
+        add_generated_file(char)
+        file_added += 1    
 
     for char in range(ord('0'), ord('9')):
         add_generated_path(char)
-        added += 1
+        path_added += 1
+        add_generated_file(char)
+        file_added += 1    
 
-    utils.output_info(' - PathGenerator Plugin: added ' + str(added) + ' computer generated path.')
 
+    utils.output_info(' - PathGenerator Plugin: added ' + str(path_added) + ' computer generated path.')
+    utils.output_info(' - PathGenerator Plugin: added ' + str(file_added) + ' computer generated files.')

@@ -25,6 +25,8 @@
 {"url" : "/ajax", "description" : "Ajax section"}
 {"url" : "/all", "description" : "Storage directory"}
 {"url" : "/applet", "description" : "Applet directory"}
+{"url" : "/archive", "description" : "Archive directory"}
+{"url" : "/archives", "description" : "Archive directory"}
 {"url" : "/backup", "description" : "Backup directory"}
 {"url" : "/backups", "description" : "Backup directory"}
 {"url" : "/board", "description" : "Forum directory"}

@@ -29,12 +29,6 @@ from plugins import host, file
 def load_target_paths():
     """ Load the target paths in the database """
     utils.output_info('Loading target paths')
-    
-    # Add root dir
-    root_path = dict(conf.path_template)
-    root_path['url'] = '/'
-    database.paths.append(root_path)
-    
     # Add files
     database.paths += loaders.load_targets('data/path.lst') 
 
@@ -194,9 +188,11 @@ def generate_options():
     usage_str = "usage: %prog <host> [options]"
     parser = OptionParser(usage=usage_str)
     parser.add_option("-d", action="store_true",
-                    dest="debug", help="Enable debug [default: %default]", default=False)
-    parser.add_option("-f", action="store_false",
-                    dest="search_files", help="Disable file searching [default: %default]", default=True)
+                    dest="debug", help="Enable debug [default: %default]", default=False)        
+    parser.add_option("-f", action="store_true",
+                    dest="search_files", help="search only for files [default: %default]", default=False)
+    parser.add_option("-s", action="store_true",
+                    dest="search_dirs", help="search only for subdirs [default: %default]", default=False)         
     parser.add_option("-p", action="store_true",
                     dest="use_tor", help="Use Tor [default: %default]", default=False)
     parser.add_option("-r", action="store_true",
@@ -223,6 +219,8 @@ def parse_args(parser, system_args):
     conf.use_tor = options.use_tor
     conf.search_files = options.search_files
     conf.raw_output = options.raw_output
+    conf.files_only = options.search_files
+    conf.directories_only = options.search_dirs
     return options, args    
 
 
@@ -259,6 +257,8 @@ if __name__ == "__main__":
     utils.output_debug('Using Tor: ' + str(conf.use_tor))
     utils.output_debug('Raw output: ' + str(conf.raw_output))
     utils.output_debug('Using User-Agent: ' + str(conf.user_agent))
+    utils.output_debug('Search only for files: ' + str(conf.files_only))
+    utils.output_debug('Search only for subdirs: ' + str(conf.directories_only))
 
     utils.output_info('Starting Discovery on ' + conf.target_host)
     
@@ -273,36 +273,62 @@ if __name__ == "__main__":
         # 0. Pre-test and CRC /uuid to figure out what is a classic 404 and set value in database
         benchmark_root_404()
 
+        if not conf.directories_only:        
+            # Add root to targets
+            root_path = dict(conf.path_template)
+            root_path['url'] = '/'
+            database.paths.append(root_path)    
+
         # Load the target paths and files
-        load_target_paths()
-        load_target_files()
+        if not conf.files_only:
+            load_target_paths()
+        else:
+            # Add ./ to valid paths
+            database.valid_paths.append(root_path)
+            
+        if not conf.directories_only:
+            load_target_files()
 
         # Execute all Host plugins
         load_execute_host_plugins()
 
+        # Start the result printworker if we need it now
+        if conf.directories_only:
+            print_results_worker = PrintResultsWorker()
+            print_results_worker.daemon = True
+            print_results_worker.start()
+            
         # Test the existence of all input path (loaded + plugins)
-        test_paths_exists()
+        if not conf.files_only:
+            # Test path existence
+            test_paths_exists()
 
-        # Compute the 404 CRC for every existing path
-        compute_existing_path_404_crc()
+        if not conf.directories_only:   
+            # Compute the 404 CRC for every existing path
+            compute_existing_path_404_crc()
 
         # Combine generated filenames with urls
-        add_files_to_paths()
+        if not conf.directories_only:
+            add_files_to_paths()
 
-        # Execute all path plugins
-        load_execute_file_plugins()
+        if not conf.directories_only:   
+            # Execute all path plugins
+            load_execute_file_plugins()
 
         # Clean logs output
-        utils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
-        database.messages_output_queue.join()
+        if not conf.directories_only:
+            utils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
+            database.messages_output_queue.join()
 
-        # Start print result worker.
-        print_results_worker = PrintResultsWorker()
-        print_results_worker.daemon = True
-        print_results_worker.start()
+        if not conf.directories_only:
+            # Start print result worker.
+            print_results_worker = PrintResultsWorker()
+            print_results_worker.daemon = True
+            print_results_worker.start()
 
         # Test all file combination
-        test_file_exists()
+        if not conf.directories_only:
+            test_file_exists()
 
         # Print all remaining messages
         utils.output_info('Done.\n')

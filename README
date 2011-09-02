@@ -19,14 +19,13 @@ HOW TO HELP (for sysadmins)
 - Send me the result list and the directory listing
 
 TODO:
-- Fix speedtester plugin (or remove it)
+- Add an match-string=404 mechanism for edge cases
 - Add callbacks method to plugins
+- Fix speedtester plugin (or remove it)
 - Support files in robots plugin
 - Do not scan readable directories (index of), just report them.
-- Add an match-string=404 mechanism for edge cases
-- Interractive mode, to remove and add stuff at some points
-- Variable automatic speed limiter (optional)
-- If code is 500, match "Forbidden", since it's a common redirect scenario
+- Variable automatic speed limiter
+
 
 Using tor
 - Under Ubuntu:

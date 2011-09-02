@@ -25,6 +25,8 @@
 {"url" : "auth", "description" : "auth file"}
 {"url" : "authuser", "description" : "auth file"}
 {"url" : "authusers", "description" : "auth file"}
+{"url" : "archive", "description" : "archive file"}
+{"url" : "archives", "description" : "archive file"}
 {"url" : "backup", "description" : "database backup"}
 {"url" : "cachemgr.cgi", "description" : "Squid proxy admin interface", "no_suffix": True}
 {"url" : "ccbill", "description" : "CCBill.com logs"}

@@ -17,11 +17,11 @@
 #
 
 # Internal config and consts
-version = '0.8'
+version = '0.9'
 expected_path_responses = [200, 301, 302, 303, 307, 401, 403]
 expected_file_responses = [200, 301, 302, 303, 304, 307]
 timeout_codes = [0, 500, 503] 
-crc_sample_len = 2048
+crc_sample_len = 200
 
 # Templates, used by plugins
 path_template = {'url': '', 'timeout_count': 0, 'description': ''}
@@ -30,7 +30,7 @@ path_template = {'url': '', 'timeout_count': 0, 'description': ''}
 crc_extensions = ['', '.php', '.jsp', '.asp', '.html']
 
 # Values used to generate file list (maybe this sould be configurable)
-file_suffixes = ['.sql', '.bak', '-bak', '.old', '-old', '.dmp', '.dump', '.zip',
+file_suffixes = ['.sql', '.bak', '-bak', '.old', '-old', '.dmp', '.dump', '.zip', '.rar', '.7z',
                 '.tar.gz', '.tar.bz2', '.tar', '.tgz', '-bak', '~', '.swp', '.conf.old','.conf',
                 '.conf.orig', '.conf.bak', '.cnf', '.ini', '.inc', '.inc.old', '.inc.orig', '.log', '.txt', 
                 '.php.old', '.php.inc', '.php.orig', '.pwd', '.sql.old', '.sql.bak', '0', '1', '2', '.xml', 
@@ -40,12 +40,14 @@ file_suffixes = ['.sql', '.bak', '-bak', '.old', '-old', '.dmp', '.dump', '.zip'
 debug = False
 search_files = True
 fetch_timeout_secs = 3
-max_timeout_count = 5
+max_timeout_count = 8
 thread_count = 25
 target_host = ''
 use_tor = False
 raw_output = False
 user_agent = 'Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US)' # maximum compatibility
+files_only = False
+directories_only = False
 
 
 # Templates, used by plugins
