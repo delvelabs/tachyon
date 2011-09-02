@@ -74,7 +74,7 @@ def test_paths_exists():
     workers = manager.spawn_workers(conf.thread_count, TestPathExistsWorker)
     manager.wait_for_idle(workers, database.fetch_queue)
 
-    utils.output_info('Found ' + str(len(database.valid_paths) - 1) + ' valid paths')
+    utils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
 
 
 
