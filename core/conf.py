@@ -20,7 +20,7 @@
 version = '0.9'
 expected_path_responses = [200, 301, 302, 303, 307, 401, 403]
 expected_file_responses = [200, 301, 302, 303, 304, 307]
-timeout_codes = [0, 500, 503] 
+timeout_codes = [0, 500, 502, 503] 
 crc_sample_len = 200
 
 # Templates, used by plugins

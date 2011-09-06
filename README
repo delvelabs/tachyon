@@ -19,6 +19,7 @@ HOW TO HELP (for sysadmins)
 - Send me the result list and the directory listing
 
 TODO:
+- Add a DNS Cache to avoid hammering your dns server 
 - Add an match-string=404 mechanism for edge cases
 - Add callbacks method to plugins
 - Fix speedtester plugin (or remove it)
