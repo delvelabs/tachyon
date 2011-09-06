@@ -24,6 +24,30 @@ from httplib import BadStatusLine
 from core import conf, utils
 from urlparse import urlparse
 
+#def MyResolver(host):
+#  if host == 'news.bbc.co.uk':
+#    return '66.102.9.104' # Google IP
+#  else:
+#    return host
+
+#class MyHTTPConnection(httplib.HTTPConnection):
+#  def connect(self):
+#    self.sock = socket.create_connection((MyResolver(self.host),self.port),self.timeout)
+#class MyHTTPSConnection(httplib.HTTPSConnection):
+#  def connect(self):
+#    sock = socket.create_connection((MyResolver(self.host), self.port), self.timeout)
+#    self.sock = ssl.wrap_socket(sock, self.key_file, self.cert_file)
+
+#class MyHTTPHandler(urllib2.HTTPHandler):
+#  def http_open(self,req):
+#    return self.do_open(MyHTTPConnection,req)
+
+#class MyHTTPSHandler(urllib2.HTTPSHandler):
+#  def https_open(self,req):
+#    return self.do_open(MyHTTPSConnection,req)
+
+#opener = urllib2.build_opener(MyHTTPHandler,MyHTTPSHandler)
+#urllib2.install_opener(opener)
 
 class SmartRedirectHandler(HTTPRedirectHandler):    
     """ Handle various bogus redirects """ 
@@ -58,37 +82,44 @@ class SmartRedirectHandler(HTTPRedirectHandler):
             # Else, it's a bogus redirect
             utils.output_debug("Hit " + str(code) + " with invalid redirect from: " + request.get_full_url()) 
             return 404    
-                 
-        
+
         
     def http_error_301(self, req, fp, code, msg, headers):  
+        """ Handle 301 response code """
         real_code = self.detect_real_response(code, req, headers)
         if code != real_code:
             return HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, real_code, msg, headers)
         else:
             return HTTPRedirectHandler.http_error_301(self, req, fp, code, msg, headers)                                           
 
+
     def http_error_302(self, req, fp, code, msg, headers):   
+        """ Handle 302 response code """
         real_code = self.detect_real_response(code, req, headers)
         if code != real_code:
             return HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, real_code, msg, headers)
         else:
             return HTTPRedirectHandler.http_error_301(self, req, fp, code, msg, headers)    
         
+        
     def http_error_303(self, req, fp, code, msg, headers):  
+        """ Handle 303 response code """
         real_code = self.detect_real_response(code, req, headers)
         if code != real_code:
             return HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, real_code, msg, headers)
         else:
             return HTTPRedirectHandler.http_error_301(self, req, fp, code, msg, headers)    
 
-    def http_error_307(self, req, fp, code, msg, headers):   
+
+    def http_error_307(self, req, fp, code, msg, headers):
+        """ Handle 307 response code """   
         real_code = self.detect_real_response(code, req, headers)
         if code != real_code:
             return HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, real_code, msg, headers)
         else:
             return HTTPRedirectHandler.http_error_301(self, req, fp, code, msg, headers)    
              
+
 
 class Fetcher(object):
     def read_content(self, response, limit_len=True):
