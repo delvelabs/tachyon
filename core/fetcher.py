@@ -17,13 +17,10 @@
 #
 import socket
 import random
-import re
-import urllib2
 from core import database
 from _socket import timeout
-from urllib2 import URLError, HTTPError, urlopen, Request
-from urllib2 import ProxyHandler, build_opener, install_opener, HTTPRedirectHandler, HTTPDefaultErrorHandler
-from urllib2 import HTTPHandler, HTTPSHandler
+from urllib2 import URLError, HTTPError, HTTPHandler, HTTPSHandler
+from urllib2 import ProxyHandler, build_opener, HTTPRedirectHandler, HTTPDefaultErrorHandler
 from httplib import BadStatusLine, HTTPConnection, HTTPSConnection
 from core import conf, utils
 from urlparse import urlparse

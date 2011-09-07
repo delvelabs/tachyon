@@ -20,7 +20,6 @@
 #    print chr(char)
 
 from core import conf, database, utils
-from urlparse import urljoin
 
 def add_generated_path(char):
     """ Add path to database """
