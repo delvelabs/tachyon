@@ -16,6 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 import socket
+import ssl
 import random
 from core import database
 from _socket import timeout
