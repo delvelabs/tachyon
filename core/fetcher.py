@@ -16,38 +16,56 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 import socket
+import random
 import re
+import urllib2
+from core import database
 from _socket import timeout
 from urllib2 import URLError, HTTPError, urlopen, Request
 from urllib2 import ProxyHandler, build_opener, install_opener, HTTPRedirectHandler, HTTPDefaultErrorHandler
-from httplib import BadStatusLine
+from urllib2 import HTTPHandler, HTTPSHandler
+from httplib import BadStatusLine, HTTPConnection, HTTPSConnection
 from core import conf, utils
 from urlparse import urlparse
+from threading import Lock
 
-#def MyResolver(host):
-#  if host == 'news.bbc.co.uk':
-#    return '66.102.9.104' # Google IP
-#  else:
-#    return host
+def get_random_ip_from_cache(cache_info):
+    """ Get a random ip from the caches entries """
+    random_entry = cache_info[random.randint(0, len(cache_info) - 1)]
+    host_port = random_entry[4]
+    return host_port[0] 
 
-#class MyHTTPConnection(httplib.HTTPConnection):
-#  def connect(self):
-#    self.sock = socket.create_connection((MyResolver(self.host),self.port),self.timeout)
-#class MyHTTPSConnection(httplib.HTTPSConnection):
-#  def connect(self):
-#    sock = socket.create_connection((MyResolver(self.host), self.port), self.timeout)
-#    self.sock = ssl.wrap_socket(sock, self.key_file, self.cert_file)
+def resolve_cached(host, port):
+    """ Fetch the resolved ip addresses from the cache and return a random address if load-balanced """
+    resolved = database.dns_cache.get(host)
+    if not resolved:
+        lock = Lock()
+        lock.acquire()
+        utils.output_debug("Host entry not found in cache for host:" + str(host) + ", resolving")
+        resolved = socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM)
+        database.dns_cache[host] = resolved
+        lock.release()
+    
+    return get_random_ip_from_cache(resolved), port    
+        
 
-#class MyHTTPHandler(urllib2.HTTPHandler):
-#  def http_open(self,req):
-#    return self.do_open(MyHTTPConnection,req)
+class TachyonHTTPConnection(HTTPConnection):
+    def connect(self):
+        self.sock = socket.create_connection(resolve_cached(self.host,self.port),self.timeout)
+    
+class TachyonHTTPSConnection(HTTPSConnection):
+    def connect(self):
+        sock = socket.create_connection(resolve_cached(self.host,self.port), self.timeout)
+        self.sock = ssl.wrap_socket(sock, self.key_file, self.cert_file)
 
-#class MyHTTPSHandler(urllib2.HTTPSHandler):
-#  def https_open(self,req):
-#    return self.do_open(MyHTTPSConnection,req)
+class TachyonHTTPHandler(HTTPHandler):
+    def http_open(self,req):
+        return self.do_open(TachyonHTTPConnection,req)
 
-#opener = urllib2.build_opener(MyHTTPHandler,MyHTTPSHandler)
-#urllib2.install_opener(opener)
+class TachyonHTTPSHandler(HTTPSHandler):
+    def https_open(self,req):
+        return self.do_open(TachyonHTTPSConnection,req)
+
 
 class SmartRedirectHandler(HTTPRedirectHandler):    
     """ Handle various bogus redirects """ 
@@ -148,9 +166,9 @@ class Fetcher(object):
 
             if conf.use_tor:
                 proxy_support = ProxyHandler({'http': 'http://localhost:8118'})
-                opener = build_opener(proxy_support, redirect_handler)
+                opener = build_opener(TachyonHTTPHandler, TachyonHTTPSHandler, proxy_support, redirect_handler)
             else:
-                opener = build_opener(redirect_handler)
+                opener = build_opener(TachyonHTTPHandler, TachyonHTTPSHandler, redirect_handler)
 
             socket.setdefaulttimeout(timeout)
             opener.addheaders = [('User-Agent', user_agent)]    

@@ -43,6 +43,9 @@ bad_crcs = list()
 """ namecache is used across the app to avoid adding duplicates url """
 name_cache = dict()
 
+""" Dns resolve cache """
+dns_cache = dict()
+
 
 # Stats values
 item_count = 0

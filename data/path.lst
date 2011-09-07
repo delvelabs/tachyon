@@ -34,6 +34,7 @@
 {"url" : "/cfg", "description" : "Config directory"}
 {"url" : "/conf", "description" : "Config directory"}
 {"url" : "/css", "description" : "CSS directory"}
+{"url" : "/common", "description" : "common content directory"}
 {"url" : "/config", "description" : "Config directory"}
 {"url" : "/configuration", "description" : "Config directory"}
 {"url" : "/content", "description" : "Static content directory"}
