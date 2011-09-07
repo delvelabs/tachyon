@@ -269,7 +269,7 @@ class PrintWorker(Thread):
     def run(self):
         while not self.kill_received:
             text = database.messages_output_queue.get()
-            print text
+            print(text)
             database.messages_output_queue.task_done()
 
 
@@ -283,6 +283,6 @@ class PrintResultsWorker(Thread):
     def run(self):
         while not self.kill_received:
             text = database.results_output_queue.get()
-            print text
+            print(text)
             database.results_output_queue.task_done()
 

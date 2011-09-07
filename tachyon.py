@@ -179,8 +179,8 @@ def test_file_exists():
 
 def print_program_header():
     """ Print a _cute_ program header """
-    print "\n\t Tachyon - Fast Multi-Threaded Web Discovery Tool"
-    print "\t https://github.com/initnull/tachyon\n" 
+    print("\n\t Tachyon - Fast Multi-Threaded Web Discovery Tool")
+    print("\t https://github.com/initnull/tachyon\n") 
 
 
 def generate_options():
@@ -236,7 +236,7 @@ if __name__ == "__main__":
         
     if len(sys.argv) <= 1:
         parser.print_help()
-        print ''
+        print('')
         sys.exit()
    
     conf.target_host = args[1]
