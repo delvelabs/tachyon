@@ -46,6 +46,7 @@
 {"url" : "/database", "description" : "Database directory"}
 {"url" : "/document", "description" : "document directory"}
 {"url" : "/documents", "description" : "document directory"}
+{"url" : "/docs", "description" : "document directory"}
 {"url" : "/download", "description" : "file directory"}
 {"url" : "/downloads", "description" : "file directory"}
 {"url" : "/delete", "description" : "Backup Directory"}
@@ -55,12 +56,12 @@
 {"url" : "/db", "description" : "Database directory"}
 {"url" : "/dummy", "description" : "Dummy directory"}
 {"url" : "/_dummy", "description" : "Dummy directory"}
+{"url" : "/examples", "description" : "Examples directory"}
 {"url" : "/files", "description" : "Static files directory"}
 {"url" : "/file", "description" : "Static files directory"}
 {"url" : "/fileadmin", "description" : "Static files administration directory"}
 {"url" : "/ftp", "description" : "Ftp directory"}
 {"url" : "/forum", "description" : "Forum directory"}
-{"url" : "/.git", "description" : "git directory"}
 {"url" : "/groupware", "description" : "Groupware directory"}
 {"url" : "/img", "description" : "Images directory"}
 {"url" : "/images", "description" : "Images directory"}
@@ -83,8 +84,6 @@
 {"url" : "/migrate", "description" : "Database migration directory"}
 {"url" : "/modules", "description" : "Modules directory"}
 {"url" : "/old", "description" : "Old website version"}
-{"url" : "/phpMyAdmin", "description" : "phpMyAdmin installation"}
-{"url" : "/phpmyadmin", "description" : "phpMyAdmin installation"}
 {"url" : "/private", "description" : "Private directory"}
 {"url" : "/protected", "description" : "_Protected_ directory"}
 {"url" : "/pub", "description" : "Public directory"}
@@ -97,7 +96,6 @@
 {"url" : "/settings", "description" : "Settings directory"}
 {"url" : "/sites", "description" : "Subsites directory"}
 {"url" : "/slimstat", "description" : "SlimStats"}
-{"url" : "/sql", "description" : "Sql backups directory"}
 {"url" : "/src", "description" : "Source directory"}
 {"url" : "/.ssh", "description" : "SSH config directory"}
 {"url" : "/safe", "description" : "_Safe_ directory"}
@@ -107,7 +105,6 @@
 {"url" : "/status", "description" : "Stats directory"}
 {"url" : "/statistics", "description" : "Stats directory"}
 {"url" : "/system", "description" : "System directory"}
-{"url" : "/.svn", "description" : "svn directory"}
 {"url" : "/update", "description" : "Update directory"}
 {"url" : "/updates", "description" : "Update directory"}
 {"url" : "/upload", "description" : "Upload directory"}
@@ -147,3 +144,36 @@
 # ActiveCollab
 {"url" : "/activeCollab", "description" : "ActiveCollab"}
 
+# Source control directory
+{"url" : "/CVS", "description" : "CVS directory"}
+{"url" : "/.git", "description" : "Git directory"}
+{"url" : "/.hg", "description" : "Mercurial directory"}
+{"url" : "/.svn", "description" : "SVN directory"}
+
+# Tomcat
+{"url" : "/manager/html", "description" : "Tomcat manager"}
+{"url" : "/host-manager/html", "description" : "Tomcat virtual host manager"}
+
+# JBoss
+{"url" : "/jmx-console", "description" : "JBoss 6 JMX console"}
+{"url" : "/web-console", "description" : "JBoss 6 web console"}
+{"url" : "/console", "description" : "Admin console / JBoss 7 console"}
+
+# phpMyAdmin (source: http://downloads.skullsecurity.org/passwords/phpmyadmin-locations.txt)
+{"url" : "/dh_phpmyadmin", "description" : "Dreamhost phpMyAdmin installation"}
+{"url" : "/myadmin", "description" : "phpMyAdmin installation"}
+{"url" : "/phpMyAdmin", "description" : "phpMyAdmin installation"}
+{"url" : "/phpmyadmin", "description" : "phpMyAdmin installation"}
+{"url" : "/phpmyadmin2", "description" : "phpMyAdmin installation"}
+{"url" : "/phpMyAdmin2", "description" : "phpMyAdmin installation"}
+{"url" : "/PMA", "description" : "phpMyAdmin installation"}
+{"url" : "/pma", "description" : "phpMyAdmin installation"}
+
+# Generic database related directories
+{"url" : "/sql", "description" : "Sql backups directory"}
+{"url" : "/sqlmanager", "description" : "Database web console"}
+{"url" : "/mysqlmanager", "description" : "Database web console"}
+{"url" : "/mysql", "description" : "Database web console"}
+{"url" : "/sqlweb", "description" : "Database web console"}
+{"url" : "/websql", "description" : "Database web console"}
+{"url" : "/webdb", "description" : "Database web console"}
