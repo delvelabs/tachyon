@@ -17,5 +17,5 @@
 #
 
 # Add all host plugins here
-__all__ = ["Robots", "PathGenerator", "HostProcessor"]
+__all__ = ["Robots", "PathGenerator", "HostProcessor", "ScanExtraPorts"]
   
