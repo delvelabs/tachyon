@@ -1,4 +1,8 @@
+#PyCharm
 *.iml
 .idea
 *.pyc
 *~
+#PyDev
+.project
+.pydevproject
