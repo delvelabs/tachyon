@@ -63,6 +63,7 @@
 {"url" : "/ftp", "description" : "Ftp directory"}
 {"url" : "/forum", "description" : "Forum directory"}
 {"url" : "/groupware", "description" : "Groupware directory"}
+{"url" : "/gui", "description" : "GUI / uTorrent Web GUI"}
 {"url" : "/img", "description" : "Images directory"}
 {"url" : "/images", "description" : "Images directory"}
 {"url" : "/import", "description" : "Import directory"}
@@ -158,6 +159,9 @@
 {"url" : "/jmx-console", "description" : "JBoss 6 JMX console"}
 {"url" : "/web-console", "description" : "JBoss 6 web console"}
 {"url" : "/console", "description" : "Admin console / JBoss 7 console"}
+
+# Resin
+{"url" : "/resin-admin", "description" : "Resin administration"}
 
 # phpMyAdmin (source: http://downloads.skullsecurity.org/passwords/phpmyadmin-locations.txt)
 {"url" : "/dh_phpmyadmin", "description" : "Dreamhost phpMyAdmin installation"}
