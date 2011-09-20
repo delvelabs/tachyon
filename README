@@ -13,6 +13,10 @@ It provides:
  - Common directory lookup
  - Fast Multi-Threaded execution
 
+REQUIREMENTS    
+- A mainstream OS (Windows, Linux, Mac OS X)
+- Python 2.6+
+
 HOW TO HELP (for sysadmins)
 - Run tachyon on your domain
 - Run a recursive directory listing of your domain (I don't need to know what is the domain)

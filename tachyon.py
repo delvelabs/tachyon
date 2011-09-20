@@ -223,10 +223,21 @@ def parse_args(parser, system_args):
     conf.directories_only = options.search_dirs
     return options, args    
 
+def test_python_version():
+    """ Test python version, return True if version is high enough, False if not """
+    if sys.version_info < (2, 6):
+        return False
+    else:
+        return True
+        
 
 # Entry point / main application logic
 if __name__ == "__main__":
-    
+    # Test python version
+    if not test_python_version():
+        print("Your python interpreter is so old it has to wear diapers. Please upgrade to at least 2.6 ;)")
+        sys.exit()
+        
     # Parse command line
     parser = generate_options()
     options, args = parse_args(parser, sys.argv)
