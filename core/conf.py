@@ -45,7 +45,7 @@ thread_count = 25
 target_host = ''
 use_tor = False
 raw_output = False
-user_agent = 'Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US)' # maximum compatibility
+user_agent = 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)' # maximum compatibility
 files_only = False
 directories_only = False
 
