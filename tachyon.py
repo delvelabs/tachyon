@@ -225,7 +225,7 @@ def parse_args(parser, system_args):
 
 def test_python_version():
     """ Test python version, return True if version is high enough, False if not """
-    if sys.version_info < (2, 6):
+    if sys.version_info[:2] < (2, 6):
         return False
     else:
         return True
