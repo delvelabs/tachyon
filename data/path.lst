@@ -124,6 +124,7 @@
 {"url" : "/webedit", "description" : "Admin directory"}
 {"url" : "/work", "description" : "work directory"}
 {"url" : "/WEB-INF", "description" : "web-inf directory"}
+{"url" : "/META-INF", "description" : "meta-inf directory"}
 {"url" : "/wp-admin", "description" : "Wordpress admin section"}
 {"url" : "/xml", "description" : "Static xml directory"}
 
