@@ -18,6 +18,7 @@
 {"url" : "access", "description" : "access log"}
 {"url" : "account", "description" : "Accounts"}
 {"url" : "accounts", "description" : "Accounts"}
+{"url" : "analog.html", "description" : "Analog web statistics", "no_suffix": True}
 {"url" : "admin", "description" : "Admin file"}
 {"url" : "administrators", "description" : "Password file"}
 {"url" : "application", "description" : "Application file"}
@@ -111,3 +112,4 @@
 # Common guess we don't want to be appended with suffixes
 {"url" : "index2.php", "description" : "Backup index page", "no_suffix": True}
 {"url" : "index3.php", "description" : "Backup index page", "no_suffix": True}
+
