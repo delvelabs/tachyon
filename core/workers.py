@@ -18,6 +18,7 @@
 
 
 import re
+import sys
 from core import database, conf, utils
 from core.fetcher import Fetcher
 from threading import Thread, Lock
@@ -270,6 +271,7 @@ class PrintWorker(Thread):
         while not self.kill_received:
             text = database.messages_output_queue.get()
             print(text)
+            sys.stdout.flush()
             database.messages_output_queue.task_done()
 
 
@@ -284,5 +286,6 @@ class PrintResultsWorker(Thread):
         while not self.kill_received:
             text = database.results_output_queue.get()
             print(text)
+            sys.stdout.flush()
             database.results_output_queue.task_done()
 
