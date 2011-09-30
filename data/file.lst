@@ -114,4 +114,4 @@
 {"url" : "index3.php", "description" : "Backup index page", "no_suffix": True}
 
 # Svn entries file
-{"url" : "/.svn/entries", "description" : "SVN entries file", "no_suffix": True, "match_string" : "wc-entries"}
+{"url" : ".svn/entries", "description" : "SVN entries file", "no_suffix": True}
