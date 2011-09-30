@@ -149,10 +149,10 @@
 {"url" : "/activeCollab", "description" : "ActiveCollab"}
 
 # Source control directory
+# /.svn omited since theres a plugin to manage it
 {"url" : "/CVS", "description" : "CVS directory"}
 {"url" : "/.git", "description" : "Git directory"}
 {"url" : "/.hg", "description" : "Mercurial directory"}
-{"url" : "/.svn", "description" : "SVN directory"}
 
 # Tomcat
 {"url" : "/manager/html", "description" : "Tomcat manager"}
