@@ -184,7 +184,7 @@ class TestPathExistsWorker(Thread):
                         if response_code == 500:
                             utils.output_found('Internal Server Error, ' + description + ' at: ' + url)    
                         elif response_code == 403:
-                            utils.output_found('Forbidden ' + description + ' at: ' + url)
+                            utils.output_found('*Forbidden* ' + description + ' at: ' + url)
                         else:
                             utils.output_found(description + ' at: ' + url)
                         
