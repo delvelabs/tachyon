@@ -20,7 +20,6 @@ from core import conf, utils, database
 from core.fetcher import Fetcher
 from urlparse import urljoin
 from xml.etree import ElementTree
-from xml.etree.ElementTree import ParseError
 
 def execute():
     """ Fetch /.svn/entries and parse for target paths """
@@ -46,7 +45,7 @@ def execute():
                         if current_template not in database.paths:
                             database.paths.append(current_template)
                             added += 1
-        except ParseError:
+        except Error:
             utils.output_info(' - Svn Plugin: no usable entries in /.svn/entries')
         else:
             if added > 0:
