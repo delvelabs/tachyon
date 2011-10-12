@@ -140,21 +140,21 @@ class SmartRedirectHandler(HTTPRedirectHandler):
 class Fetcher(object):
     def read_content(self, response, limit_len=True):
         """ Reads the content from the response and build a string with it """
-        if limit_len:
-            content = response.read(conf.crc_sample_len)
-        else:
-            content = ''
-            while True:
-                try:
+        try:
+            if limit_len:
+                content = response.read(conf.crc_sample_len)
+            else:
+                content = ''
+                while True:
                     tmp = response.read(1024)
                     if tmp == '':
                         break
                     else:
                         content = content + tmp
-                except timeout:
-                        raise timeout
-
-        return content    
+        except timeout:
+            raise timeout
+        else:
+            return content    
 
 
     def fetch_url(self, url, user_agent, timeout, limit_len=True):
