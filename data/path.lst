@@ -29,6 +29,7 @@
 {"url" : "/archives", "description" : "Archive directory"}
 {"url" : "/backup", "description" : "Backup directory"}
 {"url" : "/backups", "description" : "Backup directory"}
+{"url" : "/bar", "description" : "Random directory"}
 {"url" : "/board", "description" : "Forum directory"}
 {"url" : "/cache", "description" : "Cache directory"}
 {"url" : "/cfg", "description" : "Config directory"}
@@ -62,6 +63,7 @@
 {"url" : "/fileadmin", "description" : "Static files administration directory"}
 {"url" : "/ftp", "description" : "Ftp directory"}
 {"url" : "/forum", "description" : "Forum directory"}
+{"url" : "/foo", "description" : "Random directory"}
 {"url" : "/groupware", "description" : "Groupware directory"}
 {"url" : "/gui", "description" : "GUI / uTorrent Web GUI"}
 {"url" : "/img", "description" : "Images directory"}

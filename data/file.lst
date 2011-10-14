@@ -29,6 +29,7 @@
 {"url" : "archive", "description" : "archive file"}
 {"url" : "archives", "description" : "archive file"}
 {"url" : "backup", "description" : "database backup"}
+{"url" : "bar", "description" : "random backup"}
 {"url" : "cachemgr.cgi", "description" : "Squid proxy admin interface", "no_suffix": True}
 {"url" : "ccbill", "description" : "CCBill.com logs"}
 {"url" : "config", "description" : "Config file"}
@@ -45,6 +46,7 @@
 {"url" : "error", "description" : "error log"}
 {"url" : "errors", "description" : "errors log"}
 {"url" : "export", "description" : "database backup"}
+{"url" : "foo", "description" : "random backup"}
 {"url" : ".htaccess", "description" : "htacces file", "no_suffix": True}
 {"url" : ".htpasswd", "description" : "htpasswd file", "no_suffix": True}
 {"url" : "id_rsa", "description" : "rsa private key", "no_suffix": True}
