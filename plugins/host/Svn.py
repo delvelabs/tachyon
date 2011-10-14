@@ -45,7 +45,7 @@ def execute():
                         if current_template not in database.paths:
                             database.paths.append(current_template)
                             added += 1
-        except Error:
+        except Exception:
             utils.output_info(' - Svn Plugin: no usable entries in /.svn/entries')
         else:
             if added > 0:

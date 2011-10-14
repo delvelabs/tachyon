@@ -185,4 +185,5 @@ class Fetcher(object):
             content = ''
             headers = dict()
             
+            
         return code, content, headers
