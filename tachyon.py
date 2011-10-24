@@ -329,8 +329,6 @@ if __name__ == "__main__":
 
         # Clean logs output
         if not conf.directories_only:
-            # Reset estimated time
-            database.scan_start_time = datetime.now()
             # Scan
             utils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
             database.messages_output_queue.join()

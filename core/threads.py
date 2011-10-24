@@ -42,10 +42,14 @@ class ThreadManager(object):
 
                         # move this somewhere else
                         utils.output_message_raw('')
-                        stats_delay = database.throttle_delay
-                        if stats_delay < 1:
-                            stats_delay = 1
-                        remaining = ((datetime.now() - database.scan_start_time) / database.item_count) * database.fetch_queue.qsize() * int(stats_delay)
+                        average_timeouts = database.timeouts / database.item_count
+                        estimated_future_timeouts = average_timeouts * database.fetch_queue.qsize()
+                        estimated_total_remaining = int(estimated_future_timeouts + database.fetch_queue.qsize())
+                        total_requests = database.item_count + database.timeouts
+                        elapsed_time = datetime.now() - database.scan_start_time
+                        request_per_seconds = elapsed_time / total_requests
+                        remaining = request_per_seconds * estimated_total_remaining  
+
                         utils.output_info('Done: ' + str(database.item_count) + ', remaining: ' + str(database.fetch_queue.qsize()) + ', timeouts: ' +
                             str(database.timeouts) + ', throttle: ' + str(database.throttle_delay) + "s, remaining: " + str(remaining)[:-7] + " (press ctrl+c again to exit)")
                         # end of things to move

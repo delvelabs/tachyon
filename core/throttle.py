@@ -18,6 +18,8 @@
 from core import database, conf, utils
 from time import sleep
 
+
+
 def decrease_throttle_delay():
     """ If we reach this code, a worker successfully completed a request, we reduce throttling for all threads."""
     if database.throttle_delay > 0:
