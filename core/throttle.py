@@ -32,11 +32,10 @@ def increase_throttle_delay():
         if conf.debug:
             utils.output_debug('Increasing throttle limit: ' + str(database.throttle_delay))
 
-def throttle():
+def get_throttle():
     """ Throttle anyone who call this with the current throttle delay """
     if database.throttle_delay > 0.0:
-        if conf.debug:
-            utils.output_debug('Throttling worker: ' + str(database.throttle_delay))
-
-        sleep(database.throttle_delay)
+    	return database.throttle_delay
+    else:
+    	return 0.0
 

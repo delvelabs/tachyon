@@ -90,6 +90,7 @@
 {"url" : "/private", "description" : "Private directory"}
 {"url" : "/protected", "description" : "_Protected_ directory"}
 {"url" : "/pub", "description" : "Public directory"}
+{"url" : "/public", "description" : "Public directory"}
 {"url" : "/photo", "description" : "Photos directory"}
 {"url" : "/photos", "description" : "Photos directory"}
 {"url" : "/random", "description" : "Random stuff directory"}
