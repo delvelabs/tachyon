@@ -12,6 +12,7 @@ It provides:
  - Robots.txt support
  - Common directory lookup
  - Fast Multi-Threaded execution
+ - Automatic variable rate limiter
 
 REQUIREMENTS    
 - A mainstream OS (Windows, Linux, Mac OS X)
@@ -25,10 +26,8 @@ HOW TO HELP (for sysadmins)
 TODO:
 - Add an match-string=404 mechanism for edge cases
 - Add callbacks method to plugins
-- Fix speedtester plugin (or remove it)
 - Support files in robots plugin
-- Do not scan readable directories (index of), just report them.
-- Variable automatic speed limiter
+- Add support for non-xml /.svn/entries files
 
 
 Using tor
