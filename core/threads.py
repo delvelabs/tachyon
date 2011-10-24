@@ -22,6 +22,7 @@ import sys
 from core import utils, database
 from time import sleep
 from threading import Lock
+from datetime import datetime, timedelta
 
 class ThreadManager(object):
     def __init__(self):
@@ -38,9 +39,17 @@ class ThreadManager(object):
                     try:
                         lock = Lock()
                         lock.acquire()
+
+                        # move this somewhere else
                         utils.output_message_raw('')
-                        utils.output_info('Done: ' + str(database.item_count) + ', remaining: ' + str(database.fetch_queue.qsize()) + ', timeouts: ' + 
-                            str(database.timeouts) + ', current: ' + str(database.current_url) + " (press ctrl+c again to exit)")
+                        stats_delay = database.throttle_delay
+                        if stats_delay < 1:
+                            stats_delay = 1
+                        remaining = ((datetime.now() - database.scan_start_time) / database.item_count) * database.fetch_queue.qsize() * int(stats_delay)
+                        utils.output_info('Done: ' + str(database.item_count) + ', remaining: ' + str(database.fetch_queue.qsize()) + ', timeouts: ' +
+                            str(database.timeouts) + ', throttle: ' + str(database.throttle_delay) + "s, remaining: " + str(remaining)[:-7] + " (press ctrl+c again to exit)")
+                        # end of things to move
+
                         lock.release()
                         sleep(1)  
                     except KeyboardInterrupt:

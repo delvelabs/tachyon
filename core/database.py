@@ -17,6 +17,7 @@
 #
 
 import Queue
+from datetime import datetime
 
 """ Path list is used to hold loaded path from disk """
 paths = list()
@@ -44,6 +45,14 @@ name_cache = dict()
 
 """ Dns resolve cache """
 dns_cache = dict()
+
+""" Throttle management """
+throttle_delay = 0.0
+throttled_threads = 0
+
+""" Scan start time """
+scan_start_time = datetime.now()
+
 
 
 # Stats values

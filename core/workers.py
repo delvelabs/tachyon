@@ -19,7 +19,7 @@
 
 import re
 import sys
-from core import database, conf, utils
+from core import database, conf, utils, throttle
 from core.fetcher import Fetcher
 from threading import Thread, Lock
 from binascii import crc32
@@ -37,13 +37,19 @@ def update_processed_items():
     lock.acquire()
     database.item_count += 1
     lock.release()
-    
+
+def compute_limited_crc(content, length):
+    """ Compute the CRC of len bytes, use everything is len(content) is smaller than asked """
+    if len(content) < length:
+        return crc32(content[0:len(content) - 1]) 
+    else:            
+        return crc32(content[0:length - 1])
+
 def update_timeouts():
     lock = Lock()
     lock.acquire()
     database.timeouts += 1
     lock.release()
-    
 
 def handle_timeout(queued, url, thread_id, output=True):
     """ Handle timeout operation for workers """
@@ -60,18 +66,9 @@ def handle_timeout(queued, url, thread_id, output=True):
     elif output:
         # We definitely timed out
         utils.output_timeout(queued.get('description') + ' at ' + url)
-    
-    # update timeout count   
+
+    # update timeout count
     update_timeouts()
-        
-
-def compute_limited_crc(content, length):
-    """ Compute the CRC of len bytes, use everything is len(content) is smaller than asked """
-    if len(content) < length:
-        return crc32(content[0:len(content) - 1]) 
-    else:            
-        return crc32(content[0:length - 1])
-
 
 class Compute404CRCWorker(Thread):
     """
@@ -95,7 +92,10 @@ class Compute404CRCWorker(Thread):
 
                 utils.output_debug("Computing specific 404 CRC for: " + str(url))
                 update_stats(url)
-                
+
+                # Throttle if needed
+                throttle.throttle()
+
                 # Fetch the target url
                 response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)
 
@@ -103,6 +103,8 @@ class Compute404CRCWorker(Thread):
                 # if timeout count is under max timeout count
                 if response_code is 0 or response_code is 500:
                     handle_timeout(queued, url, self.thread_id, output=self.output)
+                    # increase throttle delay
+                    throttle.increase_throttle_delay()
                 elif response_code in conf.expected_file_responses:
                     # Compute the CRC32 of this url. This is used mainly to validate a fetch against a model 404
                     # All subsequent files that will be joined to those path will use the path crc value since
@@ -117,7 +119,8 @@ class Compute404CRCWorker(Thread):
                     utils.output_debug("Computed and saved a 404 crc for: " + str(queued))
                     utils.output_debug("404 CRC'S: " + str(database.bad_crcs))
 
-                # We are done
+                # Decrease trottled thread count
+                throttle.decrease_throttle_delay()
                 update_processed_items()
                 database.fetch_queue.task_done()
 
@@ -149,7 +152,10 @@ class TestPathExistsWorker(Thread):
                 utils.output_debug("Testing directory: " + url + " " + str(queued))
 
                 update_stats(url)
-                
+
+                 # Throttle if needed
+                throttle.throttle()
+
                 # Fetch directory
                 response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)
                 
@@ -167,7 +173,9 @@ class TestPathExistsWorker(Thread):
                 #utils.output_debug("Code: " + str(response_code) + " on: " + url)
                 # handle timeout
                 if response_code in conf.timeout_codes:
-                    handle_timeout(queued, url, self.thread_id, output=self.output)    
+                    handle_timeout(queued, url, self.thread_id, output=self.output)
+                    # increase throttle delay
+                    throttle.increase_throttle_delay()
                 elif response_code in conf.expected_path_responses:
                     crc = compute_limited_crc(content, conf.crc_sample_len)
 
@@ -191,6 +199,7 @@ class TestPathExistsWorker(Thread):
 
 
                 # Mark item as processed
+                throttle.decrease_throttle_delay()
                 update_processed_items()
                 database.fetch_queue.task_done()
             except Empty:
@@ -221,7 +230,10 @@ class TestFileExistsWorker(Thread):
 
                 utils.output_debug("Testing: " + url + " " + str(queued))
                 update_stats(url)
-                    
+
+                # Throttle if needed
+                throttle.throttle()
+
                 # Fetch the target url
                 if match_string:
                     response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
@@ -231,6 +243,7 @@ class TestFileExistsWorker(Thread):
                 # handle timeout
                 if response_code in conf.timeout_codes:
                     handle_timeout(queued, url, self.thread_id, output=self.output)
+                    throttle.increase_throttle_delay()
                 elif response_code in conf.expected_file_responses:
                     # At this point each directory should have had his 404 crc computed (tachyon main loop)
                     crc = compute_limited_crc(content, conf.crc_sample_len)
@@ -250,6 +263,7 @@ class TestFileExistsWorker(Thread):
                             utils.output_found(description + ' at: ' + url)
 
                 # Mark item as processed
+                throttle.decrease_throttle_delay()
                 update_processed_items()
                 database.fetch_queue.task_done()
             except Empty:

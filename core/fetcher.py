@@ -184,6 +184,10 @@ class Fetcher(object):
             code = 0
             content = ''
             headers = dict()
+        except Exception: # Edge case handling
+            code = 0
+            content = ''
+            headers = dict()
             
             
         return code, content, headers

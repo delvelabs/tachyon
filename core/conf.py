@@ -40,7 +40,7 @@ file_suffixes = ['.sql', '.bak', '-bak', '.old', '-old', '.dmp', '.dump', '.zip'
 debug = False
 search_files = True
 fetch_timeout_secs = 3
-max_timeout_count = 8
+max_timeout_count = 10
 thread_count = 25
 target_host = ''
 use_tor = False
@@ -48,6 +48,8 @@ raw_output = False
 user_agent = 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)' # maximum compatibility
 files_only = False
 directories_only = False
+throttle_increment = 0.5
+max_throttle = 10.0 # in seconds
 
 
 # Templates, used by plugins
