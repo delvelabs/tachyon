@@ -122,7 +122,6 @@ class Compute404CRCWorker(Thread):
                     utils.output_debug("404 CRC'S: " + str(database.bad_crcs))
                     
 
-                	
                 # Decrease throttle delay if needed
                 if not timeout:	
                     throttle.decrease_throttle_delay()
@@ -166,7 +165,7 @@ class TestPathExistsWorker(Thread):
                 # Fetch directory
                 timeout = False
                 response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)
-                
+
                 # Fetch '/' but don't submit it to more logging/existance tests
                 if queued.get('url') == '/':
                     if queued not in database.valid_paths:
@@ -174,6 +173,10 @@ class TestPathExistsWorker(Thread):
 
                     database.fetch_queue.task_done()
                     continue
+
+                # Add trailing / for paths
+                if url[:-1] != '/':
+                    url += '/'
 
                 if response_code == 500:
                     utils.output_debug("HIT 500 on: " + str(queued))
@@ -206,7 +209,7 @@ class TestPathExistsWorker(Thread):
                             utils.output_found(description + ' at: ' + url)
 
 
-             	# Decrease throttle delay if needed
+                # Decrease throttle delay if needed
                 if not timeout:	
                     throttle.decrease_throttle_delay()
 					
@@ -275,7 +278,7 @@ class TestFileExistsWorker(Thread):
                             database.valid_paths.append(queued)
                             utils.output_found(description + ' at: ' + url)
 
-				# Decrease throttle delay if needed
+                # Decrease throttle delay if needed
                 if not timeout:	
                     throttle.decrease_throttle_delay()
 					
