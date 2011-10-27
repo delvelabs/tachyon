@@ -19,6 +19,7 @@ import socket
 import ssl
 import random
 from core import database
+from difflib import SequenceMatcher
 from _socket import timeout
 from urllib2 import URLError, HTTPError, HTTPHandler, HTTPSHandler
 from urllib2 import ProxyHandler, build_opener, HTTPRedirectHandler, HTTPDefaultErrorHandler
@@ -91,13 +92,14 @@ class SmartRedirectHandler(HTTPRedirectHandler):
             # Redirected to some other location but with same file target (likely a load balancer proxy)
             # host.com/folder/ -> www.host.com/folder/
             # Follow this redirect
-            if parsed_target.path in parsed_redirect.path:
-                utils.output_debug("Hit " + str(code) + " with valid redirect from: " + request.get_full_url() + " to: " + str(location)) 
-                return code           
-            
-            # Else, it's a bogus redirect
-            utils.output_debug("Hit " + str(code) + " with invalid redirect from: " + request.get_full_url()) 
-            return 404    
+            matcher = SequenceMatcher(isjunk=None, a=parsed_target.path, b=parsed_redirect.path, autojunk=False)
+            if matcher.ratio > 0.5:
+                #utils.output_info("Valid redirect")
+                utils.output_debug("Hit " + str(code) + " with valid redirect from: " + request.get_full_url() + " to: " + str(location))
+                return code
+            else:
+                return 404
+
 
         
     def http_error_301(self, req, fp, code, msg, headers):  

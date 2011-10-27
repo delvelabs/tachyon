@@ -54,7 +54,6 @@ throttled_threads = 0
 scan_start_time = datetime.now()
 
 
-
 # Stats values
 item_count = 0
 timeouts = 0

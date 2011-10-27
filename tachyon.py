@@ -25,7 +25,6 @@ from core.workers import PrintWorker, PrintResultsWorker, Compute404CRCWorker, T
 from core.threads import ThreadManager
 from optparse import OptionParser
 from plugins import host, file
-from datetime import datetime
 
 def load_target_paths():
     """ Load the target paths in the database """
@@ -48,13 +47,19 @@ def benchmark_root_404():
     for ext in conf.crc_extensions:
         random_file = str(uuid.uuid4())
         path = dict(conf.path_template)
-        
+
         if path['url'] != '/':
-            path['url'] = '/' + random_file + ext   
+            path['url'] = '/' + random_file + ext
         else:
-            path['url'] = random_file + ext   
+            path['url'] = random_file + ext
             
         database.fetch_queue.put(path)
+
+    # Forced bogus path check
+    random_file = str(uuid.uuid4())
+    path = dict(conf.path_template)
+    path['url'] = '/' + random_file + '/'
+    database.fetch_queue.put(path)
 
     workers = manager.spawn_workers(len(conf.crc_extensions), Compute404CRCWorker)
     manager.wait_for_idle(workers, database.fetch_queue)

@@ -21,6 +21,7 @@ import re
 import sys
 from core import database, conf, utils, throttle
 from core.fetcher import Fetcher
+from difflib import SequenceMatcher
 from threading import Thread, Lock
 from binascii import crc32
 from Queue import Empty
@@ -162,6 +163,10 @@ class TestPathExistsWorker(Thread):
                 # Throttle if needed
                 sleep(throttle.get_throttle())
 
+                # Add trailing / for paths
+                if url[:-1] != '/':
+                    url += '/'
+
                 # Fetch directory
                 timeout = False
                 response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)
@@ -174,14 +179,9 @@ class TestPathExistsWorker(Thread):
                     database.fetch_queue.task_done()
                     continue
 
-                # Add trailing / for paths
-                if url[:-1] != '/':
-                    url += '/'
-
                 if response_code == 500:
                     utils.output_debug("HIT 500 on: " + str(queued))
-                    
-                #utils.output_debug("Code: " + str(response_code) + " on: " + url)
+
                 # handle timeout
                 if response_code in conf.timeout_codes:
                     handle_timeout(queued, url, self.thread_id, output=self.output)
