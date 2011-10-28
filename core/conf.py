@@ -50,6 +50,7 @@ files_only = False
 directories_only = False
 throttle_increment = 0.5
 max_throttle = 10.0 # in seconds
+recursive_depth_limit=2
 
 
 # Templates, used by plugins

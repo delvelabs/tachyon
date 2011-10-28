@@ -13,6 +13,7 @@ It provides:
  - Common directory lookup
  - Fast Multi-Threaded execution
  - Automatic variable rate limiter
+ - Recursive scanning
 
 REQUIREMENTS    
 - A mainstream OS (Windows, Linux, Mac OS X)
@@ -28,7 +29,7 @@ TODO:
 - Add callbacks method to plugins
 - Support files in robots plugin
 - Add support for non-xml /.svn/entries files
-
+- Figure a way to limit issues with recursive 403's
 
 Using tor
 - Under Ubuntu:
