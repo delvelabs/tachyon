@@ -142,7 +142,8 @@
 {"url" : "/lib/sql", "description" : "Groupware SQL"}
 
 # phpBB
-{"url" : "/phpBB2", "description" : "phpBB"}
+{"url" : "/phpBB3", "description" : "phpBB3"}
+{"url" : "/phpBB2", "description" : "phpBB2"}
 {"url" : "/phpBB", "description" : "phpBB"}
 
 # Textpattern cms
