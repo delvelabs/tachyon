@@ -164,12 +164,12 @@ class TestPathExistsWorker(Thread):
                 sleep(throttle.get_throttle())
 
                 # Add trailing / for paths
-                if url[:-1] != '/' and url != '/':
+                if url[:-1] != '/':
                     url += '/'
 
                 # Fetch directory
                 timeout = False
-                response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
+                response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)
 
                 # Fetch '/' but don't submit it to more logging/existance tests
                 if queued.get('url') == '/':
@@ -190,14 +190,14 @@ class TestPathExistsWorker(Thread):
                     timeout = True
                 elif response_code in conf.expected_path_responses:
                     crc = compute_limited_crc(content, conf.crc_sample_len)
-                    utils.output_debug("Matching directory: " + str(queued) + " with crc: " + str(crc))
 
+                    utils.output_debug("Matching directory: " + str(queued) + " with crc: " + str(crc))
+                    
                     # Skip subfile testing if forbidden
                     if response_code == 401:
                         # Output result, but don't keep the url since we can't poke in protected folder
                         utils.output_found('Password Protected - ' + description + ' at: ' + url)
-                    elif crc not in database.bad_crcs and content.find('Additionally, a') < 0:
-                        
+                    elif crc not in database.bad_crcs:
                         # Add path to valid_path for future actions
                         database.valid_paths.append(queued)
 

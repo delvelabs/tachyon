@@ -71,41 +71,14 @@ def test_paths_exists():
     Spawn workers and turn off output for now, it would be irrelevant at this point. 
     """
     manager = ThreadManager()
-    
     # Fill work queue with fetch list
+    utils.output_info('Probing ' + str(len(database.paths)) + ' paths')
     for path in database.paths:
         database.fetch_queue.put(path)
-    
-    done_paths = []
-    recursion_depth = 0
-    
-    while database.fetch_queue.qsize() > 0:
-        utils.output_info('Probing ' + str(database.fetch_queue.qsize()) + ' paths')
-        
-        # Wait for initial valid path lookup
-        workers = manager.spawn_workers(conf.thread_count, TestPathExistsWorker)
-        manager.wait_for_idle(workers, database.fetch_queue)
-        recursion_depth += 1
-        
-        if not conf.recursive:
-            break
-        
-        if recursion_depth >= conf.recursive_depth_limit:
-            break    
-        
-        for validpath in database.valid_paths:
-            
-            if validpath['url'] == '/' or validpath['url'] in done_paths:
-                continue
-            
-            done_paths.append(validpath['url'])
-            
-            for path in database.paths:
-                if path['url'] in ('/', ''):
-                    continue
-                path = path.copy()
-                path['url'] = validpath['url'] + path['url']
-                database.fetch_queue.put(path)
+
+    # Wait for initial valid path lookup
+    workers = manager.spawn_workers(conf.thread_count, TestPathExistsWorker)
+    manager.wait_for_idle(workers, database.fetch_queue)
 
     utils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
 
@@ -225,11 +198,7 @@ def generate_options():
     parser.add_option("-f", action="store_true",
                     dest="search_files", help="search only for files [default: %default]", default=False)
     parser.add_option("-s", action="store_true",
-                    dest="search_dirs", help="search only for subdirs [default: %default]", default=False)
-    parser.add_option("-b", action="store_true",
-                    dest="recursive", help="Search for subdirs recursively [default: %default]", default=False)
-    parser.add_option("-l", metavar="LIMIT", dest="limit",
-                    help="limit recursive depth [default: %default]", default=conf.recursive_depth_limit)
+                    dest="search_dirs", help="search only for subdirs [default: %default]", default=False)         
     parser.add_option("-p", action="store_true",
                     dest="use_tor", help="Use Tor [default: %default]", default=False)
     parser.add_option("-r", action="store_true",
@@ -258,9 +227,7 @@ def parse_args(parser, system_args):
     conf.raw_output = options.raw_output
     conf.files_only = options.search_files
     conf.directories_only = options.search_dirs
-    conf.recursive = options.recursive
-    conf.recursive_depth_limit = int(options.limit)
-    return options, args
+    return options, args    
 
 def test_python_version():
     """ Test python version, return True if version is high enough, False if not """

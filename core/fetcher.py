@@ -79,7 +79,6 @@ class SmartRedirectHandler(HTTPRedirectHandler):
             
             return the response code if the redirect is valid and 404 if not
         """
-        
         location = headers.get('location')
         if location:
             parsed_target = urlparse(request.get_full_url())
@@ -94,11 +93,11 @@ class SmartRedirectHandler(HTTPRedirectHandler):
             # host.com/folder/ -> www.host.com/folder/
             # Follow this redirect
             matcher = SequenceMatcher(isjunk=None, a=parsed_target.path, b=parsed_redirect.path, autojunk=False)
-            if matcher.ratio() > 0.6:
+            if matcher.ratio > 0.5:
+                #utils.output_info("Valid redirect")
                 utils.output_debug("Hit " + str(code) + " with valid redirect from: " + request.get_full_url() + " to: " + str(location))
                 return code
             else:
-                # invalid/bogus redirect
                 return 404
 
 
@@ -181,9 +180,7 @@ class Fetcher(object):
             response.close()
         except HTTPError as httpe:
             code = httpe.code
-            content = self.read_content(httpe, False)
-            if not content:
-                content = ''
+            content = ''
             headers = dict(httpe.headers)
         except (URLError, BadStatusLine, timeout):
             code = 0
