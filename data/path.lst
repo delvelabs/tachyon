@@ -82,6 +82,8 @@
 {"url" : "/librairies", "description" : "Lib directory"}
 {"url" : "/local", "description" : "Local directory"}
 {"url" : "/login", "description" : "Login section"}
+{"url" : "/logs", "description" : "Logs directory"}
+{"url" : "/LogFiles", "description" : "IIS logs directory"}
 {"url" : "/mail", "description" : "Webmail directory"}
 {"url" : "/misc", "description" : "Miscellaneous directory"}
 {"url" : "/migrate", "description" : "Database migration directory"}
