@@ -117,9 +117,3 @@
 
 # Svn entries file
 {"url" : ".svn/entries", "description" : "SVN entries file", "no_suffix": True}
-
-{"url" : "Bonus", "description" : "Hackfest"}
-{"url" : "bonus", "description" : "Hackfest"}
-{"url" : "flag", "description" : "Hackfest"}
-{"url" : "Flag", "description" : "Hackfest"}
-{"url" : "hackfest", "description" : "Hackfest"}

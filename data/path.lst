@@ -196,5 +196,3 @@
 {"url" : "/sqlweb", "description" : "Database web console"}
 {"url" : "/websql", "description" : "Database web console"}
 {"url" : "/webdb", "description" : "Database web console"}
-
-{"url" : "/bonus", "description" : "Hackfest"}
