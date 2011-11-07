@@ -25,6 +25,7 @@
 {"url" : "/ajax", "description" : "Ajax section"}
 {"url" : "/all", "description" : "Storage directory"}
 {"url" : "/applet", "description" : "Applet directory"}
+{"url" : "/application", "description" : "Random application Directory"}
 {"url" : "/archive", "description" : "Archive directory"}
 {"url" : "/archives", "description" : "Archive directory"}
 {"url" : "/backup", "description" : "Backup directory"}
@@ -51,6 +52,7 @@
 {"url" : "/docs", "description" : "document directory"}
 {"url" : "/download", "description" : "file directory"}
 {"url" : "/downloads", "description" : "file directory"}
+{"url" : "/default", "description" : "Default Directory"}
 {"url" : "/delete", "description" : "Backup Directory"}
 {"url" : "/deleteme", "description" : "Backup Directory"}
 {"url" : "/demo", "description" : "Demo Directory"}
@@ -194,3 +196,5 @@
 {"url" : "/sqlweb", "description" : "Database web console"}
 {"url" : "/websql", "description" : "Database web console"}
 {"url" : "/webdb", "description" : "Database web console"}
+
+{"url" : "/bonus", "description" : "Hackfest"}

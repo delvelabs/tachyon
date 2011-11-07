@@ -180,8 +180,9 @@ class Fetcher(object):
             response.close()
         except HTTPError as httpe:
             code = httpe.code
-            content = self.read_content(httpe, limit_len)
-            if not content:
+            try:
+                content = self.read_content(httpe, limit_len)
+            except Exception:
                 content = ''
             headers = dict(httpe.headers)
         except (URLError, BadStatusLine, timeout):

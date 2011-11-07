@@ -29,8 +29,8 @@ path_template = {'url': '', 'timeout_count': 0, 'description': ''}
 # Extensions used by crc computation
 crc_extensions = ['', '.php', '.jsp', '.asp', '.html']
 
-# Values used to generate file list (should be configurable?)
-file_suffixes = ['.sql', '.bak', '-bak', '.old', '-old', '.dmp', '.dump', '.zip', '.rar', '.7z',
+# Values used to generate file list (maybe this sould be configurable)
+file_suffixes = ['', '.sql', '.bak', '-bak', '.old', '-old', '.dmp', '.dump', '.zip', '.rar', '.7z',
                 '.tar.gz', '.tar.bz2', '.tar', '.tgz', '-bak', '~', '.conf.old','.conf',
                 '.conf.orig', '.conf.bak', '.cnf', '.ini', '.inc', '.inc.old', '.inc.orig', '.log', '.txt', '_log',
                 '.php.old', '.php.inc', '.php.orig', '.sql.old', '.sql.bak', '0', '1', '2', '.xml',
