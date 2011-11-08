@@ -21,7 +21,6 @@ import re
 import sys
 from core import database, conf, utils, throttle
 from core.fetcher import Fetcher
-from difflib import SequenceMatcher
 from threading import Thread, Lock
 from binascii import crc32
 from Queue import Empty

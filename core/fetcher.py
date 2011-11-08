@@ -20,10 +20,11 @@ import ssl
 import random
 from core import database
 from difflib import SequenceMatcher
-from _socket import timeout
-from urllib2 import URLError, HTTPError, HTTPHandler, HTTPSHandler
-from urllib2 import ProxyHandler, build_opener, HTTPRedirectHandler, HTTPDefaultErrorHandler
 from httplib import BadStatusLine, HTTPConnection, HTTPSConnection
+from _socket import timeout
+from urllib2forgery import build_opener
+from urllib2 import URLError, HTTPError, HTTPHandler, HTTPSHandler
+from urllib2 import ProxyHandler, HTTPRedirectHandler, HTTPDefaultErrorHandler
 from core import conf, utils
 from urlparse import urlparse
 from threading import Lock
@@ -159,7 +160,7 @@ class Fetcher(object):
             return content    
 
 
-    def fetch_url(self, url, user_agent, timeout, limit_len=True):
+    def fetch_url(self, url, user_agent, timeout, limit_len=True, add_headers=dict()):
         """ Fetch a given url, with a given user_agent and timeout"""
         try:
             redirect_handler = SmartRedirectHandler()
@@ -171,9 +172,12 @@ class Fetcher(object):
                 opener = build_opener(TachyonHTTPHandler, TachyonHTTPSHandler, redirect_handler)
 
             socket.setdefaulttimeout(timeout)
-            opener.addheaders = [('User-Agent', user_agent)]    
-            response = opener.open(url, timeout=timeout)
-            
+            add_headers['User-Agent'] = user_agent
+
+            if conf.forge_vhost != '':
+                add_headers['Host'] = conf.forge_vhost
+
+            response = opener.open(url, timeout=timeout, headers=add_headers)
             content = self.read_content(response, limit_len)
             code = response.code
             headers = dict(response.headers)

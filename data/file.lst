@@ -34,6 +34,7 @@
 {"url" : "ccbill", "description" : "CCBill.com logs"}
 {"url" : "config", "description" : "Config file"}
 {"url" : "common", "description" : "Config file"}
+{"url" : "cron", "description" : "crontab file"}
 {"url" : "crypt", "description" : "encryption file"}
 {"url" : "crypto", "description" : "encryption file"}
 {"url" : "data", "description" : "database backup"}

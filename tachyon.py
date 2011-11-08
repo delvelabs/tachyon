@@ -240,6 +240,8 @@ def generate_options():
                     help="Request timeout [default: %default]", default=conf.fetch_timeout_secs)
     parser.add_option("-w", metavar="WORKERS", dest="workers", 
                     help="Number of worker threads [default: %default]", default=conf.thread_count)
+    parser.add_option("-v", metavar="VHOST", dest="forge_vhost",
+                    help="forge destination vhost [default: %default]", default='<host>')
     parser.add_option("-u", metavar="AGENT", dest="user_agent",
                     help="User-agent [default: %default]", default=conf.user_agent)
     return parser
@@ -260,6 +262,7 @@ def parse_args(parser, system_args):
     conf.directories_only = options.search_dirs
     conf.recursive = options.recursive
     conf.recursive_depth_limit = int(options.limit)
+    conf.forge_vhost=options.forge_vhost
     return options, args
 
 def test_python_version():
@@ -323,6 +326,7 @@ if __name__ == "__main__":
         # 0. Pre-test and CRC /uuid to figure out what is a classic 404 and set value in database
         benchmark_root_404()
 
+        root_path = ''
         if not conf.directories_only:        
             # Add root to targets
             root_path = dict(conf.path_template)
