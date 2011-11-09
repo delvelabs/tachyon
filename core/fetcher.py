@@ -29,6 +29,7 @@ from core import conf, utils
 from urlparse import urlparse
 from threading import Lock
 
+
 def get_random_ip_from_cache(cache_info):
     """ Get a random ip from the caches entries """
     random_entry = cache_info[random.randint(0, len(cache_info) - 1)]
@@ -163,40 +164,54 @@ class Fetcher(object):
     def fetch_url(self, url, user_agent, timeout, limit_len=True, add_headers=dict()):
         """ Fetch a given url, with a given user_agent and timeout"""
         try:
-            redirect_handler = SmartRedirectHandler()
-
-            if conf.use_tor:
-                proxy_support = ProxyHandler({'http': 'http://localhost:8118'})
-                opener = build_opener(TachyonHTTPHandler, TachyonHTTPSHandler, proxy_support, redirect_handler)
-            else:
-                opener = build_opener(TachyonHTTPHandler, TachyonHTTPSHandler, redirect_handler)
-
-            socket.setdefaulttimeout(timeout)
-            add_headers['User-Agent'] = user_agent
-
-            if conf.forge_vhost != '':
-                add_headers['Host'] = conf.forge_vhost
-
-            response = opener.open(url, timeout=timeout, headers=add_headers)
-            content = self.read_content(response, limit_len)
-            code = response.code
-            headers = dict(response.headers)
-            response.close()
-        except HTTPError as httpe:
-            code = httpe.code
-            try:
-                content = self.read_content(httpe, limit_len)
-            except Exception:
-                content = ''
-            headers = dict(httpe.headers)
-        except (URLError, BadStatusLine, timeout):
+            response = database.connection_pool.request('GET', '/')
+            content = response.data
+            code = response.status
+            headers = response.headers
+        except Exception:
             code = 0
             content = ''
             headers = dict()
-        except Exception: # Edge case handling
-            code = 0
-            content = ''
-            headers = dict()
-            
-            
+            pass
+
         return code, content, headers
+
+
+#        try:
+#            redirect_handler = SmartRedirectHandler()
+#
+#            if conf.use_tor:
+#                proxy_support = ProxyHandler({'http': 'http://localhost:8118'})
+#                opener = build_opener(TachyonHTTPHandler, TachyonHTTPSHandler, proxy_support, redirect_handler)
+#            else:
+#                opener = build_opener(TachyonHTTPHandler, TachyonHTTPSHandler, redirect_handler)
+#
+#            socket.setdefaulttimeout(timeout)
+#            add_headers['User-Agent'] = user_agent
+#
+#            if conf.forge_vhost != '':
+#                add_headers['Host'] = conf.forge_vhost
+#
+#            response = opener.open(url, timeout=timeout, headers=add_headers)
+#            content = self.read_content(response, limit_len)
+#            code = response.code
+#            headers = dict(response.headers)
+#            response.close()
+#        except HTTPError as httpe:
+#            code = httpe.code
+#            try:
+#                content = self.read_content(httpe, limit_len)
+#            except Exception:
+#                content = ''
+#            headers = dict(httpe.headers)
+#        except (URLError, BadStatusLine, timeout):
+#            code = 0
+#            content = ''
+#            headers = dict()
+#        except Exception: # Edge case handling
+#            code = 0
+#            content = ''
+#            headers = dict()
+            
+            
+#        return code, content, headers

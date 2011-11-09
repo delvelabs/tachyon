@@ -88,7 +88,7 @@ class Compute404CRCWorker(Thread):
             try:
                 # Non-Blocking get since we use the queue as a ringbuffer
                 queued = database.fetch_queue.get(False)
-                url = conf.target_host + queued.get('url')
+                url = queued.get('url')
 
                 utils.output_debug("Computing specific 404 CRC for: " + str(url))
                 update_stats(url)
@@ -153,7 +153,7 @@ class TestPathExistsWorker(Thread):
          while not self.kill_received:
             try:
                 queued = database.fetch_queue.get(False)
-                url = conf.target_host + queued.get('url')
+                url = queued.get('url')
                 description = queued.get('description')
                 utils.output_debug("Testing directory: " + url + " " + str(queued))
 
@@ -237,7 +237,7 @@ class TestFileExistsWorker(Thread):
             try:
                 # Non-Blocking get since we use the queue as a ringbuffer
                 queued = database.fetch_queue.get(False)
-                url = conf.target_host + queued.get('url')
+                url = queued.get('url')
                 description = queued.get('description')
                 match_string = queued.get('match_string')
 

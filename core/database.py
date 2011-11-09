@@ -19,6 +19,9 @@
 import Queue
 from datetime import datetime
 
+""" Connection pool, to be adjusted by tachyon after initial host benchmark """
+connection_pool = None
+
 """ Path list is used to hold loaded path from disk """
 paths = list()
 

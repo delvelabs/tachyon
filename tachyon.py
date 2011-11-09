@@ -25,6 +25,7 @@ from core.workers import PrintWorker, PrintResultsWorker, Compute404CRCWorker, T
 from core.threads import ThreadManager
 from optparse import OptionParser
 from plugins import host, file
+from core.tachyon_urllib3 import HTTPConnectionPool, HTTPSConnectionPool
 
 def load_target_paths():
     """ Load the target paths in the database """
@@ -323,6 +324,9 @@ if __name__ == "__main__":
 
     # Handle keyboard exit before multi-thread operations
     try:
+        # Benchmark target host
+        print conf.target_host
+        database.connection_pool = HTTPConnectionPool('etrange.ca', maxsize=conf.thread_count)
         # 0. Pre-test and CRC /uuid to figure out what is a classic 404 and set value in database
         benchmark_root_404()
 
