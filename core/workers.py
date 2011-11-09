@@ -88,7 +88,7 @@ class Compute404CRCWorker(Thread):
             try:
                 # Non-Blocking get since we use the queue as a ringbuffer
                 queued = database.fetch_queue.get(False)
-                url = queued.get('url')
+                url = conf.target_base_path + queued.get('url')
 
                 utils.output_debug("Computing specific 404 CRC for: " + str(url))
                 update_stats(url)
@@ -153,7 +153,7 @@ class TestPathExistsWorker(Thread):
          while not self.kill_received:
             try:
                 queued = database.fetch_queue.get(False)
-                url = queued.get('url')
+                url = conf.target_base_path + queued.get('url')
                 description = queued.get('description')
                 utils.output_debug("Testing directory: " + url + " " + str(queued))
 
@@ -194,18 +194,18 @@ class TestPathExistsWorker(Thread):
                     # Skip subfile testing if forbidden
                     if response_code == 401:
                         # Output result, but don't keep the url since we can't poke in protected folder
-                        utils.output_found('Password Protected - ' + description + ' at: ' + url)
+                        utils.output_found('Password Protected - ' + description + ' at: ' + conf.target_host + url)
                     elif crc not in database.bad_crcs and content.find('Additionally, a') < 0:
                         
                         # Add path to valid_path for future actions
                         database.valid_paths.append(queued)
 
                         if response_code == 500:
-                            utils.output_found('Internal Server Error, ' + description + ' at: ' + url)    
+                            utils.output_found('ISE, ' + description + ' at: ' + conf.target_host + url)    
                         elif response_code == 403:
-                            utils.output_found('*Forbidden* ' + description + ' at: ' + url)
+                            utils.output_found('*Forbidden* ' + description + ' at: ' + conf.target_host + url)
                         else:
-                            utils.output_found(description + ' at: ' + url)
+                            utils.output_found(description + ' at: ' + conf.target_host + url)
 
 
                 # Decrease throttle delay if needed
@@ -237,7 +237,7 @@ class TestFileExistsWorker(Thread):
             try:
                 # Non-Blocking get since we use the queue as a ringbuffer
                 queued = database.fetch_queue.get(False)
-                url = queued.get('url')
+                url = conf.target_base_path + queued.get('url')
                 description = queued.get('description')
                 match_string = queued.get('match_string')
 
@@ -271,11 +271,15 @@ class TestFileExistsWorker(Thread):
                         if match_string and re.search(re.escape(match_string), content, re.I):
                             # Add path to valid_path for future actions
                             database.valid_paths.append(queued)
-                            utils.output_found("String-Matched " + description + ' at: ' + url)
+                            utils.output_found("String-Matched " + description + conf.target_host + url)
                         elif not match_string:
+                            if response_code == 500:
+                                utils.output_found('ISE, ' + description + ' at: ' + conf.target_host + url)    
+                            else:
+                                utils.output_found(description + ' at: ' + conf.target_host + url)
+                            
                             # Add path to valid_path for future actions
                             database.valid_paths.append(queued)
-                            utils.output_found(description + ' at: ' + url)
 
                 # Decrease throttle delay if needed
                 if not timeout:	

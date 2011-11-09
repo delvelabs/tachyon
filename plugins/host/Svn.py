@@ -26,7 +26,7 @@ def execute():
     current_template = dict(conf.path_template)
     current_template['description'] = '/.svn/entries found directory'
 
-    target_url = urljoin(conf.target_host, "/.svn/entries")
+    target_url = urljoin(conf.target_base_path, "/.svn/entries")
     fetcher = Fetcher()
     response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
 

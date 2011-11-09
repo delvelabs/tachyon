@@ -26,7 +26,7 @@ def execute():
     current_template = dict(conf.path_template)
     current_template['description'] = 'Robots.txt entry'
 
-    target_url = urljoin(conf.target_host, "/robots.txt")
+    target_url = urljoin(conf.target_base_path, "/robots.txt")
     fetcher = Fetcher()
     response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
 

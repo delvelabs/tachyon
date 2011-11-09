@@ -18,8 +18,8 @@
 
 # Internal config and consts
 version = '0.95'
-expected_path_responses = [200, 301, 302, 303, 307, 401, 403]
-expected_file_responses = [200, 301, 302, 303, 304, 307]
+expected_path_responses = [200, 206, 301, 302, 303, 307, 401, 403]
+expected_file_responses = [200, 206, 301, 302, 303, 304, 307]
 timeout_codes = [0, 500, 502, 503] 
 crc_sample_len = 200
 
@@ -37,12 +37,16 @@ file_suffixes = ['', '.sql', '.bak', '-bak', '.old', '-old', '.dmp', '.dump', '.
                 '.csv']
 
 # User config
+target_host = ''
+target_base_path = ''
+is_ssl = False
+forge_vhost='' 
+
 debug = False
 search_files = True
 fetch_timeout_secs = 3
-max_timeout_count = 10
-thread_count = 5
-target_host = ''
+max_timeout_count = 5
+thread_count = 7
 use_tor = False
 raw_output = False
 user_agent = 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)' # maximum compatibility
@@ -51,7 +55,7 @@ directories_only = False
 throttle_increment = 0.5
 max_throttle = 10.0 # in seconds
 recursive_depth_limit=2
-forge_vhost=''
+
 
 
 # Templates, used by plugins

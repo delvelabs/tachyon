@@ -18,6 +18,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+import re
 import sys
 import uuid
 from core import conf, database, loaders, utils
@@ -25,7 +26,28 @@ from core.workers import PrintWorker, PrintResultsWorker, Compute404CRCWorker, T
 from core.threads import ThreadManager
 from optparse import OptionParser
 from plugins import host, file
-from core.tachyon_urllib3 import HTTPConnectionPool, HTTPSConnectionPool
+from core.tachyon_urllib3 import HTTPConnectionPool, HTTPSConnectionPool, PoolManager
+from urlparse import urlparse
+from datetime import datetime
+
+def parse_hostname(hostname):
+    ssl = False
+    if not re.search(r'http://', hostname, re.I) and not re.search(r'https://', hostname, re.I):
+        hostname = 'http://' + hostname
+        
+    if re.search(r'https://', hostname, re.I):
+        ssl = True
+    
+    parsed = urlparse(hostname)
+    parsed_path = parsed.path
+     
+    if parsed_path.endswith('/'):
+        parsed_path = parsed_path[0:-1]
+   
+   
+    utils.output_debug("Starting scan on: " + parsed.netloc + " base: " + parsed_path + " ssl: " + str(ssl))    
+    return parsed.netloc, parsed_path, ssl
+
 
 def load_target_paths():
     """ Load the target paths in the database """
@@ -276,6 +298,9 @@ def test_python_version():
 
 # Entry point / main application logic
 if __name__ == "__main__":
+    # Benchmark
+    start_scan_time = datetime.now()
+    
     # Test python version
     if not test_python_version():
         print("Your python interpreter is so old it has to wear diapers. Please upgrade to at least 2.6 ;)")
@@ -293,15 +318,21 @@ if __name__ == "__main__":
         print('')
         sys.exit()
    
-    conf.target_host = args[1]
 
     # Spawn synchronized print output worker
     print_worker = PrintWorker()
     print_worker.daemon = True
     print_worker.start()
 
-    # Ensure the host is of the right format
-    utils.sanitize_config()
+    # Ensure the host is of the right format and set it in config
+    parsed_host, parsed_path, is_ssl = parse_hostname(args[1])
+    utils.output_debug("Parsed: " + parsed_host + " " + parsed_path + " SSL:" + str(is_ssl))
+    
+    # Set conf values
+    conf.target_host = parsed_host
+    conf.target_base_path = parsed_path
+    conf.is_ssl = is_ssl
+    
     
     utils.output_debug('Version: ' + str(conf.version))
     utils.output_debug('Fetch timeout: ' + str(conf.fetch_timeout_secs))
@@ -325,8 +356,8 @@ if __name__ == "__main__":
     # Handle keyboard exit before multi-thread operations
     try:
         # Benchmark target host
-        print conf.target_host
-        database.connection_pool = HTTPConnectionPool('etrange.ca', maxsize=conf.thread_count)
+        database.connection_pool = HTTPConnectionPool('72.55.186.42', timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
+
         # 0. Pre-test and CRC /uuid to figure out what is a classic 404 and set value in database
         benchmark_root_404()
 
@@ -390,7 +421,9 @@ if __name__ == "__main__":
             test_file_exists()
 
         # Print all remaining messages
-        utils.output_info('Done.\n')
+        # Benchmark
+        end_scan_time = datetime.now()
+        utils.output_info('Scan completed in: ' + str(end_scan_time - start_scan_time) + '\n')
         database.results_output_queue.join()
         database.messages_output_queue.join()
     except KeyboardInterrupt:

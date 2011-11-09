@@ -30,142 +30,23 @@ from urlparse import urlparse
 from threading import Lock
 
 
-def get_random_ip_from_cache(cache_info):
-    """ Get a random ip from the caches entries """
-    random_entry = cache_info[random.randint(0, len(cache_info) - 1)]
-    host_port = random_entry[4]
-    return host_port[0] 
-
-def resolve_cached(host, port):
-    """ Fetch the resolved ip addresses from the cache and return a random address if load-balanced """
-    resolved = database.dns_cache.get(host)
-    if not resolved:
-        lock = Lock()
-        lock.acquire()
-        utils.output_debug("Host entry not found in cache for host:" + str(host) + ", resolving")
-        resolved = socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM)
-        database.dns_cache[host] = resolved
-        lock.release()
-    
-    return get_random_ip_from_cache(resolved), port    
-        
-
-class TachyonHTTPConnection(HTTPConnection):
-    def connect(self):
-        self.sock = socket.create_connection(resolve_cached(self.host,self.port),self.timeout)
-    
-class TachyonHTTPSConnection(HTTPSConnection):
-    def connect(self):
-        sock = socket.create_connection(resolve_cached(self.host,self.port), self.timeout)
-        self.sock = ssl.wrap_socket(sock, self.key_file, self.cert_file)
-
-class TachyonHTTPHandler(HTTPHandler):
-    def http_open(self,req):
-        return self.do_open(TachyonHTTPConnection,req)
-
-class TachyonHTTPSHandler(HTTPSHandler):
-    def https_open(self,req):
-        return self.do_open(TachyonHTTPSConnection,req)
-
-
-class SmartRedirectHandler(HTTPRedirectHandler):    
-    """ Handle various bogus redirects """ 
-    
-    def detect_real_response(self, code, request, headers):
-        """ 
-            This function detects if we are subjected to an invalid redirect
-            If we try to hit /test/file.ext and the server issues a redirect for
-            /404 or /rewritten_path, we know that we didn't hit a flat file.
-            
-            It also detects common redirect such as /test -> /test/ (valid)
-            
-            return the response code if the redirect is valid and 404 if not
-        """
-        location = headers.get('location')
-        if location:
-            parsed_target = urlparse(request.get_full_url())
-            parsed_redirect = urlparse(location)
-            
-            # Simple 401 redirect ON A PATH, www.host.com/folder -> www.host.com/folder/, don't follow redirect.         
-            if parsed_target.path + '/' == parsed_redirect.path:
-                utils.output_debug("Hit directory " + str(code) + " with valid redirect from: " + request.get_full_url() + " to: " + str(location)) 
-                return 200       
-            
-            # Redirected to some other location but with same file target (likely a load balancer proxy)
-            # host.com/folder/ -> www.host.com/folder/
-            # Follow this redirect
-            matcher = SequenceMatcher(isjunk=None, a=parsed_target.path, b=parsed_redirect.path, autojunk=False)
-            if matcher.ratio() > 0.6:
-                #utils.output_info("Valid redirect")
-                utils.output_debug("Hit " + str(code) + " with valid redirect from: " + request.get_full_url() + " to: " + str(location))
-                return code
-            else:
-                return 404
-
-
-        
-    def http_error_301(self, req, fp, code, msg, headers):  
-        """ Handle 301 response code """
-        real_code = self.detect_real_response(code, req, headers)
-        if code != real_code:
-            return HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, real_code, msg, headers)
-        else:
-            return HTTPRedirectHandler.http_error_301(self, req, fp, code, msg, headers)                                           
-
-
-    def http_error_302(self, req, fp, code, msg, headers):   
-        """ Handle 302 response code """
-        real_code = self.detect_real_response(code, req, headers)
-        if code != real_code:
-            return HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, real_code, msg, headers)
-        else:
-            return HTTPRedirectHandler.http_error_301(self, req, fp, code, msg, headers)    
-        
-        
-    def http_error_303(self, req, fp, code, msg, headers):  
-        """ Handle 303 response code """
-        real_code = self.detect_real_response(code, req, headers)
-        if code != real_code:
-            return HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, real_code, msg, headers)
-        else:
-            return HTTPRedirectHandler.http_error_301(self, req, fp, code, msg, headers)    
-
-
-    def http_error_307(self, req, fp, code, msg, headers):
-        """ Handle 307 response code """   
-        real_code = self.detect_real_response(code, req, headers)
-        if code != real_code:
-            return HTTPDefaultErrorHandler.http_error_default(HTTPDefaultErrorHandler(), req, fp, real_code, msg, headers)
-        else:
-            return HTTPRedirectHandler.http_error_301(self, req, fp, code, msg, headers)    
-             
-
-
 class Fetcher(object):
-    def read_content(self, response, limit_len=True):
-        """ Reads the content from the response and build a string with it """
-        try:
-            if limit_len:
-                content = response.read(conf.crc_sample_len)
-            else:
-                content = ''
-                while True:
-                    tmp = response.read(1024)
-                    if tmp == '':
-                        break
-                    else:
-                        content = content + tmp
-        except timeout:
-            raise timeout
-        else:
-            return content    
-
-
     def fetch_url(self, url, user_agent, timeout, limit_len=True, add_headers=dict()):
         """ Fetch a given url, with a given user_agent and timeout"""
         try:
-            response = database.connection_pool.request('GET', '/')
+            add_headers = dict()
+            add_headers['User-Agent'] = user_agent
+            add_headers['Connection'] = 'Keep-Alive'
+            add_headers['Host'] = 'etrange.ca'
+            
+            if limit_len:
+                content_range = 'bytes=0-' + str(conf.crc_sample_len-1)
+                add_headers['Range'] = content_range
+              
+            response = database.connection_pool.request('GET', url, headers=add_headers, retries=0)
+                
             content = response.data
+
             code = response.status
             headers = response.headers
         except Exception:
@@ -175,43 +56,5 @@ class Fetcher(object):
             pass
 
         return code, content, headers
-
-
-#        try:
-#            redirect_handler = SmartRedirectHandler()
-#
-#            if conf.use_tor:
-#                proxy_support = ProxyHandler({'http': 'http://localhost:8118'})
-#                opener = build_opener(TachyonHTTPHandler, TachyonHTTPSHandler, proxy_support, redirect_handler)
-#            else:
-#                opener = build_opener(TachyonHTTPHandler, TachyonHTTPSHandler, redirect_handler)
-#
-#            socket.setdefaulttimeout(timeout)
-#            add_headers['User-Agent'] = user_agent
-#
-#            if conf.forge_vhost != '':
-#                add_headers['Host'] = conf.forge_vhost
-#
-#            response = opener.open(url, timeout=timeout, headers=add_headers)
-#            content = self.read_content(response, limit_len)
-#            code = response.code
-#            headers = dict(response.headers)
-#            response.close()
-#        except HTTPError as httpe:
-#            code = httpe.code
-#            try:
-#                content = self.read_content(httpe, limit_len)
-#            except Exception:
-#                content = ''
-#            headers = dict(httpe.headers)
-#        except (URLError, BadStatusLine, timeout):
-#            code = 0
-#            content = ''
-#            headers = dict()
-#        except Exception: # Edge case handling
-#            code = 0
-#            content = ''
-#            headers = dict()
-            
-            
-#        return code, content, headers
+        
+        

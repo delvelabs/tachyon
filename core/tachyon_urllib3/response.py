@@ -7,6 +7,7 @@
 import gzip
 import logging
 import zlib
+from core import conf
 
 
 try:
@@ -63,7 +64,7 @@ class HTTPResponse(object):
 
     def __init__(self, body='', headers=None, status=0, version=0, reason=None,
                  strict=0, preload_content=True, decode_content=True,
-                 original_response=None, pool=None, connection=None):
+                 original_response=None, pool=None, connection=None, amt=None):
         self.headers = headers or {}
         self.status = status
         self.version = version
@@ -77,12 +78,16 @@ class HTTPResponse(object):
 
         self._pool = pool
         self._connection = connection
-
+        self.amt = amt
+        
+        #if headers.get('x-powered-by'):
+            #self.amt = conf.crc_sample_len
+            
         if hasattr(body, 'read'):
             self._fp = body
 
         if preload_content:
-            self._body = self.read(decode_content=decode_content)
+            self._body = self.read(amt=self.amt, decode_content=decode_content)  
 
     def release_conn(self):
         if not self._pool or not self._connection:
@@ -98,7 +103,7 @@ class HTTPResponse(object):
             return self._body
 
         if self._fp:
-            return self.read(decode_content=self._decode_content,
+            return self.read(amt=self.amt, decode_content=self._decode_content,
                              cache_content=True)
 
     def read(self, amt=None, decode_content=True, cache_content=False):
@@ -125,9 +130,9 @@ class HTTPResponse(object):
         """
         content_encoding = self.headers.get('content-encoding')
         decoder = self.CONTENT_DECODERS.get(content_encoding)
-
+        
         data = self._fp and self._fp.read(amt)
-
+        
         try:
 
             if amt:

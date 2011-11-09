@@ -198,7 +198,8 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             # This should never happen if self.block == True
             log.warning("HttpConnectionPool is full, discarding connection: %s"
                         % self.host)
-
+    
+                                                 
     def _make_request(self, conn, method, url, timeout=_Default,
                       **httplib_request_kw):
         """
@@ -209,7 +210,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         if timeout is _Default:
             timeout = self.timeout
-
+        
         conn.request(method, url, **httplib_request_kw)
         conn.sock.settimeout(timeout)
         httplib_response = conn.getresponse()
