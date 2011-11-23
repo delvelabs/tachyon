@@ -19,7 +19,7 @@
 
 import re
 import sys
-from core import database, conf, utils, throttle
+from core import database, conf, textutils, throttle
 from core.fetcher import Fetcher
 from threading import Thread, Lock
 from binascii import crc32
@@ -59,13 +59,13 @@ def handle_timeout(queued, url, thread_id, output=True):
     if queued.get('timeout_count') < conf.max_timeout_count:
         new_timeout_count = queued.get('timeout_count') + 1
         queued['timeout_count'] = new_timeout_count
-        utils.output_debug('Thread #' + str(thread_id) + ': re-queuing ' + str(queued))
+        textutils.output_debug('Thread #' + str(thread_id) + ': re-queuing ' + str(queued))
 
         # Add back the timed-out item
         database.fetch_queue.put(queued)
     elif output:
         # We definitely timed out
-        utils.output_timeout(queued.get('description') + ' at ' + url)
+        textutils.output_timeout(queued.get('description') + ' at ' + url)
 
     # update timeout count
     update_timeouts()
@@ -90,7 +90,7 @@ class Compute404CRCWorker(Thread):
                 queued = database.fetch_queue.get(False)
                 url = conf.target_base_path + queued.get('url')
 
-                utils.output_debug("Computing specific 404 CRC for: " + str(url))
+                textutils.output_debug("Computing specific 404 CRC for: " + str(url))
                 update_stats(url)
 
                 # Throttle if needed
@@ -118,8 +118,8 @@ class Compute404CRCWorker(Thread):
                         database.bad_crcs.append(computed_checksum)
 
                     # Exception case for root 404, since it's used as a model for other directories
-                    utils.output_debug("Computed and saved a 404 crc for: " + str(queued))
-                    utils.output_debug("404 CRC'S: " + str(database.bad_crcs))
+                    textutils.output_debug("Computed and saved a 404 crc for: " + str(queued))
+                    textutils.output_debug("404 CRC'S: " + str(database.bad_crcs))
                     
 
                 # Decrease throttle delay if needed
@@ -137,7 +137,7 @@ class Compute404CRCWorker(Thread):
                 sleep(0.1)
                 continue
 
-        utils.output_debug("Thread #" + str(self.thread_id) + " killed.")
+        textutils.output_debug("Thread #" + str(self.thread_id) + " killed.")
 
 
 class TestPathExistsWorker(Thread):
@@ -155,7 +155,7 @@ class TestPathExistsWorker(Thread):
                 queued = database.fetch_queue.get(False)
                 url = conf.target_base_path + queued.get('url')
                 description = queued.get('description')
-                utils.output_debug("Testing directory: " + url + " " + str(queued))
+                textutils.output_debug("Testing directory: " + url + " " + str(queued))
 
                 update_stats(url)
 
@@ -179,7 +179,7 @@ class TestPathExistsWorker(Thread):
                     continue
 
                 if response_code == 500:
-                    utils.output_debug("HIT 500 on: " + str(queued))
+                    textutils.output_debug("HIT 500 on: " + str(queued))
 
                 # handle timeout
                 if response_code in conf.timeout_codes:
@@ -189,23 +189,23 @@ class TestPathExistsWorker(Thread):
                     timeout = True
                 elif response_code in conf.expected_path_responses:
                     crc = compute_limited_crc(content, conf.crc_sample_len)
-                    utils.output_debug("Matching directory: " + str(queued) + " with crc: " + str(crc))
+                    textutils.output_debug("Matching directory: " + str(queued) + " with crc: " + str(crc))
 
                     # Skip subfile testing if forbidden
                     if response_code == 401:
                         # Output result, but don't keep the url since we can't poke in protected folder
-                        utils.output_found('Password Protected - ' + description + ' at: ' + conf.target_host + url)
+                        textutils.output_found('Password Protected - ' + description + ' at: ' + conf.target_host + url)
                     elif crc not in database.bad_crcs and content.find('Additionally, a') < 0:
                         
                         # Add path to valid_path for future actions
                         database.valid_paths.append(queued)
 
                         if response_code == 500:
-                            utils.output_found('ISE, ' + description + ' at: ' + conf.target_host + url)    
+                            textutils.output_found('ISE, ' + description + ' at: ' + conf.target_host + url)    
                         elif response_code == 403:
-                            utils.output_found('*Forbidden* ' + description + ' at: ' + conf.target_host + url)
+                            textutils.output_found('*Forbidden* ' + description + ' at: ' + conf.target_host + url)
                         else:
-                            utils.output_found(description + ' at: ' + conf.target_host + url)
+                            textutils.output_found(description + ' at: ' + conf.target_host + url)
 
 
                 # Decrease throttle delay if needed
@@ -241,7 +241,7 @@ class TestFileExistsWorker(Thread):
                 description = queued.get('description')
                 match_string = queued.get('match_string')
 
-                utils.output_debug("Testing: " + url + " " + str(queued))
+                textutils.output_debug("Testing: " + url + " " + str(queued))
                 update_stats(url)
 
                 # Throttle if needed
@@ -263,7 +263,7 @@ class TestFileExistsWorker(Thread):
                     # At this point each directory should have had his 404 crc computed (tachyon main loop)
                     crc = compute_limited_crc(content, conf.crc_sample_len)
                     
-                    utils.output_debug("Matching File: " + str(queued) + " with crc: " + str(crc))
+                    textutils.output_debug("Matching File: " + str(queued) + " with crc: " + str(crc))
                     
                     # If the CRC missmatch, and we have an expected code, we found a valid link
                     if crc not in database.bad_crcs:
@@ -271,12 +271,12 @@ class TestFileExistsWorker(Thread):
                         if match_string and re.search(re.escape(match_string), content, re.I):
                             # Add path to valid_path for future actions
                             database.valid_paths.append(queued)
-                            utils.output_found("String-Matched " + description + conf.target_host + url)
+                            textutils.output_found("String-Matched " + description + 'at: ' + conf.target_host + url)
                         elif not match_string:
                             if response_code == 500:
-                                utils.output_found('ISE, ' + description + ' at: ' + conf.target_host + url)    
+                                textutils.output_found('ISE, ' + description + ' at: ' + conf.target_host + url)    
                             else:
-                                utils.output_found(description + ' at: ' + conf.target_host + url)
+                                textutils.output_found(description + ' at: ' + conf.target_host + url)
                             
                             # Add path to valid_path for future actions
                             database.valid_paths.append(queued)

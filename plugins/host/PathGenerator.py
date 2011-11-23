@@ -16,10 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-#    >>> for char in range(ord('a'), ord('z')):
-#    print chr(char)
-
-from core import conf, database, utils
+from core import conf, database, textutils
 
 def add_generated_path(char):
     """ Add path to database """
@@ -27,7 +24,7 @@ def add_generated_path(char):
     current_template['description'] = 'Computer generated path'
     current_template['url'] = '/' + chr(char)
     if current_template not in database.paths:
-        utils.output_debug(' - PathGenerator Plugin Generated: ' + str(current_template))
+        textutils.output_debug(' - PathGenerator Plugin Generated: ' + str(current_template))
         database.paths.append(current_template)
         
 def add_generated_file(char):
@@ -36,7 +33,7 @@ def add_generated_file(char):
     current_template['description'] = 'Computer generated path'
     current_template['url'] = chr(char)
     if current_template not in database.files:
-        utils.output_debug(' - PathGenerator Plugin Generated: ' + str(current_template))
+        textutils.output_debug(' - PathGenerator Plugin Generated: ' + str(current_template))
         database.files.append(current_template)
 
 
@@ -57,5 +54,5 @@ def execute():
         file_added += 1    
 
 
-    utils.output_info(' - PathGenerator Plugin: added ' + str(path_added) + ' computer generated path.')
-    utils.output_info(' - PathGenerator Plugin: added ' + str(file_added) + ' computer generated files.')
+    textutils.output_info(' - PathGenerator Plugin: added ' + str(path_added) + ' computer generated path.')
+    textutils.output_info(' - PathGenerator Plugin: added ' + str(file_added) + ' computer generated files.')

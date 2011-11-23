@@ -25,11 +25,23 @@ HOW TO HELP (for sysadmins)
 - Send me the result list and the directory listing
 
 TODO:
+- move parse_hostname to utils
+- Add port parsing to parse_hostname
+- Fix TOR support.
+- Fix vhost forgery
+- Fix HTTPS
+- fix urllib3 mad redirect handling  (disabled for now)
+- Switch 404 CRC validation to Ratcliff/Obershelp
+- Throtlling, blablabla
+- Manage dynamically the connectionpool on connect error.
+- Fix semi-auto scanning mode (File based broken I think)
+- Crossdomain plugin
+- Parseable output for GUI integration (better stats system for live stats)
 - Add an match-string=404 mechanism for edge cases
 - Add callbacks method to plugins
 - Support files in robots plugin
 - Add support for non-xml /.svn/entries files
-- Figure a way to limit issues with recursive 403's
+
 
 Using tor
 - Under Ubuntu:

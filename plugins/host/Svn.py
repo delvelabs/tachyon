@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from core import conf, utils, database
+from core import conf, textutils, database
 from core.fetcher import Fetcher
 from urlparse import urljoin
 from xml.etree import ElementTree
@@ -46,12 +46,12 @@ def execute():
                             database.paths.append(current_template)
                             added += 1
         except Exception:
-            utils.output_info(' - Svn Plugin: no usable entries in /.svn/entries')
+            textutils.output_info(' - Svn Plugin: no usable entries in /.svn/entries')
         else:
             if added > 0:
-                utils.output_info(' - Svn Plugin: added ' + str(added) + ' base paths using /.svn/entries')
+                textutils.output_info(' - Svn Plugin: added ' + str(added) + ' base paths using /.svn/entries')
             else :
-                utils.output_info(' - Svn Plugin: no usable entries in /.svn/entries')
+                textutils.output_info(' - Svn Plugin: no usable entries in /.svn/entries')
     else:
-        utils.output_info(' - Svn Plugin: no /.svn/entries found')
+        textutils.output_info(' - Svn Plugin: no /.svn/entries found')
 

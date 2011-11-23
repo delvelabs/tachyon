@@ -18,54 +18,34 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import re
 import sys
 import uuid
-from core import conf, database, loaders, utils
+from core import conf, database, dnscache, loaders, textutils, netutils
 from core.workers import PrintWorker, PrintResultsWorker, Compute404CRCWorker, TestPathExistsWorker, TestFileExistsWorker
 from core.threads import ThreadManager
 from optparse import OptionParser
 from plugins import host, file
 from core.tachyon_urllib3 import HTTPConnectionPool, HTTPSConnectionPool, PoolManager
-from urlparse import urlparse
+
 from datetime import datetime
-
-def parse_hostname(hostname):
-    ssl = False
-    if not re.search(r'http://', hostname, re.I) and not re.search(r'https://', hostname, re.I):
-        hostname = 'http://' + hostname
-        
-    if re.search(r'https://', hostname, re.I):
-        ssl = True
-    
-    parsed = urlparse(hostname)
-    parsed_path = parsed.path
-     
-    if parsed_path.endswith('/'):
-        parsed_path = parsed_path[0:-1]
-   
-   
-    utils.output_debug("Starting scan on: " + parsed.netloc + " base: " + parsed_path + " ssl: " + str(ssl))    
-    return parsed.netloc, parsed_path, ssl
-
 
 def load_target_paths():
     """ Load the target paths in the database """
-    utils.output_info('Loading target paths')
+    textutils.output_info('Loading target paths')
     # Add files
     database.paths += loaders.load_targets('data/path.lst') 
 
 
 def load_target_files():
     """ Load the target files in the database """
-    utils.output_info('Loading target files')
+    textutils.output_info('Loading target files')
     database.files += loaders.load_targets('data/file.lst')
 
 
 def benchmark_root_404():
     """ Get the root 404 CRC, this has to be done as soon as possible since plugins could use this information. """
     manager = ThreadManager()
-    utils.output_info('Benchmarking root 404')
+    textutils.output_info('Benchmarking root 404')
     
     for ext in conf.crc_extensions:
         random_file = str(uuid.uuid4())
@@ -103,7 +83,7 @@ def test_paths_exists():
     recursion_depth = 0
     
     while database.fetch_queue.qsize() > 0:
-        utils.output_info('Probing ' + str(database.fetch_queue.qsize()) + ' paths')
+        textutils.output_info('Probing ' + str(database.fetch_queue.qsize()) + ' paths')
         
         # Wait for initial valid path lookup
         workers = manager.spawn_workers(conf.thread_count, TestPathExistsWorker)
@@ -130,7 +110,7 @@ def test_paths_exists():
                 path['url'] = validpath['url'] + path['url']
                 database.fetch_queue.put(path)
 
-    utils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
+    textutils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
 
 
 
@@ -139,7 +119,7 @@ def compute_existing_path_404_crc():
     manager = ThreadManager()
     
     for path in database.valid_paths:
-        utils.output_debug("Path in valid path table: " + str(path))
+        textutils.output_debug("Path in valid path table: " + str(path))
         for ext in conf.crc_extensions:
             path_clone = dict(path)
             random_file = str(uuid.uuid4())
@@ -153,12 +133,12 @@ def compute_existing_path_404_crc():
     manager.wait_for_idle(workers, database.fetch_queue)
 
     # print valid path
-    utils.output_debug("Invalid CRCs after global test: " + str(database.bad_crcs))
+    textutils.output_debug("Invalid CRCs after global test: " + str(database.bad_crcs))
 
 
 def load_execute_host_plugins():
     """ Import and run host plugins """
-    utils.output_info('Executing ' + str(len(host.__all__)) + ' host plugins')
+    textutils.output_info('Executing ' + str(len(host.__all__)) + ' host plugins')
     for plugin_name in host.__all__:
         plugin = __import__ ("plugins.host." + plugin_name, fromlist=[plugin_name])
         if hasattr(plugin , 'execute'):
@@ -167,7 +147,7 @@ def load_execute_host_plugins():
 
 def load_execute_file_plugins():
     """ Import and run path plugins """
-    utils.output_info('Executing ' + str(len(file.__all__)) + ' file plugins')
+    textutils.output_info('Executing ' + str(len(file.__all__)) + ' file plugins')
     for plugin_name in file.__all__:
         plugin = __import__ ("plugins.file." + plugin_name, fromlist=[plugin_name])
         if hasattr(plugin , 'execute'):
@@ -196,7 +176,7 @@ def add_files_to_paths():
                 if not cache_test.get(new_filename['url']):
                     work_list.append(new_filename)
                     cache_test[new_filename['url']] = True
-                    utils.output_debug("No Suffix file added: " + str(new_filename))
+                    textutils.output_debug("No Suffix file added: " + str(new_filename))
 
             else :
                 for suffix in conf.file_suffixes:
@@ -214,7 +194,7 @@ def add_files_to_paths():
                     if not cache_test.get(new_filename['url']):
                         work_list.append(new_filename)
                         cache_test[new_filename['url']] = True
-                        utils.output_debug("File added: " + str(new_filename))
+                        textutils.output_debug("File added: " + str(new_filename))
 
 
     # Since we have already output the found directories, replace the valid path list
@@ -235,7 +215,7 @@ def test_file_exists():
 
 def print_program_header():
     """ Print a _cute_ program header """
-    print("\n\t Tachyon - Fast Multi-Threaded Web Discovery Tool")
+    print("\n\t Tachyon v" + conf.version + " - Fast Multi-Threaded Web Discovery Tool")
     print("\t https://github.com/initnull/tachyon\n") 
 
 
@@ -325,8 +305,8 @@ if __name__ == "__main__":
     print_worker.start()
 
     # Ensure the host is of the right format and set it in config
-    parsed_host, parsed_path, is_ssl = parse_hostname(args[1])
-    utils.output_debug("Parsed: " + parsed_host + " " + parsed_path + " SSL:" + str(is_ssl))
+    parsed_host, parsed_path, is_ssl = netutils.parse_hostname(args[1])
+    textutils.output_debug("Parsed: " + parsed_host + " " + parsed_path + " SSL:" + str(is_ssl))
     
     # Set conf values
     conf.target_host = parsed_host
@@ -334,100 +314,95 @@ if __name__ == "__main__":
     conf.is_ssl = is_ssl
     
     
-    utils.output_debug('Version: ' + str(conf.version))
-    utils.output_debug('Fetch timeout: ' + str(conf.fetch_timeout_secs))
-    utils.output_debug('Max timeouts per url: ' + str(conf.max_timeout_count))
-    utils.output_debug('Worker threads: ' + str(conf.thread_count))
-    utils.output_debug('Target Host: ' + str(conf.target_host))
-    utils.output_debug('Using Tor: ' + str(conf.use_tor))
-    utils.output_debug('Raw output: ' + str(conf.raw_output))
-    utils.output_debug('Using User-Agent: ' + str(conf.user_agent))
-    utils.output_debug('Search only for files: ' + str(conf.files_only))
-    utils.output_debug('Search only for subdirs: ' + str(conf.directories_only))
+    textutils.output_debug('Version: ' + str(conf.version))
+    textutils.output_debug('Fetch timeout: ' + str(conf.fetch_timeout_secs))
+    textutils.output_debug('Max timeouts per url: ' + str(conf.max_timeout_count))
+    textutils.output_debug('Worker threads: ' + str(conf.thread_count))
+    textutils.output_debug('Target Host: ' + str(conf.target_host))
+    textutils.output_debug('Using Tor: ' + str(conf.use_tor))
+    textutils.output_debug('Raw output: ' + str(conf.raw_output))
+    textutils.output_debug('Using User-Agent: ' + str(conf.user_agent))
+    textutils.output_debug('Search only for files: ' + str(conf.files_only))
+    textutils.output_debug('Search only for subdirs: ' + str(conf.directories_only))
 
-    utils.output_info('Starting Discovery on ' + conf.target_host)
+    textutils.output_info('Starting Discovery on ' + conf.target_host)
     
     if conf.use_tor:
-        utils.output_info('Using Tor, be patient it WILL be slow!')
-        utils.output_info('Max timeout count and url fetch timeout doubled for the occasion ;)')
+        textutils.output_info('Using Tor, be patient it WILL be slow!')
+        textutils.output_info('Max timeout count and url fetch timeout doubled for the occasion ;)')
         conf.max_timeout_count *= 2
         conf.fetch_timeout_secs *= 2
 
     # Handle keyboard exit before multi-thread operations
     try:
+        # Resolve target host to avoid multiple dns lookups
+        resolved, port = dnscache.get_host_ip(parsed_host, 80)
+
         # Benchmark target host
-        database.connection_pool = HTTPConnectionPool('72.55.186.42', timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
+        database.connection_pool = HTTPConnectionPool(resolved, timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
 
         # 0. Pre-test and CRC /uuid to figure out what is a classic 404 and set value in database
         benchmark_root_404()
 
         root_path = ''
-        if not conf.directories_only:        
+        if conf.files_only:
             # Add root to targets
             root_path = dict(conf.path_template)
             root_path['url'] = '/'
-            database.paths.append(root_path)    
-
-        # Load the target paths and files
-        if not conf.files_only:
-            load_target_paths()
-        else:
-            # Add ./ to valid paths
+            database.paths.append(root_path)
             database.valid_paths.append(root_path)
-            
-        if not conf.directories_only:
             load_target_files()
-
-        # Execute all Host plugins
-        load_execute_host_plugins()
-
-        # Start the result printworker if we need it now
-        if conf.directories_only:
-            print_results_worker = PrintResultsWorker()
-            print_results_worker.daemon = True
-            print_results_worker.start()
-            
-        # Test the existence of all input path (loaded + plugins)
-        if not conf.files_only:
-            # Test path existence
-            test_paths_exists()
-
-        if not conf.directories_only:   
-            # Compute the 404 CRC for every existing path
+            load_execute_host_plugins()
             compute_existing_path_404_crc()
-
-        # Combine generated filenames with urls
-        if not conf.directories_only:
-            add_files_to_paths()
-
-        if not conf.directories_only:   
-            # Execute all path plugins
             load_execute_file_plugins()
-
-        # Clean logs output
-        if not conf.directories_only:
-            # Scan
-            utils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
+            textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
             database.messages_output_queue.join()
-
-        if not conf.directories_only:
             # Start print result worker.
             print_results_worker = PrintResultsWorker()
             print_results_worker.daemon = True
             print_results_worker.start()
-
-        # Test all file combination
-        if not conf.directories_only:
+            test_file_exists()
+        elif conf.directories_only:
+            root_path = dict(conf.path_template)
+            root_path['url'] = '/'
+            database.paths.append(root_path)
+            database.valid_paths.append(root_path)
+            load_execute_host_plugins()
+            print_results_worker = PrintResultsWorker()
+            print_results_worker.daemon = True
+            print_results_worker.start()
+            load_target_paths()
+            test_paths_exists()
+        else:
+            # Add root to targets
+            root_path = dict(conf.path_template)
+            root_path['url'] = '/'
+            database.paths.append(root_path)
+            load_target_paths()
+            load_target_files()
+            # Execute all Host plugins
+            load_execute_host_plugins()
+            test_paths_exists()
+            compute_existing_path_404_crc()
+            add_files_to_paths()
+            load_execute_file_plugins()
+            textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
+            database.messages_output_queue.join()
+            print_results_worker = PrintResultsWorker()
+            print_results_worker.daemon = True
+            print_results_worker.start()
             test_file_exists()
 
-        # Print all remaining messages
+
         # Benchmark
         end_scan_time = datetime.now()
-        utils.output_info('Scan completed in: ' + str(end_scan_time - start_scan_time) + '\n')
+
+        # Print all remaining messages
+        textutils.output_info('Scan completed in: ' + str(end_scan_time - start_scan_time) + '\n')
         database.results_output_queue.join()
         database.messages_output_queue.join()
     except KeyboardInterrupt:
-        utils.output_message_raw('')
-        utils.output_info('Keyboard Interrupt Received')
+        textutils.output_message_raw('')
+        textutils.output_info('Keyboard Interrupt Received')
         database.messages_output_queue.join()
         sys.exit(0)

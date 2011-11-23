@@ -15,20 +15,8 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
-import socket
-import ssl
-import random
 from core import database
-from difflib import SequenceMatcher
-from httplib import BadStatusLine, HTTPConnection, HTTPSConnection
-from _socket import timeout
-from urllib2forgery import build_opener
-from urllib2 import URLError, HTTPError, HTTPHandler, HTTPSHandler
-from urllib2 import ProxyHandler, HTTPRedirectHandler, HTTPDefaultErrorHandler
-from core import conf, utils
-from urlparse import urlparse
-from threading import Lock
-
+from core import conf
 
 class Fetcher(object):
     def fetch_url(self, url, user_agent, timeout, limit_len=True, add_headers=dict()):

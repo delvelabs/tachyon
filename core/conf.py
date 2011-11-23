@@ -17,7 +17,7 @@
 #
 
 # Internal config and consts
-version = '0.95'
+version = '2.0.5'
 expected_path_responses = [200, 206, 301, 302, 303, 307, 401, 403]
 expected_file_responses = [200, 206, 301, 302, 303, 304, 307]
 timeout_codes = [0, 500, 502, 503] 
@@ -44,6 +44,7 @@ forge_vhost=''
 
 debug = False
 search_files = True
+recursive = False
 fetch_timeout_secs = 3
 max_timeout_count = 10
 thread_count = 5

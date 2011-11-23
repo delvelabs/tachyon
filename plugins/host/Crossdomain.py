@@ -16,26 +16,21 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import ast
-import codecs
-import textutils
-from exceptions import SyntaxError
-
-def load_targets(file):
-    """ Load the list of target paths """
-    loaded = list()
-    f = codecs.open(file, 'r', 'UTF-8')
-    for path in f:
-        path = path.strip()
-        if len(path) > 0 and '#' not in path:
-            try:
-                # Add processing values
-                parsed_path = ast.literal_eval(path)
-                parsed_path['timeout_count'] = 0
-                loaded.append(parsed_path)
-            except SyntaxError as (errno, strerror):
-                textutils.output_error('Path parsing error: ' + strerror)
-
-    f.close()
-    return loaded
-
+# Crossdomain parser
+# domain.dom/crossdomain.xml
+#  <cross-domain-policy>
+#<allow-access-from domain="*.amazon.com"/>
+#<allow-access-from domain="amazon.com"/>
+#<allow-access-from domain="www.amazon.com"/>
+#<allow-access-from domain="pre-prod.amazon.com"/>
+#<allow-access-from domain="devo.amazon.com"/>
+#<allow-access-from domain="images.amazon.com"/>
+#<allow-access-from domain="anon.amazon.speedera.net"/>
+#<allow-access-from domain="*.amazon.ca"/>
+#<allow-access-from domain="*.amazon.de"/>
+#<allow-access-from domain="*.amazon.fr"/>
+#<allow-access-from domain="*.amazon.jp"/>
+#<allow-access-from domain="*.amazon.co.jp"/>
+#<allow-access-from domain="*.amazon.uk"/>
+#<allow-access-from domain="*.amazon.co.uk"/>
+#</cross-domain-policy>
