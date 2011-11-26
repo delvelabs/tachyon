@@ -25,6 +25,7 @@ from core.workers import PrintWorker, PrintResultsWorker, Compute404CRCWorker, T
 from core.threads import ThreadManager
 from optparse import OptionParser
 from plugins import host, file
+from socket import gaierror
 from core.tachyon_urllib3 import HTTPConnectionPool, HTTPSConnectionPool, PoolManager
 
 from datetime import datetime
@@ -348,12 +349,12 @@ if __name__ == "__main__":
         if conf.files_only:
             # Add root to targets
             root_path = dict(conf.path_template)
-            root_path['url'] = '/'
-            database.paths.append(root_path)
+            root_path['url'] = ''
             database.valid_paths.append(root_path)
             load_target_files()
             load_execute_host_plugins()
             compute_existing_path_404_crc()
+            add_files_to_paths()
             load_execute_file_plugins()
             textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
             database.messages_output_queue.join()
@@ -404,5 +405,10 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         textutils.output_message_raw('')
         textutils.output_info('Keyboard Interrupt Received')
+    except gaierror:
+        textutils.output_info('Error resolving host')
+    finally:
         database.messages_output_queue.join()
         sys.exit(0)
+
+
