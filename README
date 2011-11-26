@@ -28,7 +28,6 @@ TODO:
 - Fix TOR support.
 - Fix HTTPS
 - fix urllib3 mad redirect handling  (disabled for now)
-- Switch 404 CRC validation to Ratcliff/Obershelp
 - Throtlling, blablabla
 - Add Requests/Secs in stats
 - Benchmark optimal connectionpool size

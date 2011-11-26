@@ -21,13 +21,13 @@ version = '2.0.5'
 expected_path_responses = [200, 206, 301, 302, 303, 307, 401, 403]
 expected_file_responses = [200, 206, 301, 302, 303, 304, 307]
 timeout_codes = [0, 500, 502, 503] 
-crc_sample_len = 200
+file_sample_len = 200
 
 # Templates, used by plugins
 path_template = {'url': '', 'timeout_count': 0, 'description': ''}
 
-# Extensions used by crc computation
-crc_extensions = ['', '.php', '.jsp', '.asp', '.html']
+# Extensions used by crafted 404 sampling
+crafted_404_extensions = ['', '.php', '.jsp', '.asp', '.html']
 
 # Values used to generate file list (maybe this sould be configurable)
 file_suffixes = ['', '.sql', '.bak', '-bak', '.old', '-old', '.dmp', '.dump', '.zip', '.rar', '.7z',

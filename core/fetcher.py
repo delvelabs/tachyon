@@ -28,7 +28,7 @@ class Fetcher(object):
             add_headers['Host'] = conf.target_host
             
             if limit_len:
-                content_range = 'bytes=0-' + str(conf.crc_sample_len-1)
+                content_range = 'bytes=0-' + str(conf.file_sample_len-1)
                 add_headers['Range'] = content_range
               
             response = database.connection_pool.request('GET', url, headers=add_headers, retries=0)

@@ -21,10 +21,11 @@ import re
 import sys
 from core import database, conf, textutils, throttle
 from core.fetcher import Fetcher
-from threading import Thread, Lock
-from binascii import crc32
+from difflib import SequenceMatcher
 from Queue import Empty
+from threading import Thread, Lock
 
+# Move me to a stats module
 def update_stats(url):
     lock = Lock()
     lock.acquire()
@@ -37,18 +38,12 @@ def update_processed_items():
     database.item_count += 1
     lock.release()
 
-def compute_limited_crc(content, length):
-    """ Compute the CRC of len bytes, use everything is len(content) is smaller than asked """
-    if len(content) < length:
-        return crc32(content[0:len(content) - 1]) 
-    else:            
-        return crc32(content[0:length - 1])
-
 def update_timeouts():
     lock = Lock()
     lock.acquire()
     database.timeouts += 1
     lock.release()
+# End of move me to a stats module
 
 def handle_timeout(queued, url, thread_id, output=True):
     """ Handle timeout operation for workers """
@@ -69,11 +64,26 @@ def handle_timeout(queued, url, thread_id, output=True):
     # update timeout count
     update_timeouts()
 
-class Compute404CRCWorker(Thread):
+def test_valid_result(content):
+    # Tweak the content len
+    if len(content) > conf.file_sample_len:
+        content = content[0:conf.file_sample_len -1]
+
+    is_valid_result = True
+
+    for fingerprint in database.crafted_404s:
+        matcher = SequenceMatcher(isjunk=None, a=fingerprint, b=content, autojunk=False)
+
+        # This content is almost similar to a generated 404, therefore it's a 404.
+        if matcher.ratio() > 0.8:
+            is_valid_result = False
+            break
+
+    return is_valid_result
+
+class FetchCrafted404Worker(Thread):
     """
-    This worker Generate a faked, statistically invalid filename to generate a 404 errror. The CRC32 checksum
-    of this error page is then sticked to the path to use it to validate all subsequent request to files under
-    that same path.
+    This worker fetch lenght-limited 404 footprint and store them for Ratcliff-Obershelf comparing
     """
     def __init__(self, thread_id, output=True):
         Thread.__init__(self)
@@ -89,12 +99,8 @@ class Compute404CRCWorker(Thread):
                 queued = database.fetch_queue.get(False)
                 url = conf.target_base_path + queued.get('url')
 
-                textutils.output_debug("Computing specific 404 CRC for: " + str(url))
+                textutils.output_debug("Fetching crafted 404: " + str(url))
                 update_stats(url)
-
-                # Throttle if needed
-                #if throttle.get_throttle() > 0:
-                 #   sleep(throttle.get_throttle())
 
                 # Fetch the target url
                 timeout = False
@@ -108,24 +114,21 @@ class Compute404CRCWorker(Thread):
                     throttle.increase_throttle_delay()
                     timeout = True
                 elif response_code in conf.expected_file_responses:
-                    # Compute the CRC32 of this url. This is used mainly to validate a fetch against a model 404
-                    # All subsequent files that will be joined to those path will use the path crc value since
-                    # I think a given 404 will mostly be bound to a directory, and not to a specific file.
-                    computed_checksum = compute_limited_crc(content, conf.crc_sample_len)
+                    # The server responded with whatever code but 404 or invalid stuff (500). We take a sample
+                    if len(content) < conf.file_sample_len:
+                        crafted_404 = content[0:len(content) - 1]
+                    else:
+                        crafted_404 = content[0:conf.file_sample_len - 1]
 
-                    # Add new CRC to error crc checking
-                    if computed_checksum not in database.bad_crcs:
-                        database.bad_crcs.append(computed_checksum)
+                    database.crafted_404s.append(crafted_404)
 
                     # Exception case for root 404, since it's used as a model for other directories
-                    textutils.output_debug("Computed and saved a 404 crc for: " + str(queued))
-                    textutils.output_debug("404 CRC'S: " + str(database.bad_crcs))
-                    
+                    textutils.output_debug("Computed and saved a sample 404 for: " + str(queued))
 
                 # Decrease throttle delay if needed
-                if not timeout:	
+                if not timeout:
                     throttle.decrease_throttle_delay()
-					
+
                 # Dequeue item
                 update_processed_items()
                 database.fetch_queue.task_done()
@@ -185,15 +188,14 @@ class TestPathExistsWorker(Thread):
                     throttle.increase_throttle_delay()
                     timeout = True
                 elif response_code in conf.expected_path_responses:
-                    crc = compute_limited_crc(content, conf.crc_sample_len)
-                    textutils.output_debug("Matching directory: " + str(queued) + " with crc: " + str(crc))
+                    # Compare content with generated 404 samples
+                    is_valid_result = test_valid_result(content)
 
                     # Skip subfile testing if forbidden
                     if response_code == 401:
                         # Output result, but don't keep the url since we can't poke in protected folder
                         textutils.output_found('Password Protected - ' + description + ' at: ' + conf.target_host + url)
-                    elif crc not in database.bad_crcs and content.find('Additionally, a') < 0:
-                        
+                    elif is_valid_result:
                         # Add path to valid_path for future actions
                         database.valid_paths.append(queued)
 
@@ -255,13 +257,11 @@ class TestFileExistsWorker(Thread):
                     throttle.increase_throttle_delay()
                     timeout = True
                 elif response_code in conf.expected_file_responses:
-                    # At this point each directory should have had his 404 crc computed (tachyon main loop)
-                    crc = compute_limited_crc(content, conf.crc_sample_len)
-                    
-                    textutils.output_debug("Matching File: " + str(queued) + " with crc: " + str(crc))
+                      # Compare content with generated 404 samples
+                    is_valid_result = test_valid_result(content)
                     
                     # If the CRC missmatch, and we have an expected code, we found a valid link
-                    if crc not in database.bad_crcs:
+                    if is_valid_result:
                         # Content Test if match_string provided
                         if match_string and re.search(re.escape(match_string), content, re.I):
                             # Add path to valid_path for future actions

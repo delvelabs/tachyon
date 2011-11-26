@@ -56,7 +56,7 @@
 {"url" : "known_hosts", "description" : "ssh known hosts", "no_suffix": True}
 {"url" : "import", "description" : "database backup"}
 {"url" : "index", "description" : "index.php backup"}
-{"url" : "install", "description" : "index.php backup"}
+{"url" : "install", "description" : "install file"}
 {"url" : "infos", "description" : "info file"}
 {"url" : "key", "description" : "key file"}
 {"url" : "keys", "description" : "key file"}

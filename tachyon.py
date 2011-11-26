@@ -21,12 +21,12 @@
 import sys
 import uuid
 from core import conf, database, dnscache, loaders, textutils, netutils
-from core.workers import PrintWorker, PrintResultsWorker, Compute404CRCWorker, TestPathExistsWorker, TestFileExistsWorker
+from core.workers import PrintWorker, PrintResultsWorker, FetchCrafted404Worker, TestPathExistsWorker, TestFileExistsWorker
 from core.threads import ThreadManager
 from optparse import OptionParser
 from plugins import host, file
 from socket import gaierror
-from core.tachyon_urllib3 import HTTPConnectionPool, HTTPSConnectionPool, PoolManager
+from core.tachyon_urllib3 import HTTPConnectionPool
 
 from datetime import datetime
 
@@ -43,12 +43,12 @@ def load_target_files():
     database.files += loaders.load_targets('data/file.lst')
 
 
-def benchmark_root_404():
-    """ Get the root 404 CRC, this has to be done as soon as possible since plugins could use this information. """
+def sample_root_404():
+    """ Get the root 404, this has to be done as soon as possible since plugins could use this information. """
     manager = ThreadManager()
     textutils.output_info('Benchmarking root 404')
     
-    for ext in conf.crc_extensions:
+    for ext in conf.crafted_404_extensions:
         random_file = str(uuid.uuid4())
         path = dict(conf.path_template)
 
@@ -65,7 +65,7 @@ def benchmark_root_404():
     path['url'] = '/' + random_file + '/'
     database.fetch_queue.put(path)
 
-    workers = manager.spawn_workers(len(conf.crc_extensions), Compute404CRCWorker)
+    workers = manager.spawn_workers(len(conf.crafted_404_extensions), FetchCrafted404Worker)
     manager.wait_for_idle(workers, database.fetch_queue)
 
 
@@ -115,13 +115,13 @@ def test_paths_exists():
 
 
 
-def compute_existing_path_404_crc():
+def sample_404_from_found_path():
     """ For all existing path, compute the 404 CRC so we don't get trapped in a tarpit """
     manager = ThreadManager()
     
     for path in database.valid_paths:
         textutils.output_debug("Path in valid path table: " + str(path))
-        for ext in conf.crc_extensions:
+        for ext in conf.crafted_404_extensions:
             path_clone = dict(path)
             random_file = str(uuid.uuid4())
             
@@ -130,11 +130,9 @@ def compute_existing_path_404_crc():
                 path_clone['url'] = path_clone['url'] + '/' + random_file + ext   
                 database.fetch_queue.put(path_clone)    
 
-    workers = manager.spawn_workers(conf.thread_count, Compute404CRCWorker)
+    workers = manager.spawn_workers(conf.thread_count, FetchCrafted404Worker)
     manager.wait_for_idle(workers, database.fetch_queue)
 
-    # print valid path
-    textutils.output_debug("Invalid CRCs after global test: " + str(database.bad_crcs))
 
 
 def load_execute_host_plugins():
@@ -166,9 +164,6 @@ def add_files_to_paths():
                 new_filename = dict(filename)
                 new_filename['is_file'] = True
 
-                if path.get('computed_404_crc') is not None:
-                    new_filename['computed_404_crc'] = path.get('computed_404_crc')
-
                 if path['url'] == '/':
                     new_filename['url'] = path['url'] + filename['url']
                 else:
@@ -183,9 +178,6 @@ def add_files_to_paths():
                 for suffix in conf.file_suffixes:
                     new_filename = dict(filename)
                     new_filename['is_file'] = True
-
-                    if path.get('computed_404_crc') is not None:
-                        new_filename['computed_404_crc'] = path.get('computed_404_crc')
 
                     if path['url'] == '/':
                         new_filename['url'] = path['url'] + filename['url'] + suffix
@@ -346,8 +338,8 @@ if __name__ == "__main__":
         if conf.forge_vhost != '<host>':
             conf.target_host = conf.forge_vhost
 
-        # 0. Pre-test and CRC /uuid to figure out what is a classic 404 and set value in database
-        benchmark_root_404()
+        # 0. Sample /uuid to figure out what is a classic 404 and set value in database
+        sample_root_404( )
 
         root_path = ''
         if conf.files_only:
@@ -357,7 +349,7 @@ if __name__ == "__main__":
             database.valid_paths.append(root_path)
             load_target_files()
             load_execute_host_plugins()
-            compute_existing_path_404_crc()
+            sample_404_from_found_path()
             add_files_to_paths()
             load_execute_file_plugins()
             textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
@@ -388,7 +380,7 @@ if __name__ == "__main__":
             # Execute all Host plugins
             load_execute_host_plugins()
             test_paths_exists()
-            compute_existing_path_404_crc()
+            sample_404_from_found_path()
             add_files_to_paths()
             load_execute_file_plugins()
             textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
