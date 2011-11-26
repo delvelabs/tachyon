@@ -25,7 +25,7 @@ class Fetcher(object):
             add_headers = dict()
             add_headers['User-Agent'] = user_agent
             add_headers['Connection'] = 'Keep-Alive'
-            add_headers['Host'] = 'etrange.ca'
+            add_headers['Host'] = conf.target_host
             
             if limit_len:
                 content_range = 'bytes=0-' + str(conf.crc_sample_len-1)

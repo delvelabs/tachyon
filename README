@@ -25,6 +25,7 @@ HOW TO HELP (for sysadmins)
 - Send me the result list and the directory listing
 
 TODO:
+- Add exception checking on dns cache
 - move parse_hostname to utils
 - Add port parsing to parse_hostname
 - Fix TOR support.

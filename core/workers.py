@@ -271,7 +271,7 @@ class TestFileExistsWorker(Thread):
                         if match_string and re.search(re.escape(match_string), content, re.I):
                             # Add path to valid_path for future actions
                             database.valid_paths.append(queued)
-                            textutils.output_found("String-Matched " + description + 'at: ' + conf.target_host + url)
+                            textutils.output_found("String-Matched " + description + ' at: ' + conf.target_host + url)
                         elif not match_string:
                             if response_code == 500:
                                 textutils.output_found('ISE, ' + description + ' at: ' + conf.target_host + url)    
