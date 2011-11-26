@@ -26,9 +26,7 @@ HOW TO HELP (for sysadmins)
 
 TODO:
 - Fix TOR support.
-- Fix HTTPS
 - fix urllib3 mad redirect handling  (disabled for now)
-- Throtlling, blablabla
 - Filter targets to remove duplicate scan
 - Benchmark optimal connectionpool size
 - Parseable output for GUI integration (better stats system for live stats)

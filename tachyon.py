@@ -26,7 +26,7 @@ from core.threads import ThreadManager
 from optparse import OptionParser
 from plugins import host, file
 from socket import gaierror
-from core.tachyon_urllib3 import HTTPConnectionPool
+from core.tachyon_urllib3 import HTTPConnectionPool, HTTPSConnectionPool
 from datetime import datetime
 
 def load_target_paths():
@@ -331,7 +331,10 @@ if __name__ == "__main__":
         resolved, port = dnscache.get_host_ip(parsed_host, parsed_port)
 
         # Benchmark target host
-        database.connection_pool = HTTPConnectionPool(resolved, timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
+        if is_ssl:
+            database.connection_pool = HTTPSConnectionPool(resolved, timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
+        else:
+            database.connection_pool = HTTPConnectionPool(resolved, timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
 
         # Vhost forgery
         if conf.forge_vhost != '<host>':
