@@ -306,8 +306,8 @@ if __name__ == "__main__":
     print_worker.start()
 
     # Ensure the host is of the right format and set it in config
-    parsed_host, parsed_path, is_ssl = netutils.parse_hostname(args[1])
-    textutils.output_debug("Parsed: " + parsed_host + " " + parsed_path + " SSL:" + str(is_ssl))
+    parsed_host, parsed_port, parsed_path, is_ssl = netutils.parse_hostname(args[1])
+    textutils.output_debug("Parsed: " + parsed_host + " port: " + str(parsed_port) + " " +  parsed_path + " SSL:" + str(is_ssl))
     
     # Set conf values
     conf.target_host = parsed_host
@@ -337,10 +337,14 @@ if __name__ == "__main__":
     # Handle keyboard exit before multi-thread operations
     try:
         # Resolve target host to avoid multiple dns lookups
-        resolved, port = dnscache.get_host_ip(parsed_host, 80)
+        resolved, port = dnscache.get_host_ip(parsed_host, parsed_port)
 
         # Benchmark target host
         database.connection_pool = HTTPConnectionPool(resolved, timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
+
+        # Vhost forgery
+        if conf.forge_vhost != '<host>':
+            conf.target_host = conf.forge_vhost
 
         # 0. Pre-test and CRC /uuid to figure out what is a classic 404 and set value in database
         benchmark_root_404()

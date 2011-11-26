@@ -22,7 +22,7 @@ import sys
 from core import textutils, database
 from time import sleep
 from threading import Lock
-from datetime import datetime, timedelta
+from datetime import datetime
 
 class ThreadManager(object):
     def __init__(self):

@@ -34,5 +34,11 @@ def parse_hostname(hostname):
     if parsed_path.endswith('/'):
         parsed_path = parsed_path[0:-1]
 
-    textutils.output_debug("Starting scan on: " + parsed.netloc + " base: " + parsed_path + " ssl: " + str(ssl))
-    return parsed.netloc, parsed_path, ssl
+    if not parsed.port:
+        parsed_port = 80
+    else:
+        parsed_port = parsed.port
+
+
+    textutils.output_debug("Starting scan on: " + parsed.hostname + " base: " + parsed_path + " ssl: " + str(ssl))
+    return parsed.hostname, parsed_port, parsed_path, ssl

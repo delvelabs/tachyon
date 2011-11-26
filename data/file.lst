@@ -28,13 +28,14 @@
 {"url" : "authusers", "description" : "auth file"}
 {"url" : "archive", "description" : "archive file"}
 {"url" : "archives", "description" : "archive file"}
-{"url" : "backup", "description" : "database backup"}
+{"url" : "backup", "description" : "backup"}
 {"url" : "bar", "description" : "random backup"}
 {"url" : "cachemgr.cgi", "description" : "Squid proxy admin interface", "no_suffix": True}
 {"url" : "ccbill", "description" : "CCBill.com logs"}
 {"url" : "config", "description" : "Config file"}
 {"url" : "common", "description" : "Config file"}
 {"url" : "cron", "description" : "crontab file"}
+{"url" : "crossdomain.xml", "description" : "Crossdomain policy file", "no_suffix": True}
 {"url" : "crypt", "description" : "encryption file"}
 {"url" : "crypto", "description" : "encryption file"}
 {"url" : "data", "description" : "database backup"}

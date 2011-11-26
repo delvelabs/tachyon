@@ -24,7 +24,6 @@ from core.fetcher import Fetcher
 from threading import Thread, Lock
 from binascii import crc32
 from Queue import Empty
-from time import sleep
 
 def update_stats(url):
     lock = Lock()
@@ -94,7 +93,8 @@ class Compute404CRCWorker(Thread):
                 update_stats(url)
 
                 # Throttle if needed
-                sleep(throttle.get_throttle())
+                #if throttle.get_throttle() > 0:
+                 #   sleep(throttle.get_throttle())
 
                 # Fetch the target url
                 timeout = False
@@ -131,10 +131,6 @@ class Compute404CRCWorker(Thread):
                 database.fetch_queue.task_done()
 
             except Empty:
-                # Queue was empty but thread not killed, it means that more items could be added to the queue.
-                # We sleep here to give a break to the scheduler/cpu. Since we are in a complete non-blocking mode
-                # avoiding this raises the cpu usage to 100%
-                sleep(0.1)
                 continue
 
         textutils.output_debug("Thread #" + str(self.thread_id) + " killed.")
@@ -160,7 +156,8 @@ class TestPathExistsWorker(Thread):
                 update_stats(url)
 
                 # Throttle if needed
-                sleep(throttle.get_throttle())
+               # if throttle.get_throttle() > 0:
+                  #  sleep(throttle.get_throttle())
 
                 # Add trailing / for paths
                 if url[:-1] != '/' and url != '/':
@@ -216,9 +213,6 @@ class TestPathExistsWorker(Thread):
                 update_processed_items()
                 database.fetch_queue.task_done()
             except Empty:
-                # We sleep here to give a break to the scheduler/cpu. Since we are in a complete non-blocking mode
-                # avoiding this raises the cpu usage to 100%
-                sleep(0.1)
                 continue
 
         
@@ -245,7 +239,8 @@ class TestFileExistsWorker(Thread):
                 update_stats(url)
 
                 # Throttle if needed
-                sleep(throttle.get_throttle())
+                #if throttle.get_throttle() > 0:
+                 #   sleep(throttle.get_throttle())
 
                 # Fetch the target url
                 timeout = False
@@ -289,9 +284,6 @@ class TestFileExistsWorker(Thread):
                 update_processed_items()
                 database.fetch_queue.task_done()
             except Empty:
-                # We sleep here to give a break to the scheduler/cpu. Since we are in a complete non-blocking mode
-                # avoiding this raises the cpu usage to 100%
-                sleep(0.1)
                 continue
 
 
