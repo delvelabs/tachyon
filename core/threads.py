@@ -19,10 +19,9 @@
 #
 
 import sys
-from core import textutils, database
+from core import textutils
 from time import sleep
-from threading import Lock
-from datetime import datetime
+from core import stats
 
 class ThreadManager(object):
     def __init__(self):
@@ -35,26 +34,8 @@ class ThreadManager(object):
                 try:
                     sleep(0.1)
                 except KeyboardInterrupt:
-                    # output stats
                     try:
-                        lock = Lock()
-                        lock.acquire()
-
-                        # move this somewhere else
-                        textutils.output_message_raw('')
-                        average_timeouts = database.timeouts / database.item_count
-                        estimated_future_timeouts = average_timeouts * database.fetch_queue.qsize()
-                        estimated_total_remaining = int(estimated_future_timeouts + database.fetch_queue.qsize())
-                        total_requests = database.item_count + database.timeouts
-                        elapsed_time = datetime.now() - database.scan_start_time
-                        request_per_seconds = elapsed_time / total_requests
-                        remaining = request_per_seconds * estimated_total_remaining  
-
-                        textutils.output_info('Done: ' + str(database.item_count) + ', remaining: ' + str(database.fetch_queue.qsize()) + ', timeouts: ' +
-                            str(database.timeouts) + ', throttle: ' + str(database.throttle_delay) + "s, remaining: " + str(remaining)[:-7] + " (press ctrl+c again to exit)")
-                        # end of things to move
-
-                        lock.release()
+                        stats.output_stats()
                         sleep(1)  
                     except KeyboardInterrupt:
                         textutils.output_info('Keyboard Interrupt Received, cleaning up threads')
@@ -68,8 +49,7 @@ class ThreadManager(object):
             
                         # Kill the soft
                         sys.exit()  
-           
-           
+
             # Make sure everything is done before sending control back to application
             textutils.output_debug("Threads: joining queue of size: " + str(queue.qsize()))
             queue.join()

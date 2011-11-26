@@ -19,31 +19,11 @@
 
 import re
 import sys
-from core import database, conf, textutils, throttle
+from core import database, conf, stats, textutils, throttle
 from core.fetcher import Fetcher
 from difflib import SequenceMatcher
 from Queue import Empty
-from threading import Thread, Lock
-
-# Move me to a stats module
-def update_stats(url):
-    lock = Lock()
-    lock.acquire()
-    database.current_url = url
-    lock.release()
-    
-def update_processed_items():
-    lock = Lock()
-    lock.acquire()
-    database.item_count += 1
-    lock.release()
-
-def update_timeouts():
-    lock = Lock()
-    lock.acquire()
-    database.timeouts += 1
-    lock.release()
-# End of move me to a stats module
+from threading import Thread
 
 def handle_timeout(queued, url, thread_id, output=True):
     """ Handle timeout operation for workers """
@@ -62,7 +42,7 @@ def handle_timeout(queued, url, thread_id, output=True):
         textutils.output_timeout(queued.get('description') + ' at ' + url)
 
     # update timeout count
-    update_timeouts()
+    stats.update_timeouts()
 
 def test_valid_result(content):
     # Tweak the content len
@@ -100,7 +80,7 @@ class FetchCrafted404Worker(Thread):
                 url = conf.target_base_path + queued.get('url')
 
                 textutils.output_debug("Fetching crafted 404: " + str(url))
-                update_stats(url)
+                stats.update_stats(url)
 
                 # Fetch the target url
                 timeout = False
@@ -130,7 +110,7 @@ class FetchCrafted404Worker(Thread):
                     throttle.decrease_throttle_delay()
 
                 # Dequeue item
-                update_processed_items()
+                stats.update_processed_items()
                 database.fetch_queue.task_done()
 
             except Empty:
@@ -156,7 +136,7 @@ class TestPathExistsWorker(Thread):
                 description = queued.get('description')
                 textutils.output_debug("Testing directory: " + url + " " + str(queued))
 
-                update_stats(url)
+                stats.update_stats(url)
 
                 # Throttle if needed
                # if throttle.get_throttle() > 0:
@@ -212,7 +192,7 @@ class TestPathExistsWorker(Thread):
                     throttle.decrease_throttle_delay()
 					
                 # Mark item as processed
-                update_processed_items()
+                stats.update_processed_items()
                 database.fetch_queue.task_done()
             except Empty:
                 continue
@@ -238,7 +218,7 @@ class TestFileExistsWorker(Thread):
                 match_string = queued.get('match_string')
 
                 textutils.output_debug("Testing: " + url + " " + str(queued))
-                update_stats(url)
+                stats.update_stats(url)
 
                 # Throttle if needed
                 #if throttle.get_throttle() > 0:
@@ -281,7 +261,7 @@ class TestFileExistsWorker(Thread):
                     throttle.decrease_throttle_delay()
 					
                 # Mark item as processed
-                update_processed_items()
+                stats.update_processed_items()
                 database.fetch_queue.task_done()
             except Empty:
                 continue
@@ -290,7 +270,6 @@ class TestFileExistsWorker(Thread):
 
 class PrintWorker(Thread):
     """ This worker is used to generate a synchronized non-overlapping console output. """
-
     def __init__(self):
         Thread.__init__(self)
         self.kill_received = False
@@ -305,7 +284,6 @@ class PrintWorker(Thread):
 
 class PrintResultsWorker(Thread):
     """ This worker is used to generate a synchronized non-overlapping console output for results """
-
     def __init__(self):
         Thread.__init__(self)
         self.kill_received = False

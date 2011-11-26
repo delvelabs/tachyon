@@ -29,9 +29,8 @@ TODO:
 - Fix HTTPS
 - fix urllib3 mad redirect handling  (disabled for now)
 - Throtlling, blablabla
-- Add Requests/Secs in stats
+- Filter targets to remove duplicate scan
 - Benchmark optimal connectionpool size
-- Crossdomain plugin
 - Parseable output for GUI integration (better stats system for live stats)
 - Add an match-string=404 mechanism for edge cases
 - Add callbacks method to plugins
