@@ -101,9 +101,10 @@ class FetchCrafted404Worker(Thread):
                         crafted_404 = content[0:conf.file_sample_len - 1]
 
                     database.crafted_404s.append(crafted_404)
+                    
 
                     # Exception case for root 404, since it's used as a model for other directories
-                    textutils.output_debug("Computed and saved a sample 404 for: " + str(queued))
+                    textutils.output_debug("Computed and saved a sample 404 for: " + str(queued) + ": " + crafted_404)
 
                 # Decrease throttle delay if needed
                 if not timeout:

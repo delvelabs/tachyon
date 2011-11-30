@@ -232,8 +232,8 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         return (url.startswith('/') or
                 get_host(url) == (self.scheme, self.host, self.port))
 
-    def urlopen(self, method, url, body=None, headers=None, retries=3,
-                redirect=True, assert_same_host=True, timeout=_Default,
+    def urlopen(self, method, url, body=None, headers=None, retries=1,
+                redirect=True, assert_same_host=False, timeout=_Default,
                 pool_timeout=None, release_conn=None, **response_kw):
         """
         Get a connection from the pool and perform an HTTP request. This is the
@@ -362,16 +362,15 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
                                 redirect, assert_same_host)  # Try again
 
         # Handle redirection
-        # This is pure bullcrap
         #if (redirect and
-        #    response.status in [301, 302, 303, 307] and
-        #    'location' in response.headers):  # Redirect, retry
-        #    log.info("Redirecting %s -> %s" %
-        #             (url, response.headers.get('location')))
-        #    return self.urlopen(method, response.headers.get('location'), body,
-        #                        headers, retries - 1, redirect,
-        #                        assert_same_host)
+         #   response.status in [301, 302, 303, 307] and
+          #  'location' in response.headers):  # Redirect, retry
+           # log.info("Redirecting %s -> %s" %
+            #         (url, response.headers.get('location')))
 
+            #return self.urlopen(method, response.headers.get('location'), body,
+             #                   headers, retries - 1, redirect,
+              #                  assert_same_host)
         return response
 
 

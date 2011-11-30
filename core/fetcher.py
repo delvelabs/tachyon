@@ -15,8 +15,8 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from core import database
-from core import conf
+from core import conf, database, textutils
+
 
 class Fetcher(object):
     def fetch_url(self, url, user_agent, timeout, limit_len=True, add_headers=dict()):
@@ -31,7 +31,7 @@ class Fetcher(object):
                 content_range = 'bytes=0-' + str(conf.file_sample_len-1)
                 add_headers['Range'] = content_range
               
-            response = database.connection_pool.request('GET', url, headers=add_headers, retries=0)
+            response = database.connection_pool.request('GET', url, headers=add_headers, retries=1)
                 
             content = response.data
 

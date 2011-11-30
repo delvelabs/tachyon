@@ -341,7 +341,7 @@ if __name__ == "__main__":
             conf.target_host = conf.forge_vhost
 
         # 0. Sample /uuid to figure out what is a classic 404 and set value in database
-        sample_root_404( )
+        sample_root_404()
 
         root_path = ''
         if conf.files_only:
