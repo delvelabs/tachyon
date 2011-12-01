@@ -237,6 +237,8 @@ def generate_options():
                     help="Number of worker threads [default: %default]", default=conf.thread_count)
     parser.add_option("-v", metavar="VHOST", dest="forge_vhost",
                     help="forge destination vhost [default: %default]", default='<host>')
+    parser.add_option("-z", action="store_true",
+                    dest="plugins_only", help="Only run plugins then exit [default: %default]", default=False)
     parser.add_option("-u", metavar="AGENT", dest="user_agent",
                     help="User-agent [default: %default]", default=conf.user_agent)
     return parser
@@ -258,6 +260,7 @@ def parse_args(parser, system_args):
     conf.recursive = options.recursive
     conf.recursive_depth_limit = int(options.limit)
     conf.forge_vhost=options.forge_vhost
+    conf.plugins_only=options.plugins_only
     return options, args
 
 def test_python_version():
@@ -340,11 +343,11 @@ if __name__ == "__main__":
         if conf.forge_vhost != '<host>':
             conf.target_host = conf.forge_vhost
 
-        # 0. Sample /uuid to figure out what is a classic 404 and set value in database
-        sample_root_404()
 
         root_path = ''
         if conf.files_only:
+            # 0. Sample /uuid to figure out what is a classic 404 and set value in database
+            sample_root_404()
             # Add root to targets
             root_path = dict(conf.path_template)
             root_path['url'] = ''
@@ -362,6 +365,8 @@ if __name__ == "__main__":
             print_results_worker.start()
             test_file_exists()
         elif conf.directories_only:
+            # 0. Sample /uuid to figure out what is a classic 404 and set value in database
+            sample_root_404()
             root_path = dict(conf.path_template)
             root_path['url'] = '/'
             database.paths.append(root_path)
@@ -372,7 +377,16 @@ if __name__ == "__main__":
             print_results_worker.start()
             load_target_paths()
             test_paths_exists()
+        elif conf.plugins_only:
+            database.connection_pool = HTTPConnectionPool(resolved, timeout=conf.fetch_timeout_secs, maxsize=1) 
+            # Add root to targets
+            root_path = dict(conf.path_template)
+            root_path['url'] = '/'
+            database.paths.append(root_path) 
+            load_execute_host_plugins()
         else:
+            # 0. Sample /uuid to figure out what is a classic 404 and set value in database
+            sample_root_404()
             # Add root to targets
             root_path = dict(conf.path_template)
             root_path['url'] = '/'
