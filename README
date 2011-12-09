@@ -26,6 +26,7 @@ HOW TO HELP (for sysadmins)
 - Send me the result list and the directory listing
 
 TODO:
+- Scan file as path in a first pass
 - Fix TOR support.
 - fix urllib3 mad redirect handling  (disabled for now)
 - Filter targets to remove duplicate scan
