@@ -18,6 +18,7 @@ It provides:
 REQUIREMENTS    
 - A mainstream OS (Windows, Linux, Mac OS X)
 - Python 2.6+
+- urllib3 (~# easy_install urllib3)
 
 HOW TO HELP (for sysadmins)
 - Run tachyon on your domain
@@ -31,6 +32,7 @@ TODO:
 - Benchmark optimal connectionpool size
 - Parseable output for GUI integration (better stats system for live stats)
 - Add an match-string=404 mechanism for edge cases
+- Add heuristic to limit false positives on recursive mode over bogus install (WEB-INF\***)
 - Add callbacks method to plugins
 - Support files in robots plugin
 - Add support for non-xml /.svn/entries files

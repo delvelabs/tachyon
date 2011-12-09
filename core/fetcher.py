@@ -31,7 +31,7 @@ class Fetcher(object):
                 content_range = 'bytes=0-' + str(conf.file_sample_len-1)
                 add_headers['Range'] = content_range
               
-            response = database.connection_pool.request('GET', url, headers=add_headers, retries=0)
+            response = database.connection_pool.request('GET', url, headers=add_headers, retries=0, redirect=False, release_conn=False)
                 
             content = response.data
 

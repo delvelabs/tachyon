@@ -26,7 +26,7 @@ from core.threads import ThreadManager
 from optparse import OptionParser
 from plugins import host, file
 from socket import gaierror
-from core.tachyon_urllib3 import HTTPConnectionPool, HTTPSConnectionPool
+from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
 from datetime import datetime
 
 def load_target_paths():
