@@ -22,10 +22,12 @@ class Fetcher(object):
     def fetch_url(self, url, user_agent, timeout, limit_len=True, add_headers=dict()):
         """ Fetch a given url, with a given user_agent and timeout"""
         try:
-            add_headers = dict()
-            add_headers['User-Agent'] = user_agent
-            add_headers['Connection'] = 'Keep-Alive'
-            add_headers['Host'] = conf.target_host
+            if not add_headers.get('User-Agent'):
+                add_headers['User-Agent'] = user_agent
+            if not add_headers.get('Connection'):
+                add_headers['Connection'] = 'Keep-Alive'
+            if not add_headers.get('Host'):
+                add_headers['Host'] = conf.target_host
             
             if limit_len:
                 content_range = 'bytes=0-' + str(conf.file_sample_len-1)
