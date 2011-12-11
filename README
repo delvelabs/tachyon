@@ -28,7 +28,6 @@ HOW TO HELP (for sysadmins)
 TODO:
 - Scan file as path in a first pass
 - Fix TOR support.
-- fix urllib3 mad redirect handling  (disabled for now)
 - Filter targets to remove duplicate scan
 - Benchmark optimal connectionpool size
 - Parseable output for GUI integration (better stats system for live stats)
@@ -37,6 +36,7 @@ TODO:
 - Add callbacks method to plugins
 - Support files in robots plugin
 - Add support for non-xml /.svn/entries files
+- Sitemap.xml plugin
 
 
 Using tor

@@ -18,6 +18,7 @@
 {"url" : "access", "description" : "access log"}
 {"url" : "account", "description" : "Accounts"}
 {"url" : "accounts", "description" : "Accounts"}
+{"url" : "akeeba.backend.log", "description" : "Akeeba backup transation logs", "no_suffix": True}
 {"url" : "analog.html", "description" : "Analog web statistics", "no_suffix": True}
 {"url" : "admin", "description" : "Admin file"}
 {"url" : "administrators", "description" : "Password file"}

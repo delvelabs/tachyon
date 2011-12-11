@@ -17,10 +17,11 @@
 #
 
 # Internal config and consts
-version = '2.0.5'
-expected_path_responses = [200, 206, 301, 302, 303, 307, 401, 403]
-expected_file_responses = [200, 206, 301, 302, 303, 304, 307]
-timeout_codes = [0, 500, 502, 503] 
+version = 'iloled'
+expected_path_responses = [200, 206, 401, 403]
+expected_file_responses = [200, 206]
+timeout_codes = [0, 500, 502, 503]
+redirect_codes = [301, 302, 303, 307]
 file_sample_len = 200
 
 # Templates, used by plugins

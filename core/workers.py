@@ -24,6 +24,7 @@ from core.fetcher import Fetcher
 from difflib import SequenceMatcher
 from Queue import Empty
 from threading import Thread
+from urlparse import urlparse
 
 def handle_timeout(queued, url, thread_id, output=True):
     """ Handle timeout operation for workers """
@@ -43,6 +44,35 @@ def handle_timeout(queued, url, thread_id, output=True):
 
     # update timeout count
     stats.update_timeouts()
+
+
+def handle_redirects(queued, target):
+    """ This call is used to determine if a suggested redirect is valid.
+    if it happens to be, we change the url entry with the redirected location and add it back
+    to the call stack. """
+    retry_count = queued.get('retries')
+    if retry_count and retry_count > 1:
+        return
+    elif not retry_count:
+        queued['retries'] = 0
+
+    parsed_taget = urlparse(target)
+    target_path = parsed_taget.path
+
+    source_path = conf.target_base_path + queued.get('url')
+    textutils.output_debug("Handling redirect from: " + source_path + " to " + target_path)
+
+    matcher = SequenceMatcher(isjunk=None, a=parsed_taget, b=source_path, autojunk=False)
+    if matcher.ratio() > 0.8:
+        queued['url'] = target_path
+        queued['retries'] += 1
+        # Add back the timed-out item
+        textutils.output_info("Following redirect! " + str(matcher.ratio()))
+        database.fetch_queue.put(queued)
+    else:
+        textutils.output_debug("Bad redirect! " + str(matcher.ratio()))
+
+
 
 def test_valid_result(content):
     # Tweak the content len
@@ -101,10 +131,13 @@ class FetchCrafted404Worker(Thread):
                         crafted_404 = content[0:conf.file_sample_len - 1]
 
                     database.crafted_404s.append(crafted_404)
-                    
 
                     # Exception case for root 404, since it's used as a model for other directories
                     textutils.output_debug("Computed and saved a sample 404 for: " + str(queued) + ": " + crafted_404)
+                elif response_code in conf.redirect_codes:
+                    location = headers.get('location')
+                    if location:
+                        handle_redirects(queued, location)
 
                 # Decrease throttle delay if needed
                 if not timeout:
@@ -187,6 +220,10 @@ class TestPathExistsWorker(Thread):
                         else:
                             textutils.output_found(description + ' at: ' + conf.target_host + url)
 
+                elif response_code in conf.redirect_codes:
+                    location = headers.get('location')
+                    if location:
+                        handle_redirects(queued, location)
 
                 # Decrease throttle delay if needed
                 if not timeout:	
@@ -256,6 +293,11 @@ class TestFileExistsWorker(Thread):
                             
                             # Add path to valid_path for future actions
                             database.valid_paths.append(queued)
+
+                elif response_code in conf.redirect_codes:
+                    location = headers.get('location')
+                    if location:
+                        handle_redirects(queued, location)
 
                 # Decrease throttle delay if needed
                 if not timeout:	
