@@ -78,6 +78,13 @@ def test_paths_exists():
     # Fill work queue with fetch list
     for path in database.paths:
         database.fetch_queue.put(path)
+
+    # Consider some file target as potential path
+    for file in database.files:
+        if not file.get('no_suffix'):
+            file_as_path = file.copy()
+            file_as_path['url'] = '/' + file_as_path['url']
+            database.fetch_queue.put(file_as_path)
     
     done_paths = []
     recursion_depth = 0
