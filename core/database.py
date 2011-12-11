@@ -19,6 +19,9 @@
 import Queue
 from datetime import datetime
 
+""" Connection pool, to be adjusted by tachyon after initial host benchmark """
+connection_pool = None
+
 """ Path list is used to hold loaded path from disk """
 paths = list()
 
@@ -37,8 +40,8 @@ messages_output_queue = Queue.Queue()
 """ results output contains the scan results """
 results_output_queue = Queue.Queue()
 
-""" Bad CRC database includes all computed crc that represents a false positive """
-bad_crcs = list() 
+""" Crafted 404's database """
+crafted_404s = list()
 
 """ namecache is used across the app to avoid adding duplicates url """
 name_cache = dict()

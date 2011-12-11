@@ -16,26 +16,23 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import ast
-import codecs
+import database
+import random
+import socket
 import textutils
-from exceptions import SyntaxError
 
-def load_targets(file):
-    """ Load the list of target paths """
-    loaded = list()
-    f = codecs.open(file, 'r', 'UTF-8')
-    for path in f:
-        path = path.strip()
-        if len(path) > 0 and '#' not in path:
-            try:
-                # Add processing values
-                parsed_path = ast.literal_eval(path)
-                parsed_path['timeout_count'] = 0
-                loaded.append(parsed_path)
-            except SyntaxError as (errno, strerror):
-                textutils.output_error('Path parsing error: ' + strerror)
+def _get_random_ip_from_cache(cache_info):
+    """ Get a random ip from the caches entries """
+    random_entry = cache_info[random.randint(0, len(cache_info) - 1)]
+    host_port = random_entry[4]
+    return host_port[0]
 
-    f.close()
-    return loaded
+def get_host_ip(host, port):
+    """ Fetch the resolved ip addresses from the cache and return a random address if load-balanced """
+    resolved = database.dns_cache.get(host)
+    if not resolved:
+        textutils.output_debug("Host entry not found in cache for host:" + str(host) + ", resolving")
+        resolved = socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM)
+        database.dns_cache[host] = resolved
 
+    return _get_random_ip_from_cache(resolved), port

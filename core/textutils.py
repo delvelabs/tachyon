@@ -72,11 +72,3 @@ def output_debug(text):
     if conf.debug:
         output_message('[DEBUG] ' + text)
         
-
-def sanitize_config():
-    """ Sanitize configuration values """
-    if not re.search(r'http://', conf.target_host, re.I) and not re.search(r'https://', conf.target_host, re.I):
-        conf.target_host = 'http://' + conf.target_host    
-
-    if conf.target_host.endswith('/'):
-        conf.target_host = conf.target_host[0:-1]

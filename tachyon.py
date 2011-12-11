@@ -20,31 +20,34 @@
 
 import sys
 import uuid
-from core import conf, database, loaders, utils
-from core.workers import PrintWorker, PrintResultsWorker, Compute404CRCWorker, TestPathExistsWorker, TestFileExistsWorker
+from core import conf, database, dnscache, loaders, textutils, netutils
+from core.workers import PrintWorker, PrintResultsWorker, FetchCrafted404Worker, TestPathExistsWorker, TestFileExistsWorker
 from core.threads import ThreadManager
 from optparse import OptionParser
 from plugins import host, file
+from socket import gaierror
+from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
+from datetime import datetime
 
 def load_target_paths():
     """ Load the target paths in the database """
-    utils.output_info('Loading target paths')
+    textutils.output_info('Loading target paths')
     # Add files
     database.paths += loaders.load_targets('data/path.lst') 
 
 
 def load_target_files():
     """ Load the target files in the database """
-    utils.output_info('Loading target files')
+    textutils.output_info('Loading target files')
     database.files += loaders.load_targets('data/file.lst')
 
 
-def benchmark_root_404():
-    """ Get the root 404 CRC, this has to be done as soon as possible since plugins could use this information. """
+def sample_root_404():
+    """ Get the root 404, this has to be done as soon as possible since plugins could use this information. """
     manager = ThreadManager()
-    utils.output_info('Benchmarking root 404')
+    textutils.output_info('Benchmarking root 404')
     
-    for ext in conf.crc_extensions:
+    for ext in conf.crafted_404_extensions:
         random_file = str(uuid.uuid4())
         path = dict(conf.path_template)
 
@@ -61,7 +64,7 @@ def benchmark_root_404():
     path['url'] = '/' + random_file + '/'
     database.fetch_queue.put(path)
 
-    workers = manager.spawn_workers(len(conf.crc_extensions), Compute404CRCWorker)
+    workers = manager.spawn_workers(len(conf.crafted_404_extensions), FetchCrafted404Worker)
     manager.wait_for_idle(workers, database.fetch_queue)
 
 
@@ -75,12 +78,19 @@ def test_paths_exists():
     # Fill work queue with fetch list
     for path in database.paths:
         database.fetch_queue.put(path)
+
+    # Consider some file target as potential path
+    for file in database.files:
+        if not file.get('no_suffix'):
+            file_as_path = file.copy()
+            file_as_path['url'] = '/' + file_as_path['url']
+            database.fetch_queue.put(file_as_path)
     
     done_paths = []
     recursion_depth = 0
     
     while database.fetch_queue.qsize() > 0:
-        utils.output_info('Probing ' + str(database.fetch_queue.qsize()) + ' paths')
+        textutils.output_info('Probing ' + str(database.fetch_queue.qsize()) + ' paths')
         
         # Wait for initial valid path lookup
         workers = manager.spawn_workers(conf.thread_count, TestPathExistsWorker)
@@ -107,17 +117,17 @@ def test_paths_exists():
                 path['url'] = validpath['url'] + path['url']
                 database.fetch_queue.put(path)
 
-    utils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
+    textutils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
 
 
 
-def compute_existing_path_404_crc():
+def sample_404_from_found_path():
     """ For all existing path, compute the 404 CRC so we don't get trapped in a tarpit """
     manager = ThreadManager()
     
     for path in database.valid_paths:
-        utils.output_debug("Path in valid path table: " + str(path))
-        for ext in conf.crc_extensions:
+        textutils.output_debug("Path in valid path table: " + str(path))
+        for ext in conf.crafted_404_extensions:
             path_clone = dict(path)
             random_file = str(uuid.uuid4())
             
@@ -126,16 +136,14 @@ def compute_existing_path_404_crc():
                 path_clone['url'] = path_clone['url'] + '/' + random_file + ext   
                 database.fetch_queue.put(path_clone)    
 
-    workers = manager.spawn_workers(conf.thread_count, Compute404CRCWorker)
+    workers = manager.spawn_workers(conf.thread_count, FetchCrafted404Worker)
     manager.wait_for_idle(workers, database.fetch_queue)
 
-    # print valid path
-    utils.output_debug("Invalid CRCs after global test: " + str(database.bad_crcs))
 
 
 def load_execute_host_plugins():
     """ Import and run host plugins """
-    utils.output_info('Executing ' + str(len(host.__all__)) + ' host plugins')
+    textutils.output_info('Executing ' + str(len(host.__all__)) + ' host plugins')
     for plugin_name in host.__all__:
         plugin = __import__ ("plugins.host." + plugin_name, fromlist=[plugin_name])
         if hasattr(plugin , 'execute'):
@@ -144,7 +152,7 @@ def load_execute_host_plugins():
 
 def load_execute_file_plugins():
     """ Import and run path plugins """
-    utils.output_info('Executing ' + str(len(file.__all__)) + ' file plugins')
+    textutils.output_info('Executing ' + str(len(file.__all__)) + ' file plugins')
     for plugin_name in file.__all__:
         plugin = __import__ ("plugins.file." + plugin_name, fromlist=[plugin_name])
         if hasattr(plugin , 'execute'):
@@ -162,9 +170,6 @@ def add_files_to_paths():
                 new_filename = dict(filename)
                 new_filename['is_file'] = True
 
-                if path.get('computed_404_crc') is not None:
-                    new_filename['computed_404_crc'] = path.get('computed_404_crc')
-
                 if path['url'] == '/':
                     new_filename['url'] = path['url'] + filename['url']
                 else:
@@ -173,15 +178,12 @@ def add_files_to_paths():
                 if not cache_test.get(new_filename['url']):
                     work_list.append(new_filename)
                     cache_test[new_filename['url']] = True
-                    utils.output_debug("No Suffix file added: " + str(new_filename))
+                    textutils.output_debug("No Suffix file added: " + str(new_filename))
 
             else :
                 for suffix in conf.file_suffixes:
                     new_filename = dict(filename)
                     new_filename['is_file'] = True
-
-                    if path.get('computed_404_crc') is not None:
-                        new_filename['computed_404_crc'] = path.get('computed_404_crc')
 
                     if path['url'] == '/':
                         new_filename['url'] = path['url'] + filename['url'] + suffix
@@ -191,7 +193,7 @@ def add_files_to_paths():
                     if not cache_test.get(new_filename['url']):
                         work_list.append(new_filename)
                         cache_test[new_filename['url']] = True
-                        utils.output_debug("File added: " + str(new_filename))
+                        textutils.output_debug("File added: " + str(new_filename))
 
 
     # Since we have already output the found directories, replace the valid path list
@@ -212,7 +214,7 @@ def test_file_exists():
 
 def print_program_header():
     """ Print a _cute_ program header """
-    print("\n\t Tachyon - Fast Multi-Threaded Web Discovery Tool")
+    print("\n\t Tachyon v" + conf.version + " - Fast Multi-Threaded Web Discovery Tool")
     print("\t https://github.com/initnull/tachyon\n") 
 
 
@@ -242,6 +244,8 @@ def generate_options():
                     help="Number of worker threads [default: %default]", default=conf.thread_count)
     parser.add_option("-v", metavar="VHOST", dest="forge_vhost",
                     help="forge destination vhost [default: %default]", default='<host>')
+    parser.add_option("-z", action="store_true",
+                    dest="plugins_only", help="Only run plugins then exit [default: %default]", default=False)
     parser.add_option("-u", metavar="AGENT", dest="user_agent",
                     help="User-agent [default: %default]", default=conf.user_agent)
     return parser
@@ -263,6 +267,7 @@ def parse_args(parser, system_args):
     conf.recursive = options.recursive
     conf.recursive_depth_limit = int(options.limit)
     conf.forge_vhost=options.forge_vhost
+    conf.plugins_only=options.plugins_only
     return options, args
 
 def test_python_version():
@@ -275,6 +280,9 @@ def test_python_version():
 
 # Entry point / main application logic
 if __name__ == "__main__":
+    # Benchmark
+    start_scan_time = datetime.now()
+    
     # Test python version
     if not test_python_version():
         print("Your python interpreter is so old it has to wear diapers. Please upgrade to at least 2.6 ;)")
@@ -292,105 +300,134 @@ if __name__ == "__main__":
         print('')
         sys.exit()
    
-    conf.target_host = args[1]
 
     # Spawn synchronized print output worker
     print_worker = PrintWorker()
     print_worker.daemon = True
     print_worker.start()
 
-    # Ensure the host is of the right format
-    utils.sanitize_config()
+    # Ensure the host is of the right format and set it in config
+    parsed_host, parsed_port, parsed_path, is_ssl = netutils.parse_hostname(args[1])
+    textutils.output_debug("Parsed: " + parsed_host + " port: " + str(parsed_port) + " " +  parsed_path + " SSL:" + str(is_ssl))
     
-    utils.output_debug('Version: ' + str(conf.version))
-    utils.output_debug('Fetch timeout: ' + str(conf.fetch_timeout_secs))
-    utils.output_debug('Max timeouts per url: ' + str(conf.max_timeout_count))
-    utils.output_debug('Worker threads: ' + str(conf.thread_count))
-    utils.output_debug('Target Host: ' + str(conf.target_host))
-    utils.output_debug('Using Tor: ' + str(conf.use_tor))
-    utils.output_debug('Raw output: ' + str(conf.raw_output))
-    utils.output_debug('Using User-Agent: ' + str(conf.user_agent))
-    utils.output_debug('Search only for files: ' + str(conf.files_only))
-    utils.output_debug('Search only for subdirs: ' + str(conf.directories_only))
+    # Set conf values
+    conf.target_host = parsed_host
+    conf.target_base_path = parsed_path
+    conf.is_ssl = is_ssl
+    
+    
+    textutils.output_debug('Version: ' + str(conf.version))
+    textutils.output_debug('Fetch timeout: ' + str(conf.fetch_timeout_secs))
+    textutils.output_debug('Max timeouts per url: ' + str(conf.max_timeout_count))
+    textutils.output_debug('Worker threads: ' + str(conf.thread_count))
+    textutils.output_debug('Target Host: ' + str(conf.target_host))
+    textutils.output_debug('Using Tor: ' + str(conf.use_tor))
+    textutils.output_debug('Raw output: ' + str(conf.raw_output))
+    textutils.output_debug('Using User-Agent: ' + str(conf.user_agent))
+    textutils.output_debug('Search only for files: ' + str(conf.files_only))
+    textutils.output_debug('Search only for subdirs: ' + str(conf.directories_only))
 
-    utils.output_info('Starting Discovery on ' + conf.target_host)
+    textutils.output_info('Starting Discovery on ' + conf.target_host)
     
     if conf.use_tor:
-        utils.output_info('Using Tor, be patient it WILL be slow!')
-        utils.output_info('Max timeout count and url fetch timeout doubled for the occasion ;)')
+        textutils.output_info('Using Tor, be patient it WILL be slow!')
+        textutils.output_info('Max timeout count and url fetch timeout doubled for the occasion ;)')
         conf.max_timeout_count *= 2
         conf.fetch_timeout_secs *= 2
 
     # Handle keyboard exit before multi-thread operations
     try:
-        # 0. Pre-test and CRC /uuid to figure out what is a classic 404 and set value in database
-        benchmark_root_404()
+        # Resolve target host to avoid multiple dns lookups
+        resolved, port = dnscache.get_host_ip(parsed_host, parsed_port)
+
+        # Benchmark target host
+        if is_ssl:
+            database.connection_pool = HTTPSConnectionPool(resolved, timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
+        else:
+            database.connection_pool = HTTPConnectionPool(resolved, timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
+
+        # Vhost forgery
+        if conf.forge_vhost != '<host>':
+            conf.target_host = conf.forge_vhost
+
 
         root_path = ''
-        if not conf.directories_only:        
+        if conf.files_only:
+            # 0. Sample /uuid to figure out what is a classic 404 and set value in database
+            sample_root_404()
             # Add root to targets
             root_path = dict(conf.path_template)
-            root_path['url'] = '/'
-            database.paths.append(root_path)    
-
-        # Load the target paths and files
-        if not conf.files_only:
-            load_target_paths()
-        else:
-            # Add ./ to valid paths
+            root_path['url'] = ''
             database.valid_paths.append(root_path)
-            
-        if not conf.directories_only:
             load_target_files()
-
-        # Execute all Host plugins
-        load_execute_host_plugins()
-
-        # Start the result printworker if we need it now
-        if conf.directories_only:
-            print_results_worker = PrintResultsWorker()
-            print_results_worker.daemon = True
-            print_results_worker.start()
-            
-        # Test the existence of all input path (loaded + plugins)
-        if not conf.files_only:
-            # Test path existence
-            test_paths_exists()
-
-        if not conf.directories_only:   
-            # Compute the 404 CRC for every existing path
-            compute_existing_path_404_crc()
-
-        # Combine generated filenames with urls
-        if not conf.directories_only:
+            load_execute_host_plugins()
+            sample_404_from_found_path()
             add_files_to_paths()
-
-        if not conf.directories_only:   
-            # Execute all path plugins
             load_execute_file_plugins()
-
-        # Clean logs output
-        if not conf.directories_only:
-            # Scan
-            utils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
+            textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
             database.messages_output_queue.join()
-
-        if not conf.directories_only:
             # Start print result worker.
             print_results_worker = PrintResultsWorker()
             print_results_worker.daemon = True
             print_results_worker.start()
-
-        # Test all file combination
-        if not conf.directories_only:
+            test_file_exists()
+        elif conf.directories_only:
+            # 0. Sample /uuid to figure out what is a classic 404 and set value in database
+            sample_root_404()
+            root_path = dict(conf.path_template)
+            root_path['url'] = '/'
+            database.paths.append(root_path)
+            database.valid_paths.append(root_path)
+            load_execute_host_plugins()
+            print_results_worker = PrintResultsWorker()
+            print_results_worker.daemon = True
+            print_results_worker.start()
+            load_target_paths()
+            test_paths_exists()
+        elif conf.plugins_only:
+            database.connection_pool = HTTPConnectionPool(resolved, timeout=conf.fetch_timeout_secs, maxsize=1) 
+            # Add root to targets
+            root_path = dict(conf.path_template)
+            root_path['url'] = '/'
+            database.paths.append(root_path) 
+            load_execute_host_plugins()
+        else:
+            # 0. Sample /uuid to figure out what is a classic 404 and set value in database
+            sample_root_404()
+            # Add root to targets
+            root_path = dict(conf.path_template)
+            root_path['url'] = '/'
+            database.paths.append(root_path)
+            load_target_paths()
+            load_target_files()
+            # Execute all Host plugins
+            load_execute_host_plugins()
+            test_paths_exists()
+            sample_404_from_found_path()
+            add_files_to_paths()
+            load_execute_file_plugins()
+            textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
+            database.messages_output_queue.join()
+            print_results_worker = PrintResultsWorker()
+            print_results_worker.daemon = True
+            print_results_worker.start()
             test_file_exists()
 
+
+        # Benchmark
+        end_scan_time = datetime.now()
+
         # Print all remaining messages
-        utils.output_info('Done.\n')
+        textutils.output_info('Scan completed in: ' + str(end_scan_time - start_scan_time) + '\n')
         database.results_output_queue.join()
         database.messages_output_queue.join()
     except KeyboardInterrupt:
-        utils.output_message_raw('')
-        utils.output_info('Keyboard Interrupt Received')
+        textutils.output_message_raw('')
+        textutils.output_info('Keyboard Interrupt Received')
+    except gaierror:
+        textutils.output_info('Error resolving host')
+    finally:
         database.messages_output_queue.join()
         sys.exit(0)
+
+

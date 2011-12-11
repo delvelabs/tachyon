@@ -16,26 +16,29 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import ast
-import codecs
-import textutils
-from exceptions import SyntaxError
+import re
+from core import textutils
+from urlparse import urlparse
 
-def load_targets(file):
-    """ Load the list of target paths """
-    loaded = list()
-    f = codecs.open(file, 'r', 'UTF-8')
-    for path in f:
-        path = path.strip()
-        if len(path) > 0 and '#' not in path:
-            try:
-                # Add processing values
-                parsed_path = ast.literal_eval(path)
-                parsed_path['timeout_count'] = 0
-                loaded.append(parsed_path)
-            except SyntaxError as (errno, strerror):
-                textutils.output_error('Path parsing error: ' + strerror)
+def parse_hostname(hostname):
+    ssl = False
+    if not re.search(r'http://', hostname, re.I) and not re.search(r'https://', hostname, re.I):
+        hostname = 'http://' + hostname
 
-    f.close()
-    return loaded
+    if re.search(r'https://', hostname, re.I):
+        ssl = True
 
+    parsed = urlparse(hostname)
+    parsed_path = parsed.path
+
+    if parsed_path.endswith('/'):
+        parsed_path = parsed_path[0:-1]
+
+    if not parsed.port:
+        parsed_port = 80
+    else:
+        parsed_port = parsed.port
+
+
+    textutils.output_debug("Starting scan on: " + parsed.hostname + " base: " + parsed_path + " ssl: " + str(ssl))
+    return parsed.hostname, parsed_port, parsed_path, ssl

@@ -15,7 +15,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from core import conf, database, utils
+from core import conf, database, textutils
 
 def execute():
     """ This plugin process the hostname to generate host and filenames relatives to it """
@@ -42,7 +42,7 @@ def execute():
     new_target['description'] = "HostProcessor generated filename"
     if new_target not in database.files:
         database.files.append(new_target)
-        utils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
+        textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
         added += 1
 
     # www.oksala.org -> oksala.org
@@ -52,7 +52,7 @@ def execute():
     new_target['description'] = "HostProcessor generated filename"
     if new_target not in database.files:
         database.files.append(new_target)
-        utils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
+        textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
         added += 1
 
     # oksala.org -> oksala
@@ -63,7 +63,7 @@ def execute():
     new_target['description'] = "HostProcessor generated filename"
     if new_target not in database.files:
         database.files.append(new_target)
-        utils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
+        textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
         added += 1
 
     # shortdom (blabla.ok.ok.test.com -> test)
@@ -81,21 +81,21 @@ def execute():
         new_target['description'] = "HostProcessor generated filename"
         if new_target not in database.files:
             database.files.append(new_target)
-            utils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
+            textutils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
             added += 1
         
         new_target = dict(new_target)    
         new_target['url'] = short_dom + 'admin'
         if new_target not in database.files:
             database.files.append(new_target)
-            utils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
+            textutils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
             added += 1
         
         new_target = dict(new_target)     
         new_target['url'] = short_dom + '-admin'
         if new_target not in database.files:
             database.files.append(new_target)
-            utils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
+            textutils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
             added += 1
 
     # flatten subdomains
@@ -105,10 +105,10 @@ def execute():
     new_target['description'] = "HostProcessor generated filename"
     if new_target not in database.files:
         database.files.append(new_target)
-        utils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
+        textutils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
         added += 1
 
-    utils.output_info(" - HostProcessor Plugin: added " + str(added) + " new filenames")
+    textutils.output_info(" - HostProcessor Plugin: added " + str(added) + " new filenames")
 
 
 

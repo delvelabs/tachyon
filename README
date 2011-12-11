@@ -18,6 +18,7 @@ It provides:
 REQUIREMENTS    
 - A mainstream OS (Windows, Linux, Mac OS X)
 - Python 2.6+
+- urllib3 (~# easy_install urllib3)
 
 HOW TO HELP (for sysadmins)
 - Run tachyon on your domain
@@ -25,11 +26,16 @@ HOW TO HELP (for sysadmins)
 - Send me the result list and the directory listing
 
 TODO:
+- Fix TOR support.
+- Filter targets to remove duplicate scan
+- Parseable output for GUI integration (better stats system for live stats)
 - Add an match-string=404 mechanism for edge cases
+- Add heuristic to limit false positives on recursive mode over bogus install (WEB-INF\***)
 - Add callbacks method to plugins
 - Support files in robots plugin
 - Add support for non-xml /.svn/entries files
-- Figure a way to limit issues with recursive 403's
+- Sitemap.xml plugin
+
 
 Using tor
 - Under Ubuntu:
