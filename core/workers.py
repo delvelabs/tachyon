@@ -62,12 +62,12 @@ def handle_redirects(queued, target):
     source_path = conf.target_base_path + queued.get('url')
     textutils.output_debug("Handling redirect from: " + source_path + " to " + target_path)
 
-    matcher = SequenceMatcher(isjunk=None, a=parsed_taget, b=source_path, autojunk=False)
+    matcher = SequenceMatcher(isjunk=None, a=target_path, b=source_path, autojunk=False)
     if matcher.ratio() > 0.8:
         queued['url'] = target_path
         queued['retries'] += 1
         # Add back the timed-out item
-        textutils.output_info("Following redirect! " + str(matcher.ratio()))
+        textutils.output_debug("Following redirect! " + str(matcher.ratio()))
         database.fetch_queue.put(queued)
     else:
         textutils.output_debug("Bad redirect! " + str(matcher.ratio()))
