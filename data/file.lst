@@ -52,6 +52,7 @@
 {"url" : "export", "description" : "database backup"}
 {"url" : "foo", "description" : "random backup"}
 {"url" : ".htaccess", "description" : "htacces file", "no_suffix": True}
+{"url" : ".hta", "description" : "htacces file", "no_suffix": True}
 {"url" : ".htpasswd", "description" : "htpasswd file", "no_suffix": True}
 {"url" : "id_rsa", "description" : "rsa private key", "no_suffix": True}
 {"url" : "id_rsa.pub", "description" : "rsa public key", "no_suffix": True}
