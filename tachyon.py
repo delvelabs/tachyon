@@ -248,6 +248,8 @@ def generate_options():
                     dest="plugins_only", help="Only run plugins then exit [default: %default]", default=False)
     parser.add_option("-u", metavar="AGENT", dest="user_agent",
                     help="User-agent [default: %default]", default=conf.user_agent)
+    parser.add_option("-o", metavar="SUBATOMIC", dest="subatomic",
+                    help="Output log to a Subatomic server (ip:port:runid) [default: %default]", default=conf.subatomic)
     return parser
     
     
@@ -266,8 +268,9 @@ def parse_args(parser, system_args):
     conf.directories_only = options.search_dirs
     conf.recursive = options.recursive
     conf.recursive_depth_limit = int(options.limit)
-    conf.forge_vhost=options.forge_vhost
-    conf.plugins_only=options.plugins_only
+    conf.forge_vhost = options.forge_vhost
+    conf.plugins_only = options.plugins_only
+    conf.subatomic = options.subatomic
     return options, args
 
 def test_python_version():
@@ -349,7 +352,6 @@ if __name__ == "__main__":
         # Vhost forgery
         if conf.forge_vhost != '<host>':
             conf.target_host = conf.forge_vhost
-
 
         root_path = ''
         if conf.files_only:

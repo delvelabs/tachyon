@@ -19,7 +19,7 @@
 
 import re
 import sys
-from core import database, conf, stats, textutils, throttle
+from core import database, conf, stats, textutils, throttle, subatomic
 from core.fetcher import Fetcher
 from difflib import SequenceMatcher
 from Queue import Empty
@@ -320,8 +320,12 @@ class PrintWorker(Thread):
     def run(self):
         while not self.kill_received:
             text = database.messages_output_queue.get()
-            print(text)
-            sys.stdout.flush()
+            if conf.subatomic:
+                subatomic.post_message(text)
+            else:
+                print(text)
+                sys.stdout.flush()
+
             database.messages_output_queue.task_done()
 
 
@@ -334,7 +338,11 @@ class PrintResultsWorker(Thread):
     def run(self):
         while not self.kill_received:
             text = database.results_output_queue.get()
-            print(text)
-            sys.stdout.flush()
+            if conf.subatomic:
+                subatomic.post_message(text)
+            else:
+                print(text)
+                sys.stdout.flush()
+
             database.results_output_queue.task_done()
 

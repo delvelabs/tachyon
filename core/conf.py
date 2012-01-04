@@ -17,7 +17,7 @@
 #
 
 # Internal config and consts
-version = '2.0.0-beta6'
+version = '2.0.0-beta7'
 expected_path_responses = [200, 206, 401, 403]
 expected_file_responses = [200, 206]
 timeout_codes = [0, 500, 502, 503]
@@ -42,7 +42,7 @@ target_host = ''
 target_base_path = ''
 is_ssl = False
 forge_vhost='' 
-
+subatomic = None
 debug = False
 search_files = True
 recursive = False
@@ -58,7 +58,7 @@ throttle_increment = 0.5
 max_throttle = 10.0 # in seconds
 recursive_depth_limit=2
 test_plugin = None
-
+plugins_only = False
 
 
 # Templates, used by plugins
