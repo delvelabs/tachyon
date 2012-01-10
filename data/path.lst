@@ -93,6 +93,7 @@
 {"url" : "/misc", "description" : "Miscellaneous directory"}
 {"url" : "/migrate", "description" : "Database migration directory"}
 {"url" : "/modules", "description" : "Modules directory"}
+{"url" : "/nagios", "description" : "Nagios monitoring"}
 {"url" : "/old", "description" : "Old website version"}
 {"url" : "/private", "description" : "Private directory"}
 {"url" : "/protected", "description" : "_Protected_ directory"}
