@@ -62,6 +62,7 @@
 {"url" : "/_dummy", "description" : "Dummy directory"}
 {"url" : "/dump", "description" : "Dump directory"}
 {"url" : "/examples", "description" : "Examples directory"}
+{"url" : "/etc", "description" : "random/config directory"}
 {"url" : "/files", "description" : "Static files directory"}
 {"url" : "/file", "description" : "Static files directory"}
 {"url" : "/fileadmin", "description" : "Static files administration directory"}

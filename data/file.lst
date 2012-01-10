@@ -45,6 +45,7 @@
 {"url" : "db", "description" : "database backup"}
 {"url" : "default", "description" : "default file"}
 {"url" : "deploy", "description" : "Site backup"}
+{"url" : "digest", "description" : "digest file"}
 {"url" : "dokuwiki", "description" : "Dokuwiki backup"}
 {"url" : "encrypt", "description" : "encryption file"}
 {"url" : "error", "description" : "error log"}
@@ -68,6 +69,7 @@
 {"url" : "log", "description" : "Log file"}
 {"url" : "logs", "description" : "Log file"}
 {"url" : "logger", "description" : "Log file"}
+{"url" : "master", "description" : "master file"}
 {"url" : "main.mdb", "description" : "ASP-Nuke db", "no_suffix": True}
 {"url" : "mysql", "description" : "Mysql config"}
 {"url" : "my", "description" : "Mysql config"}
@@ -77,6 +79,7 @@
 {"url" : "password", "description" : "password file"}
 {"url" : "passwords", "description" : "password file"}
 {"url" : "passwd", "description" : "Password file"}
+{"url" : ".passwd", "description" : "Password file", "no_suffix": True}
 {"url" : "php", "description" : "php config"}
 {"url" : "proftpd", "description" : "ProFTPD config"}
 {"url" : "pixelpost", "description" : "Pixelpost config"}
@@ -91,6 +94,7 @@
 {"url" : "test_db", "description" : "database backup"}
 {"url" : "transactions", "description" : "transactions log"}
 {"url" : "transaction", "description" : "transactions log"}
+{"url" : "user", "description" : "username file"}
 {"url" : "users", "description" : "usernames file"}
 {"url" : "usernames", "description" : "usernames file"}
 {"url" : "username", "description" : "usernames file"}
