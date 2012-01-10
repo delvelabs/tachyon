@@ -132,6 +132,7 @@
 {"url" : "/test", "description" : "Test Directory"}
 {"url" : "/tests", "description" : "Test Directory"}
 {"url" : "/tx", "description" : "Transfer directory"}
+{"url" : "/utils", "description" : "Utils directory"}
 {"url" : "/var", "description" : "Variable directory"}
 {"url" : "/webadmin", "description" : "Admin section"}
 {"url" : "/webadm", "description" : "Admin section"}
