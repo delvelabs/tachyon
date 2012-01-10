@@ -128,6 +128,7 @@
 # Svn entries file
 {"url" : ".svn/entries", "description" : "SVN entries file", "no_suffix": True}
 
-# php cache monitoring
+# cache monitoring
 {"url" : "apc.php", "description" : "Zend cache monitoring", "no_suffix": True}
+{"url" : "memcached.php", "description" : "memcached monitoring", "no_suffix": True}
 
