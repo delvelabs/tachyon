@@ -62,6 +62,7 @@
 {"url" : "/_dummy", "description" : "Dummy directory"}
 {"url" : "/dump", "description" : "Dump directory"}
 {"url" : "/examples", "description" : "Examples directory"}
+{"url" : "/etc", "description" : "random/config directory"}
 {"url" : "/files", "description" : "Static files directory"}
 {"url" : "/file", "description" : "Static files directory"}
 {"url" : "/fileadmin", "description" : "Static files administration directory"}
@@ -92,6 +93,7 @@
 {"url" : "/misc", "description" : "Miscellaneous directory"}
 {"url" : "/migrate", "description" : "Database migration directory"}
 {"url" : "/modules", "description" : "Modules directory"}
+{"url" : "/nagios", "description" : "Nagios monitoring"}
 {"url" : "/old", "description" : "Old website version"}
 {"url" : "/private", "description" : "Private directory"}
 {"url" : "/protected", "description" : "_Protected_ directory"}
@@ -132,6 +134,7 @@
 {"url" : "/tx", "description" : "Transfer directory"}
 {"url" : "/user", "description" : "User directory"}
 {"url" : "/users", "description" : "User directory"}
+{"url" : "/utils", "description" : "Utils directory"}
 {"url" : "/var", "description" : "Variable directory"}
 {"url" : "/webadmin", "description" : "Admin section"}
 {"url" : "/webadm", "description" : "Admin section"}
