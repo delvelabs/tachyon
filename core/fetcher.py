@@ -34,7 +34,7 @@ class Fetcher(object):
                 add_headers['Range'] = content_range
               
             response = database.connection_pool.request('GET', url, headers=add_headers, retries=0, redirect=False,
-                                                        release_conn=False, assert_same_host=False, timeout=conf.fetch_timeout_secs)
+                                                        release_conn=True, assert_same_host=False, timeout=conf.fetch_timeout_secs)
                 
             content = response.data
 

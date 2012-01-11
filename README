@@ -26,6 +26,7 @@ HOW TO HELP (for sysadmins)
 - Send me the result list and the directory listing
 
 TODO:
+- Add empty file detection/tagging
 - Fix TOR support.
 - Filter targets to remove duplicate scan
 - Parseable output for GUI integration (better stats system for live stats)
