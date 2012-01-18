@@ -17,42 +17,44 @@
 #
 
 from core import conf, database, textutils
+from datetime import date
 
-def add_generated_path(char):
-    """ Add path to database """
+def add_generated_path(path):
     current_template = dict(conf.path_template)
     current_template['description'] = 'Computer generated path'
-    current_template['url'] = '/' + chr(char)
-    if current_template not in database.paths:
-        textutils.output_debug(' - PathGenerator Plugin Generated: ' + str(current_template))
-        database.paths.append(current_template)
-        
-def add_generated_file(char):
-    """ Add path to database """
-    current_template = dict(conf.path_template)
-    current_template['description'] = 'Computer generated path'
-    current_template['url'] = chr(char)
+    current_template['url'] = path
     if current_template not in database.files:
         textutils.output_debug(' - PathGenerator Plugin Generated: ' + str(current_template))
         database.files.append(current_template)
 
+def add_generated_dir(directory):
+    """ Add directory to database """
+    add_generated_path('/' + directory)
+
+def add_generated_file(file):
+    """ Add file to database """
+    add_generated_path(file)
 
 def execute():
     """ Generate common simple paths (a-z, 0-9) """
     path_added = 0
     file_added = 0
+
     for char in range(ord('a'), ord('z')):
-        add_generated_path(char)
+        add_generated_dir(chr(char))
         path_added += 1
-        add_generated_file(char)
+        add_generated_file(chr(char))
         file_added += 1    
 
     for char in range(ord('0'), ord('9')):
-        add_generated_path(char)
+        add_generated_dir(chr(char))
         path_added += 1
-        add_generated_file(char)
-        file_added += 1    
+        add_generated_file(chr(char))
+        file_added += 1
 
+    for year in range(1990, date.today().year + 5):
+        add_generated_dir(str(year))
+        path_added += 1
 
     textutils.output_info(' - PathGenerator Plugin: added ' + str(path_added) + ' computer generated path.')
     textutils.output_info(' - PathGenerator Plugin: added ' + str(file_added) + ' computer generated files.')
