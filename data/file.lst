@@ -24,6 +24,7 @@
 {"url" : "administrators", "description" : "Admin file"}
 {"url" : "administration", "description" : "Admin file"}
 {"url" : "application", "description" : "Application file"}
+{"url" : "application.wadl", "description" : "REST API description file", "no_suffix": True}
 {"url" : "authors", "description" : "Password file"}
 {"url" : "auth", "description" : "auth file"}
 {"url" : "authuser", "description" : "auth file"}
