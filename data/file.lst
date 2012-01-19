@@ -133,3 +133,15 @@
 {"url" : "apc.php", "description" : "Zend cache monitoring", "no_suffix": True}
 {"url" : "memcached.php", "description" : "memcached monitoring", "no_suffix": True}
 
+# Frontpage
+{"url": "_vti_bin/_vti_adm/admin.dll", "description": "Frontpage file", "no_suffix": True}
+{"url": "_vti_bin/_vti_aut/author.dll", "description": "Frontpage file", "no_suffix": True}
+{"url": "_vti_bin/shtml.dll", "description": "Frontpage file", "no_suffix": True}
+ 
+# CVS
+{"url": "CVS/Entries", "description": "CVS entries file", "no_suffix": True}
+{"url": "CVS/Root", "description": "CVS root file", "no_suffix": True}
+{"url": "CVS/Repository", "description": "CVS repository file", "no_suffix": True}
+ 
+# git
+{"url": ".git/HEAD", "description": "git HEAD file", "no_suffix": True}
