@@ -40,13 +40,13 @@ def execute():
     path_added = 0
     file_added = 0
 
-    for char in range(ord('a'), ord('z')):
+    for char in range(ord('a'), ord('z')+1):
         add_generated_dir(chr(char))
         path_added += 1
         add_generated_file(chr(char))
         file_added += 1    
 
-    for char in range(ord('0'), ord('9')):
+    for char in range(ord('0'), ord('9')+1):
         add_generated_dir(chr(char))
         path_added += 1
         add_generated_file(chr(char))
