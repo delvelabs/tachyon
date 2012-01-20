@@ -88,6 +88,7 @@
 {"url" : "putty", "description" : "PuTTY logs"}
 {"url" : "putty.reg", "description" : "PuTTY logs", "no_suffix": True}
 {"url" : "register", "description" : "Register file"}
+{"url" : "rsync", "description" : "Remote sync file"}
 {"url" : "service", "description" : "Password file"}
 {"url" : "settings", "description" : "settings file"}
 {"url" : "site", "description" : "database backup"}

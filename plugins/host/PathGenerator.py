@@ -29,7 +29,7 @@ def add_generated_path(path):
 
 def add_generated_dir(directory):
     """ Add directory to database """
-    add_generated_path('/' + directory)
+    add_generated_path(directory)
 
 def add_generated_file(file):
     """ Add file to database """
