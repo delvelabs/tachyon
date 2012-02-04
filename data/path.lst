@@ -32,6 +32,7 @@
 {"url" : "/backups", "description" : "Backup directory"}
 {"url" : "/bar", "description" : "Random directory"}
 {"url" : "/board", "description" : "Forum directory"}
+{"url" : "/bulksms", "description" : "Sms Spam system"}
 {"url" : "/cache", "description" : "Cache directory"}
 {"url" : "/cfg", "description" : "Config directory"}
 {"url" : "/conf", "description" : "Config directory"}
