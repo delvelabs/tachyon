@@ -44,7 +44,7 @@ results_output_queue = Queue.Queue()
 crafted_404s = list()
 
 """ namecache is used across the app to avoid adding duplicates url """
-name_cache = dict()
+name_cache = set()
 
 """ Dns resolve cache """
 dns_cache = dict()

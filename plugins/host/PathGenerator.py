@@ -16,14 +16,14 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from core import conf, database, textutils
+from core import conf, database, textutils, dbutils
 from datetime import date
 
 def add_generated_path(path):
     current_template = dict(conf.path_template)
     current_template['description'] = 'Computer generated path'
     current_template['url'] = path
-    if current_template not in database.files:
+    if dbutils.add_url_fetch_queue(current_template):
         textutils.output_debug(' - PathGenerator Plugin Generated: ' + str(current_template))
         database.files.append(current_template)
 

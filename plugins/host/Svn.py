@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from core import conf, textutils, database
+from core import conf, textutils, database, dbutils
 from core.fetcher import Fetcher
 from urlparse import urljoin
 from xml.etree import ElementTree
@@ -42,7 +42,7 @@ def execute():
                         current_template = dict(current_template)
                         current_template['url'] = '/' + entry.attrib["name"]
 
-                        if current_template not in database.paths:
+                        if dbutils.add_url_fetch_queue(current_template):
                             database.paths.append(current_template)
                             added += 1
         except Exception:

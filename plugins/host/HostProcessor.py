@@ -15,7 +15,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from core import conf, database, textutils
+from core import conf, database, textutils, dbutils
 
 def execute():
     """ This plugin process the hostname to generate host and filenames relatives to it """
@@ -40,18 +40,17 @@ def execute():
     new_target = dict(conf.path_template)
     new_target['url'] = target
     new_target['description'] = "HostProcessor generated filename"
-    if new_target not in database.files:
-        database.files.append(new_target)
+    if dbutils.add_url_fetch_queue(new_target):
         textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
         added += 1
+
 
     # www.oksala.org -> oksala.org
     target = target.replace('www.', '')
     new_target = dict(conf.path_template)
     new_target['url'] = target
     new_target['description'] = "HostProcessor generated filename"
-    if new_target not in database.files:
-        database.files.append(new_target)
+    if dbutils.add_url_fetch_queue(new_target):
         textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
         added += 1
 
@@ -61,8 +60,7 @@ def execute():
     new_target = dict(conf.path_template)
     new_target['url'] = nodom_target
     new_target['description'] = "HostProcessor generated filename"
-    if new_target not in database.files:
-        database.files.append(new_target)
+    if dbutils.add_url_fetch_queue(new_target):
         textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
         added += 1
 
@@ -79,23 +77,20 @@ def execute():
 
         new_target['url'] = short_dom
         new_target['description'] = "HostProcessor generated filename"
-        if new_target not in database.files:
-            database.files.append(new_target)
-            textutils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
+        if dbutils.add_url_fetch_queue(new_target):
+            textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
             added += 1
         
         new_target = dict(new_target)    
         new_target['url'] = short_dom + 'admin'
-        if new_target not in database.files:
-            database.files.append(new_target)
-            textutils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
+        if dbutils.add_url_fetch_queue(new_target):
+            textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
             added += 1
         
         new_target = dict(new_target)     
         new_target['url'] = short_dom + '-admin'
-        if new_target not in database.files:
-            database.files.append(new_target)
-            textutils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
+        if dbutils.add_url_fetch_queue(new_target):
+            textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
             added += 1
 
     # flatten subdomains
@@ -103,9 +98,8 @@ def execute():
     new_target = dict(conf.path_template)
     new_target['url'] = target
     new_target['description'] = "HostProcessor generated filename"
-    if new_target not in database.files:
-        database.files.append(new_target)
-        textutils.output_debug(" - HostProcessor Plugin: added " + str(new_target))
+    if dbutils.add_url_fetch_queue(new_target):
+        textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
         added += 1
 
     textutils.output_info(" - HostProcessor Plugin: added " + str(added) + " new filenames")

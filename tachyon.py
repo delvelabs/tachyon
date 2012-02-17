@@ -20,7 +20,7 @@
 
 import sys
 import uuid
-from core import conf, database, dnscache, loaders, textutils, netutils
+from core import conf, database, dnscache, loaders, textutils, netutils, dbutils
 from core.workers import PrintWorker, PrintResultsWorker, FetchCrafted404Worker, TestPathExistsWorker, TestFileExistsWorker
 from core.threads import ThreadManager
 from optparse import OptionParser
@@ -84,7 +84,7 @@ def test_paths_exists():
         if not file.get('no_suffix'):
             file_as_path = file.copy()
             file_as_path['url'] = '/' + file_as_path['url']
-            database.fetch_queue.put(file_as_path)
+            dbutils.add_url_fetch_queue(file_as_path)
     
     done_paths = []
     recursion_depth = 0
@@ -115,7 +115,7 @@ def test_paths_exists():
                     continue
                 path = path.copy()
                 path['url'] = validpath['url'] + path['url']
-                database.fetch_queue.put(path)
+                dbutils.add_url_fetch_queue(path)
 
     textutils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
 
@@ -162,7 +162,6 @@ def load_execute_file_plugins():
 def add_files_to_paths():
     """ Combine all path, filenames and suffixes to build the target list """
     work_list = list()
-    cache_test = dict()
     for path in database.valid_paths:
         # Combine current path with all files and suffixes if enabled
         for filename in database.files:
@@ -175,10 +174,8 @@ def add_files_to_paths():
                 else:
                     new_filename['url'] = path['url'] + '/' + filename['url']
 
-                if not cache_test.get(new_filename['url']):
-                    work_list.append(new_filename)
-                    cache_test[new_filename['url']] = True
-                    textutils.output_debug("No Suffix file added: " + str(new_filename))
+                work_list.append(new_filename)
+                textutils.output_debug("No Suffix file added: " + str(new_filename))
 
             else :
                 for suffix in conf.file_suffixes:
@@ -190,10 +187,8 @@ def add_files_to_paths():
                     else:
                         new_filename['url'] = path['url'] + '/' + filename['url'] + suffix
 
-                    if not cache_test.get(new_filename['url']):
-                        work_list.append(new_filename)
-                        cache_test[new_filename['url']] = True
-                        textutils.output_debug("File added: " + str(new_filename))
+                    work_list.append(new_filename)
+                    textutils.output_debug("File added: " + str(new_filename))
 
 
     # Since we have already output the found directories, replace the valid path list
@@ -205,7 +200,7 @@ def test_file_exists():
     manager = ThreadManager()
     # Fill work queue with fetch list
     for item in database.valid_paths:
-        database.fetch_queue.put(item)
+        dbutils.add_url_fetch_queue(item)
 
     # Wait for initial valid path lookup
     workers = manager.spawn_workers(conf.thread_count, TestFileExistsWorker)
