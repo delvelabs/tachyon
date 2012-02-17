@@ -1,0 +1,4 @@
+2.0.0-beta8
+=====================
+- Removed empty file tagging
+- Added timeout flexibility (start -w5 in extreme cases)

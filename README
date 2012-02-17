@@ -25,13 +25,11 @@ HOW TO HELP (for sysadmins)
 - Run a recursive directory listing of your domain (I don't need to know what is the domain)
 - Send me the result list and the directory listing
 
-TODO:
-- Add empty file detection/tagging
+Possible improvements:
+- Duplicate removal before scan
 - Fix TOR support.
-- Filter targets to remove duplicate scan
 - Parseable output for GUI integration (better stats system for live stats)
 - Add an match-string=404 mechanism for edge cases
-- Add heuristic to limit false positives on recursive mode over bogus install (WEB-INF\***)
 - Add callbacks method to plugins
 - Support files in robots plugin
 - Add support for non-xml /.svn/entries files

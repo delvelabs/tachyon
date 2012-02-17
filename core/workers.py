@@ -19,7 +19,7 @@
 
 import re
 import sys
-from core import database, conf, stats, textutils, throttle, subatomic
+from core import database, conf, stats, textutils, subatomic
 from core.fetcher import Fetcher
 from difflib import SequenceMatcher
 from Queue import Empty
@@ -75,17 +75,25 @@ def handle_redirects(queued, target):
 
 
 def test_valid_result(content):
+    is_valid_result = True
+
     # Tweak the content len
     if len(content) > conf.file_sample_len:
         content = content[0:conf.file_sample_len -1]
 
-    is_valid_result = True
+    # False positive cleanup for some edge cases
+    content = content.strip('\r\n ')
 
+    # Test signatures
     for fingerprint in database.crafted_404s:
+        textutils.output_debug("Testing [" + content.encode('hex') + "]" + " against Fingerprint: [" + fingerprint.encode('hex') + "]")
         matcher = SequenceMatcher(isjunk=None, a=fingerprint, b=content, autojunk=False)
+
+        textutils.output_debug("Ratio " + str(matcher.ratio()))
 
         # This content is almost similar to a generated 404, therefore it's a 404.
         if matcher.ratio() > 0.8:
+            textutils.output_debug("False positive detected!")
             is_valid_result = False
             break
 
@@ -113,22 +121,23 @@ class FetchCrafted404Worker(Thread):
                 stats.update_stats(url)
 
                 # Fetch the target url
-                timeout = False
                 response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)
 
                 # Handle fetch timeouts by re-adding the url back to the global fetch queue
                 # if timeout count is under max timeout count
                 if response_code is 0 or response_code is 500:
                     handle_timeout(queued, url, self.thread_id, output=self.output)
-                    # increase throttle delay
-                    throttle.increase_throttle_delay()
-                    timeout = True
                 elif response_code in conf.expected_file_responses:
                     # The server responded with whatever code but 404 or invalid stuff (500). We take a sample
-                    if len(content) < conf.file_sample_len:
+                    if not len(content):
+                        crafted_404 = "" # empty file, still a forged 404
+                    elif len(content) < conf.file_sample_len:
                         crafted_404 = content[0:len(content) - 1]
                     else:
                         crafted_404 = content[0:conf.file_sample_len - 1]
+
+                    # Edge case control
+                    crafted_404 = crafted_404.strip('\r\n ')
 
                     database.crafted_404s.append(crafted_404)
 
@@ -138,10 +147,6 @@ class FetchCrafted404Worker(Thread):
                     location = headers.get('location')
                     if location:
                         handle_redirects(queued, location)
-
-                # Decrease throttle delay if needed
-                if not timeout:
-                    throttle.decrease_throttle_delay()
 
                 # Dequeue item
                 stats.update_processed_items()
@@ -172,16 +177,11 @@ class TestPathExistsWorker(Thread):
 
                 stats.update_stats(url)
 
-                # Throttle if needed
-               # if throttle.get_throttle() > 0:
-                  #  sleep(throttle.get_throttle())
-
                 # Add trailing / for paths
                 if url[:-1] != '/' and url != '/':
                     url += '/'
 
                 # Fetch directory
-                timeout = False
                 response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
 
                 # Fetch '/' but don't submit it to more logging/existance tests
@@ -198,9 +198,6 @@ class TestPathExistsWorker(Thread):
                 # handle timeout
                 if response_code in conf.timeout_codes:
                     handle_timeout(queued, url, self.thread_id, output=self.output)
-                    # increase throttle delay
-                    throttle.increase_throttle_delay()
-                    timeout = True
                 elif response_code in conf.expected_path_responses:
                     # Compare content with generated 404 samples
                     is_valid_result = test_valid_result(content)
@@ -225,10 +222,6 @@ class TestPathExistsWorker(Thread):
                     if location:
                         handle_redirects(queued, location)
 
-                # Decrease throttle delay if needed
-                if not timeout:	
-                    throttle.decrease_throttle_delay()
-					
                 # Mark item as processed
                 stats.update_processed_items()
                 database.fetch_queue.task_done()
@@ -258,12 +251,7 @@ class TestFileExistsWorker(Thread):
                 textutils.output_debug("Testing: " + url + " " + str(queued))
                 stats.update_stats(url)
 
-                # Throttle if needed
-                #if throttle.get_throttle() > 0:
-                 #   sleep(throttle.get_throttle())
-
                 # Fetch the target url
-                timeout = False
                 if match_string:
                     response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
                 else:
@@ -272,8 +260,6 @@ class TestFileExistsWorker(Thread):
                 # handle timeout
                 if response_code in conf.timeout_codes:
                     handle_timeout(queued, url, self.thread_id, output=self.output)
-                    throttle.increase_throttle_delay()
-                    timeout = True
                 elif response_code in conf.expected_file_responses:
                       # Compare content with generated 404 samples
                     is_valid_result = test_valid_result(content)
@@ -299,9 +285,6 @@ class TestFileExistsWorker(Thread):
                     if location:
                         handle_redirects(queued, location)
 
-                # Decrease throttle delay if needed
-                if not timeout:	
-                    throttle.decrease_throttle_delay()
 					
                 # Mark item as processed
                 stats.update_processed_items()

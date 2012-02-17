@@ -17,7 +17,7 @@
 #
 
 # Internal config and consts
-version = '2.0.0-beta7'
+version = '2.0.0-beta8'
 expected_path_responses = [200, 206, 401, 403]
 expected_file_responses = [200, 206]
 timeout_codes = [0, 500, 502, 503]
@@ -47,7 +47,7 @@ debug = False
 search_files = True
 recursive = False
 fetch_timeout_secs = 2
-max_timeout_count = 10
+max_timeout_count = 500
 thread_count = 150
 use_tor = False
 raw_output = False

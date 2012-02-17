@@ -18,7 +18,9 @@
 from core import database
 from core import conf
 
+
 class Fetcher(object):
+
     def fetch_url(self, url, user_agent, timeout, limit_len=True, add_headers=dict()):
         """ Fetch a given url, with a given user_agent and timeout"""
         try:
@@ -35,16 +37,16 @@ class Fetcher(object):
               
             response = database.connection_pool.request('GET', url, headers=add_headers, retries=0, redirect=False,
                                                         release_conn=True, assert_same_host=False, timeout=conf.fetch_timeout_secs)
-                
-            content = response.data
 
+            content = response.data
             code = response.status
             headers = response.headers
         except Exception:
+            if conf.fetch_timeout_secs < 10:
+                conf.fetch_timeout_secs += 1
             code = 0
             content = ''
             headers = dict()
-            pass
 
         return code, content, headers
         
