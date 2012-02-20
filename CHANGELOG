@@ -10,6 +10,6 @@
 - Added new extensions
 - Fixed slice glitch on 2-bytes path
 - Added Tomcat fake-404 Redirect detection on existing paths without index file
-- in progress: Improved timeout algorithm
-- in progress: New stats string
+- Fixed Internal server error detection code, should work even on bogus directory
+
 

@@ -34,9 +34,10 @@ class Fetcher(object):
             if limit_len:
                 content_range = 'bytes=0-' + str(conf.file_sample_len-1)
                 add_headers['Range'] = content_range
-              
+
             response = database.connection_pool.request('GET', url, headers=add_headers, retries=0, redirect=False,
                                                         release_conn=True, assert_same_host=False, timeout=conf.fetch_timeout_secs)
+
 
             content = response.data
             code = response.status

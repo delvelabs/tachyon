@@ -8,7 +8,6 @@ It is not a vulnerability scanner, or a web crawler.
 It provides:
  - Plugin support
  - SSL support
- - Tor support (trough privoxy)
  - Robots.txt support
  - Common directory lookup
  - Fast Multi-Threaded execution
@@ -25,9 +24,15 @@ HOW TO HELP (for sysadmins)
 - Run a recursive directory listing of your domain (I don't need to know what is the domain)
 - Send me the result list and the directory listing
 
-Possible improvements:
-- Duplicate removal before scan
-- Fix TOR support.
+Known bugs:
+- String matching is not working properly for now, response data is somewhat truncated. File will still be reported but without content matching validation.
+
+Todo for 2.0.0
+- in progress: Improved timeout algorithm
+- in progress: New stats string
+
+Possible future improvements:
+- Put back TOR support.
 - Parseable output for GUI integration (better stats system for live stats)
 - Add an match-string=404 mechanism for edge cases
 - Add callbacks method to plugins
@@ -35,11 +40,3 @@ Possible improvements:
 - Add support for non-xml /.svn/entries files
 - Sitemap.xml plugin
 
-
-Using tor
-- Under Ubuntu:
-	- sudo apt-get install tor, privoxy
-	- open /etc/privoxy/conf, go to section 5.2, uncomment the line concerning Tor on localhost
-	- sudo service privoxy restart
-- Enable the tor switch in tachyon 
-- Be patient, it will be a lot slower.

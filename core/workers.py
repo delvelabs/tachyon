@@ -265,39 +265,29 @@ class TestFileExistsWorker(Thread):
 
                 # Fetch the target url
                 if match_string:
+                    #textutils.output_info("Matching: " + match_string + " on " + url)
                     response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
+                    #textutils.output_info(content.read())
                 else:
                     response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)
 
                 # handle timeout
                 if response_code in conf.timeout_codes:
                     handle_timeout(queued, url, self.thread_id, output=self.output)
+                elif response_code == 500:
+                    textutils.output_found('ISE, ' + description + ' at: ' + conf.target_host + url)
                 elif response_code in conf.expected_file_responses:
-                      # Compare content with generated 404 samples
-                    is_valid_result = test_valid_result(content)
-                    
                     # If the CRC missmatch, and we have an expected code, we found a valid link
-                    if is_valid_result:
-                        # Content Test if match_string provided
-                        if match_string and re.search(re.escape(match_string), content, re.I):
-                            # Add path to valid_path for future actions
-                            database.valid_paths.append(queued)
-                            textutils.output_found("String-Matched " + description + ' at: ' + conf.target_host + url)
-                        elif not match_string:
-                            if response_code == 500:
-                                textutils.output_found('ISE, ' + description + ' at: ' + conf.target_host + url)    
-                            else:
-                                textutils.output_found(description + ' at: ' + conf.target_host + url)
-                            
-                            # Add path to valid_path for future actions
-                            database.valid_paths.append(queued)
-
+                    if match_string and re.search(re.escape(match_string), content, re.I):
+                        textutils.output_found("String-Matched " + description + ' at: ' + conf.target_host + url)
+                    elif test_valid_result(content):
+                    #elif not match_string and test_valid_result(content):
+                        textutils.output_found(description + ' at: ' + conf.target_host + url)
                 elif response_code in conf.redirect_codes:
                     location = headers.get('location')
                     if location:
                         handle_redirects(queued, location)
 
-					
                 # Mark item as processed
                 stats.update_processed_items()
                 database.fetch_queue.task_done()
