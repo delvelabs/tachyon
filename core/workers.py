@@ -99,6 +99,14 @@ def test_valid_result(content):
 
     return is_valid_result
 
+def detect_tomcat_fake_404(content):
+    """ An apache setup will issue a 404 on an existing path if theres a tomcat trying to handle jsp on the same host """
+    if content.find('Apache Tomcat/') != -1:
+        return True
+
+    return False
+
+
 class FetchCrafted404Worker(Thread):
     """
     This worker fetch lenght-limited 404 footprint and store them for Ratcliff-Obershelf comparing
@@ -178,10 +186,11 @@ class TestPathExistsWorker(Thread):
                 stats.update_stats(url)
 
                 # Add trailing / for paths
-                if url[:-1] != '/' and url != '/':
+                if not url.endswith('/') and url != '/':
                     url += '/'
 
                 # Fetch directory
+                textutils.output_debug("Providing url: " + url)
                 response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
 
                 # Fetch '/' but don't submit it to more logging/existance tests
@@ -198,6 +207,9 @@ class TestPathExistsWorker(Thread):
                 # handle timeout
                 if response_code in conf.timeout_codes:
                     handle_timeout(queued, url, self.thread_id, output=self.output)
+                elif response_code == 404 and detect_tomcat_fake_404(content):
+                    database.valid_paths.append(queued)
+                    textutils.output_found('Tomcat redirect, ' + description + ' at: ' + conf.target_host + url)
                 elif response_code in conf.expected_path_responses:
                     # Compare content with generated 404 samples
                     is_valid_result = test_valid_result(content)

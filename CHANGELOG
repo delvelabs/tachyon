@@ -1,4 +1,15 @@
 2.0.0-beta8
 =====================
-- Removed empty file tagging
-- Added timeout flexibility (start -w5 in extreme cases)
+- Added a fancy changelog
+- Removed empty file tagging/reporting (sorry, but I find it useless, empty path still there.)
+- Fixed multiple timeouts on slow sites (start -w5 in extreme cases)
+- Fixed duplicate path scanning with the introduction of dbutils
+  (Bad httpd config will still sometimes return duplicates files upon redirect)
+- Fixed bug were bogus path would be generated
+- Exceptions in main loop will be reported instead of silently ignored (glitch fix)
+- Added new extensions
+- Fixed slice glitch on 2-bytes path
+- Added Tomcat fake-404 Redirect detection on existing paths without index file
+- in progress: Improved timeout algorithm
+- in progress: New stats string
+

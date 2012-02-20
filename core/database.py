@@ -43,8 +43,9 @@ results_output_queue = Queue.Queue()
 """ Crafted 404's database """
 crafted_404s = list()
 
-""" namecache is used across the app to avoid adding duplicates url """
-name_cache = set()
+""" caches are used across the app to avoid adding duplicates urls """
+path_cache = set()
+file_cache = set()
 
 """ Dns resolve cache """
 dns_cache = dict()

@@ -15,7 +15,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from core import conf, database, textutils, dbutils
+from core import conf, textutils, database
 
 def execute():
     """ This plugin process the hostname to generate host and filenames relatives to it """
@@ -25,7 +25,6 @@ def execute():
     # host.host.host.com = hosthosthost.com. host.com hostcom, host, /host.ext
     # We don't test for domain.dom/domain since "cp * ./sitename" is unlikely to happen (questionable)
     added = 0
-
 
     # http://oksala.org -> oksala.org
     target = target.replace('http://', '')
@@ -40,19 +39,18 @@ def execute():
     new_target = dict(conf.path_template)
     new_target['url'] = target
     new_target['description'] = "HostProcessor generated filename"
-    if dbutils.add_url_fetch_queue(new_target):
-        textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
-        added += 1
-
+    database.files.append(new_target)
+    textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
+    added += 1
 
     # www.oksala.org -> oksala.org
     target = target.replace('www.', '')
     new_target = dict(conf.path_template)
     new_target['url'] = target
     new_target['description'] = "HostProcessor generated filename"
-    if dbutils.add_url_fetch_queue(new_target):
-        textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
-        added += 1
+    database.files.append(new_target)
+    textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
+    added += 1
 
     # oksala.org -> oksala
     dom_pos = target.rfind('.')
@@ -60,9 +58,9 @@ def execute():
     new_target = dict(conf.path_template)
     new_target['url'] = nodom_target
     new_target['description'] = "HostProcessor generated filename"
-    if dbutils.add_url_fetch_queue(new_target):
-        textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
-        added += 1
+    database.files.append(new_target)
+    textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
+    added += 1
 
     # shortdom (blabla.ok.ok.test.com -> test)
     new_target = dict(conf.path_template)
@@ -77,30 +75,30 @@ def execute():
 
         new_target['url'] = short_dom
         new_target['description'] = "HostProcessor generated filename"
-        if dbutils.add_url_fetch_queue(new_target):
-            textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
-            added += 1
+        database.files.append(new_target)
+        textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
+        added += 1
         
         new_target = dict(new_target)    
         new_target['url'] = short_dom + 'admin'
-        if dbutils.add_url_fetch_queue(new_target):
-            textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
-            added += 1
+        database.files.append(new_target)
+        textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
+        added += 1
         
         new_target = dict(new_target)     
         new_target['url'] = short_dom + '-admin'
-        if dbutils.add_url_fetch_queue(new_target):
-            textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
-            added += 1
+        database.files.append(new_target)
+        textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
+        added += 1
 
     # flatten subdomains
     target = target.replace('.', '')
     new_target = dict(conf.path_template)
     new_target['url'] = target
     new_target['description'] = "HostProcessor generated filename"
-    if dbutils.add_url_fetch_queue(new_target):
-        textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
-        added += 1
+    database.files.append(new_target)
+    textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
+    added += 1
 
     textutils.output_info(" - HostProcessor Plugin: added " + str(added) + " new filenames")
 

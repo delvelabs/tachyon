@@ -32,10 +32,10 @@ crafted_404_extensions = ['', '.php', '.jsp', '.asp', '.html']
 
 # Values used to generate file list (maybe this sould be configurable)
 file_suffixes = ['', '.sql', '.bak', '-bak', '.old', '-old', '.dmp', '.dump', '.zip', '.rar', '.7z',
-                '.tar.gz', '.tar.bz2', '.tar', '.tgz', '-bak', '~', '.conf.old','.conf', '.config',
-                '.conf.orig', '.conf.bak', '.cnf', '.ini', '.inc', '.inc.old', '.inc.orig', '.log', '.txt', '_log',
+                '.tar.gz', '.tar.bz2', '.tar', '.tgz', '~', '.conf.old', '.conf', '.config',
+                '.conf.orig', '.conf.bak', '.cnf', '.cfg', '.ini', '.inc', '.inc.old', '.inc.orig', '.log', '.txt', '_log',
                 '.passwd', '.php.old', '.php.inc', '.php.orig', '.sql.old', '.sql.bak', '0', '1', '2', '.xml',
-                '.csv']
+                '.csv', '.wsdl']
 
 # User config
 target_host = ''

@@ -32,15 +32,12 @@ from datetime import datetime
 def load_target_paths():
     """ Load the target paths in the database """
     textutils.output_info('Loading target paths')
-    # Add files
     database.paths += loaders.load_targets('data/path.lst') 
-
 
 def load_target_files():
     """ Load the target files in the database """
     textutils.output_info('Loading target files')
     database.files += loaders.load_targets('data/file.lst')
-
 
 def sample_root_404():
     """ Get the root 404, this has to be done as soon as possible since plugins could use this information. """
@@ -55,13 +52,16 @@ def sample_root_404():
             path['url'] = '/' + random_file + ext
         else:
             path['url'] = random_file + ext
-            
+
+        # Were not using the fetch cache for 404 sampling
         database.fetch_queue.put(path)
 
     # Forced bogus path check
     random_file = str(uuid.uuid4())
     path = dict(conf.path_template)
     path['url'] = '/' + random_file + '/'
+
+    # Were not using the fetch cache for 404 sampling
     database.fetch_queue.put(path)
 
     workers = manager.spawn_workers(len(conf.crafted_404_extensions), FetchCrafted404Worker)
@@ -77,18 +77,19 @@ def test_paths_exists():
     
     # Fill work queue with fetch list
     for path in database.paths:
-        database.fetch_queue.put(path)
+        dbutils.add_path_to_fetch_queue(path)
 
     # Consider some file target as potential path
     for file in database.files:
         if not file.get('no_suffix'):
             file_as_path = file.copy()
             file_as_path['url'] = '/' + file_as_path['url']
-            dbutils.add_url_fetch_queue(file_as_path)
-    
+            dbutils.add_path_to_fetch_queue(file_as_path)
+
     done_paths = []
     recursion_depth = 0
-    
+
+    textutils.output_debug('Cached: ' + str(database.path_cache))
     while database.fetch_queue.qsize() > 0:
         textutils.output_info('Probing ' + str(database.fetch_queue.qsize()) + ' paths')
         
@@ -115,7 +116,7 @@ def test_paths_exists():
                     continue
                 path = path.copy()
                 path['url'] = validpath['url'] + path['url']
-                dbutils.add_url_fetch_queue(path)
+                dbutils.add_path_to_fetch_queue(path)
 
     textutils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
 
@@ -133,8 +134,10 @@ def sample_404_from_found_path():
             
             # We don't benchmark / since we do it first before path discovery
             if path_clone['url'] != '/':
-                path_clone['url'] = path_clone['url'] + '/' + random_file + ext   
-                database.fetch_queue.put(path_clone)    
+                path_clone['url'] = path_clone['url'] + '/' + random_file + ext
+                # Were not using the fetch cache for 404 sampling
+                database.fetch_queue.put(path_clone)
+
 
     workers = manager.spawn_workers(conf.thread_count, FetchCrafted404Worker)
     manager.wait_for_idle(workers, database.fetch_queue)
@@ -170,9 +173,9 @@ def add_files_to_paths():
                 new_filename['is_file'] = True
 
                 if path['url'] == '/':
-                    new_filename['url'] = path['url'] + filename['url']
+                    new_filename['url'] = ''.join([path['url'], filename['url']])
                 else:
-                    new_filename['url'] = path['url'] + '/' + filename['url']
+                    new_filename['url'] = ''.join([path['url'], '/', filename['url']])
 
                 work_list.append(new_filename)
                 textutils.output_debug("No Suffix file added: " + str(new_filename))
@@ -183,13 +186,12 @@ def add_files_to_paths():
                     new_filename['is_file'] = True
 
                     if path['url'] == '/':
-                        new_filename['url'] = path['url'] + filename['url'] + suffix
+                        new_filename['url'] = ''.join([path['url'], filename['url'], suffix])
                     else:
-                        new_filename['url'] = path['url'] + '/' + filename['url'] + suffix
+                        new_filename['url'] = ''.join([path['url'], '/', filename['url'], suffix])
 
                     work_list.append(new_filename)
                     textutils.output_debug("File added: " + str(new_filename))
-
 
     # Since we have already output the found directories, replace the valid path list
     database.valid_paths = work_list
@@ -200,7 +202,7 @@ def test_file_exists():
     manager = ThreadManager()
     # Fill work queue with fetch list
     for item in database.valid_paths:
-        dbutils.add_url_fetch_queue(item)
+        dbutils.add_file_to_fetch_queue(item)
 
     # Wait for initial valid path lookup
     workers = manager.spawn_workers(conf.thread_count, TestFileExistsWorker)
@@ -420,11 +422,14 @@ if __name__ == "__main__":
         database.messages_output_queue.join()
     except KeyboardInterrupt:
         textutils.output_message_raw('')
-        textutils.output_info('Keyboard Interrupt Received')
+        textutils.output_error('Keyboard Interrupt Received')
     except gaierror:
-        textutils.output_info('Error resolving host')
-    finally:
-        database.messages_output_queue.join()
-        sys.exit(0)
+        textutils.output_error('Error resolving host')
+    except Exception, e:
+        textutils.output_error(str(e))
+
+    # Close program
+    database.messages_output_queue.join()
+    sys.exit(0)
 
 

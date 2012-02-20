@@ -17,7 +17,7 @@
 #
 
 import re
-from core import conf, textutils, database, dbutils
+from core import conf, textutils, database
 from core.fetcher import Fetcher
 from urlparse import urljoin
 
@@ -51,10 +51,9 @@ def execute():
 
                 current_template = dict(current_template)
                 current_template['url'] = target_path
-
-                if dbutils.add_url_fetch_queue(current_template):
-                    textutils.output_debug(' - Robots Plugin Added: ' + str(target_path) + ' from robots.txt')
-                    added += 1
+                database.paths.append(current_template)
+                textutils.output_debug(' - Robots Plugin Added: ' + str(target_path) + ' from robots.txt')
+                added += 1
                     
         if added > 0:
             textutils.output_info(' - Robots Plugin: added ' + str(added) + ' base paths using /robots.txt')

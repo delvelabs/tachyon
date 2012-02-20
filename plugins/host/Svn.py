@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from core import conf, textutils, database, dbutils
+from core import conf, textutils, database
 from core.fetcher import Fetcher
 from urlparse import urljoin
 from xml.etree import ElementTree
@@ -41,10 +41,9 @@ def execute():
                     if kind and kind == "dir":
                         current_template = dict(current_template)
                         current_template['url'] = '/' + entry.attrib["name"]
+                        database.paths.append(current_template)
+                        added += 1
 
-                        if dbutils.add_url_fetch_queue(current_template):
-                            database.paths.append(current_template)
-                            added += 1
         except Exception:
             textutils.output_info(' - Svn Plugin: no usable entries in /.svn/entries')
         else:
