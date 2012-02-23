@@ -19,6 +19,7 @@
 {"url" : "/_assets", "description" : "_assets directory"}
 {"url" : "/adm", "description" : "Admin section"}
 {"url" : "/admin", "description" : "Admin section"}
+{"url" : "/admincp", "description" : "Admin section"}
 {"url" : "/administration", "description" : "Admin section"}
 {"url" : "/administrator", "description" : "Admin section"}
 {"url" : "/auth", "description" : "Auth section"}
@@ -42,6 +43,7 @@
 {"url" : "/config", "description" : "Config directory"}
 {"url" : "/configuration", "description" : "Config directory"}
 {"url" : "/content", "description" : "Static content directory"}
+{"url" : "/cp", "description" : "Control panel"}
 {"url" : "/classes", "description" : "code classes directory"}
 {"url" : "/clients", "description" : "client section"}
 {"url" : "/client", "description" : "client section"}

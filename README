@@ -27,10 +27,6 @@ HOW TO HELP (for sysadmins)
 Known bugs:
 - String matching is not working properly for now, response data is somewhat truncated. File will still be reported but without content matching validation.
 
-Todo for 2.0.0
-- in progress: Improved timeout algorithm
-- in progress: New stats string
-
 Possible future improvements:
 - Put back TOR support.
 - Parseable output for GUI integration (better stats system for live stats)

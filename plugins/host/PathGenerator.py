@@ -20,7 +20,7 @@ from core import conf, database, textutils, dbutils
 from datetime import date
 
 def add_generated_path(path):
-    current_template = dict(conf.path_template)
+    current_template = conf.path_template.copy()
     current_template['description'] = 'Computer generated path'
     current_template['is_file'] = False
     current_template['url'] = '/' + path
@@ -29,7 +29,7 @@ def add_generated_path(path):
 
 def add_generated_file(file):
     """ Add file to database """
-    current_template = dict(conf.path_template)
+    current_template = conf.path_template.copy()
     current_template['description'] = 'Computer generated file'
     current_template['url'] = file
     database.files.append(current_template)

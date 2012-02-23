@@ -1,4 +1,22 @@
-2.0.0-beta8
+2.0.0-beta9 (23/02/2012)
+=====================
+- Added numerous path, file and some new extension based on stats gathering
+- New file class "Executable" to look up for _nasty_ stuff
+- Added session cookie support for JSESSIONID junkie sites. (they take forever to generate it)
+- Good Speedup at file+path generation
+- Fixed an incorrect exception report in loaders.py
+- Removed useless raw output
+- Added Eval-able output (-e)
+- New stats string
+    - "Done" now shows only successful fetches
+    - Average timeout delay (~Xs) (dynamically adjusted)
+    - Better remaining time estimation
+- Fixed alternative port support
+- Dymamic request timeout ajustment
+
+
+
+2.0.0-beta8 (19/02/2012)
 =====================
 - Added a fancy changelog
 - Removed empty file tagging/reporting (sorry, but I find it useless, empty path still there.)

@@ -16,18 +16,45 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-
 import re
 import sys
 from core import database, conf, stats, textutils, subatomic
 from core.fetcher import Fetcher
+from datetime import datetime
 from difflib import SequenceMatcher
 from Queue import Empty
 from threading import Thread
 from urlparse import urlparse
 
+def compute_request_time(start_time, end_time):
+    """
+     Compute the average request time and set pessimistically (math.ceil) the request timeout value based on it
+     This call will mostly decrease the timeout time.
+    """
+    # Adjust dynamic timeout level:
+    completed_time = (end_time - start_time).seconds
+    textutils.output_debug("Completed in: " + str(completed_time))
+
+    database.latest_successful_request_time = completed_time + 1
+
+    # We still need to have a max timeout in seconds
+    if database.latest_successful_request_time > conf.max_timeout_secs:
+        database.latest_successful_request_time = conf.max_timeout_secs
+    elif database.latest_successful_request_time < 1:
+        database.latest_successful_request_time = 1
+
+    textutils.output_debug("+Ajusted timeout to: " + str(database.latest_successful_request_time))
+
+
 def handle_timeout(queued, url, thread_id, output=True):
     """ Handle timeout operation for workers """
+    if database.latest_successful_request_time > conf.max_timeout_secs:
+        database.latest_successful_request_time = conf.max_timeout_secs
+    else:
+        database.latest_successful_request_time += 1
+
+    textutils.output_debug("-Ajusted timeout to: " + str(database.latest_successful_request_time))
+
     if not queued['timeout_count']:
         queued['timeout_count'] = 0
 
@@ -42,8 +69,8 @@ def handle_timeout(queued, url, thread_id, output=True):
         # We definitely timed out
         textutils.output_timeout(queued.get('description') + ' at ' + url)
 
-    # update timeout count
-    stats.update_timeouts()
+    # update stats
+    database.total_timeouts += 1
 
 
 def handle_redirects(queued, target):
@@ -74,6 +101,7 @@ def handle_redirects(queued, target):
 
 
 
+# If we can speed up this, the whole app will benefit from it.
 def test_valid_result(content):
     is_valid_result = True
 
@@ -98,6 +126,8 @@ def test_valid_result(content):
             break
 
     return is_valid_result
+
+
 
 def detect_tomcat_fake_404(content):
     """ An apache setup will issue a 404 on an existing path if theres a tomcat trying to handle jsp on the same host """
@@ -129,7 +159,9 @@ class FetchCrafted404Worker(Thread):
                 stats.update_stats(url)
 
                 # Fetch the target url
-                response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)
+                start_time = datetime.now()
+                response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, database.latest_successful_request_time)
+                end_time = datetime.now()
 
                 # Handle fetch timeouts by re-adding the url back to the global fetch queue
                 # if timeout count is under max timeout count
@@ -146,7 +178,6 @@ class FetchCrafted404Worker(Thread):
 
                     # Edge case control
                     crafted_404 = crafted_404.strip('\r\n ')
-
                     database.crafted_404s.append(crafted_404)
 
                     # Exception case for root 404, since it's used as a model for other directories
@@ -156,8 +187,12 @@ class FetchCrafted404Worker(Thread):
                     if location:
                         handle_redirects(queued, location)
 
+                # Stats
+                if response_code not in conf.timeout_codes:
+                    stats.update_processed_items()
+                    compute_request_time(start_time, end_time)
+
                 # Dequeue item
-                stats.update_processed_items()
                 database.fetch_queue.task_done()
 
             except Empty:
@@ -190,8 +225,9 @@ class TestPathExistsWorker(Thread):
                     url += '/'
 
                 # Fetch directory
-                textutils.output_debug("Providing url: " + url)
-                response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
+                start_time = datetime.now()
+                response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, database.latest_successful_request_time, limit_len=False)
+                end_time = datetime.now()
 
                 # Fetch '/' but don't submit it to more logging/existance tests
                 if queued.get('url') == '/':
@@ -234,8 +270,12 @@ class TestPathExistsWorker(Thread):
                     if location:
                         handle_redirects(queued, location)
 
+                # Stats
+                if response_code not in conf.timeout_codes:
+                    stats.update_processed_items()
+                    compute_request_time(start_time, end_time)
+
                 # Mark item as processed
-                stats.update_processed_items()
                 database.fetch_queue.task_done()
             except Empty:
                 continue
@@ -264,12 +304,12 @@ class TestFileExistsWorker(Thread):
                 stats.update_stats(url)
 
                 # Fetch the target url
+                start_time = datetime.now()
                 if match_string:
-                    #textutils.output_info("Matching: " + match_string + " on " + url)
-                    response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
-                    #textutils.output_info(content.read())
+                    response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, database.latest_successful_request_time, limit_len=False)
                 else:
-                    response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, conf.fetch_timeout_secs)
+                    response_code, content, headers = self.fetcher.fetch_url(url, conf.user_agent, database.latest_successful_request_time)
+                end_time = datetime.now()
 
                 # handle timeout
                 if response_code in conf.timeout_codes:
@@ -281,15 +321,19 @@ class TestFileExistsWorker(Thread):
                     if match_string and re.search(re.escape(match_string), content, re.I):
                         textutils.output_found("String-Matched " + description + ' at: ' + conf.target_host + url)
                     elif test_valid_result(content):
-                    #elif not match_string and test_valid_result(content):
                         textutils.output_found(description + ' at: ' + conf.target_host + url)
+
                 elif response_code in conf.redirect_codes:
                     location = headers.get('location')
                     if location:
                         handle_redirects(queued, location)
 
+                # Stats
+                if response_code not in conf.timeout_codes:
+                    stats.update_processed_items()
+                    compute_request_time(start_time, end_time)
+
                 # Mark item as processed
-                stats.update_processed_items()
                 database.fetch_queue.task_done()
             except Empty:
                 continue

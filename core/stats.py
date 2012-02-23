@@ -17,40 +17,34 @@
 #
 
 from core import database, textutils
-from datetime import datetime
-from threading import Lock
+from datetime import datetime, timedelta
 
 def update_stats(url):
-    lock = Lock()
-    lock.acquire()
     database.current_url = url
-    lock.release()
 
 def update_processed_items():
-    lock = Lock()
-    lock.acquire()
-    database.item_count += 1
-    lock.release()
-
-def update_timeouts():
-    lock = Lock()
-    lock.acquire()
-    database.timeouts += 1
-    lock.release()
+    database.successful_fetch_count += 1
 
 def output_stats():
-    lock = Lock()
-    lock.acquire()
-
-    average_timeouts = database.timeouts / database.item_count
-    estimated_future_timeouts = average_timeouts * database.fetch_queue.qsize()
-    estimated_total_remaining = int(estimated_future_timeouts + database.fetch_queue.qsize())
-    total_requests = database.item_count + database.timeouts
     elapsed_time = datetime.now() - database.scan_start_time
-    request_per_seconds = elapsed_time / total_requests
-    remaining = request_per_seconds * estimated_total_remaining
+    request_per_seconds = database.successful_fetch_count / elapsed_time.seconds
 
-    textutils.output_info(str(total_requests / elapsed_time.seconds) + ' reqs/sec' + ', Done: ' + str(database.item_count) + ', Queued: ' + str(database.fetch_queue.qsize()) + ', Timeouts: ' +
-        str(database.timeouts) + ', throttle: ' + str(database.throttle_delay) + "s, remaining: " + str(remaining)[:-7] + " (press ctrl+c again to exit)")
+    if request_per_seconds:
+        remaining_seconds = int(database.fetch_queue.qsize() / request_per_seconds)
+        remaining_timedelta = timedelta(seconds=remaining_seconds)
+    else:
+        remaining_seconds = 0
+        remaining_timedelta = timedelta(seconds=remaining_seconds)
 
-    lock.release()
+    stats_string = ''.join([
+        str(request_per_seconds), ' reqs/sec',
+        ', Done: ', str(database.successful_fetch_count),
+        ', Queued: ', str(database.fetch_queue.qsize()),
+        ', Timeouts: ', str(database.total_timeouts), ' (~', str(database.latest_successful_request_time), 's)',
+        ', remaining: ', str(remaining_timedelta),
+        ' (hit ctrl+c again to exit)'
+    ])
+
+    textutils.output_info(stats_string)
+
+

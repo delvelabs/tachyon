@@ -18,7 +18,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import sys
+import sys, database
 from core import textutils
 from time import sleep
 from core import stats
@@ -39,6 +39,9 @@ class ThreadManager(object):
                         sleep(1)  
                     except KeyboardInterrupt:
                         textutils.output_info('Keyboard Interrupt Received, cleaning up threads')
+                        # Clean reference to sockets
+                        database.connection_pool = None
+
                         self.kill_received = True
                         
                         # Kill remaining workers but don't join the queue (we want to abort:))

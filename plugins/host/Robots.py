@@ -49,7 +49,7 @@ def execute():
                 if target_path.endswith('/'):
                     target_path = target_path[:-1]   
 
-                current_template = dict(current_template)
+                current_template = current_template.copy()
                 current_template['url'] = target_path
                 database.paths.append(current_template)
                 textutils.output_debug(' - Robots Plugin Added: ' + str(target_path) + ' from robots.txt')

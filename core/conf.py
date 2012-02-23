@@ -17,7 +17,7 @@
 #
 
 # Internal config and consts
-version = '2.0.0-beta8'
+version = '2.0.0-beta9'
 expected_path_responses = [200, 206, 401, 403]
 expected_file_responses = [200, 206]
 timeout_codes = [0, 500, 502, 503]
@@ -34,8 +34,11 @@ crafted_404_extensions = ['', '.php', '.jsp', '.asp', '.html']
 file_suffixes = ['', '.sql', '.bak', '-bak', '.old', '-old', '.dmp', '.dump', '.zip', '.rar', '.7z',
                 '.tar.gz', '.tar.bz2', '.tar', '.tgz', '~', '.conf.old', '.conf', '.config',
                 '.conf.orig', '.conf.bak', '.cnf', '.cfg', '.ini', '.inc', '.inc.old', '.inc.orig', '.log', '.txt', '_log',
-                '.passwd', '.php.old', '.php.inc', '.php.orig', '.sql.old', '.sql.bak', '0', '1', '2', '.xml',
-                '.csv', '.wsdl']
+                '.passwd', '.php.bak', '.php.old', '.php.inc', '.php.orig', '.sql.old', '.sql.bak', '0', '1', '2', '.xml',
+                '.csv', '.wsdl', '.pwd']
+
+# Values used to generate executable file lookup
+executables_suffixes = ['.php', '.asp', '.aspx', '.pl', '.cgi', '.cfm']
 
 # User config
 target_host = ''
@@ -47,15 +50,14 @@ debug = False
 search_files = True
 recursive = False
 fetch_timeout_secs = 2
+max_timeout_secs = 15
 max_timeout_count = 500
 thread_count = 150
 use_tor = False
-raw_output = False
+eval_output = False
 user_agent = 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)' # maximum compatibility
 files_only = False
 directories_only = False
-throttle_increment = 0.5
-max_throttle = 10.0 # in seconds
 recursive_depth_limit=2
 test_plugin = None
 plugins_only = False

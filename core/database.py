@@ -17,6 +17,7 @@
 #
 
 import Queue
+from core import conf
 from datetime import datetime
 
 """ Connection pool, to be adjusted by tachyon after initial host benchmark """
@@ -50,15 +51,17 @@ file_cache = set()
 """ Dns resolve cache """
 dns_cache = dict()
 
-""" Throttle management """
-throttle_delay = 0.0
-throttled_threads = 0
-
 """ Scan start time """
 scan_start_time = datetime.now()
 
+"""Timeout management """
+latest_successful_request_time = conf.fetch_timeout_secs
+total_request_time = 0
+total_timeouts = 0
 
-# Stats values
-item_count = 0
-timeouts = 0
-current_url = ''
+
+""" Session cookie """
+session_cookie = None
+
+""" Stats values """
+successful_fetch_count = 0

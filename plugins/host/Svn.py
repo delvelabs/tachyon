@@ -39,7 +39,7 @@ def execute():
                 for entry in entry_tags:
                     kind = entry.attrib.get("kind")
                     if kind and kind == "dir":
-                        current_template = dict(current_template)
+                        current_template = current_template.copy()
                         current_template['url'] = '/' + entry.attrib["name"]
                         database.paths.append(current_template)
                         added += 1

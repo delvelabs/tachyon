@@ -18,6 +18,7 @@
 {"url" : "access", "description" : "access log"}
 {"url" : "account", "description" : "Accounts"}
 {"url" : "accounts", "description" : "Accounts"}
+{"url" : "authors", "description" : "Accounts"}
 {"url" : "akeeba.backend.log", "description" : "Akeeba backup transation logs", "no_suffix": True}
 {"url" : "analog.html", "description" : "Analog web statistics", "no_suffix": True}
 {"url" : "admin", "description" : "Admin file"}
@@ -33,11 +34,14 @@
 {"url" : "archives", "description" : "archive file"}
 {"url" : "backup", "description" : "backup"}
 {"url" : "bar", "description" : "random backup"}
+{"url" : "browser", "description" : "Browser-oriented file"}
 {"url" : "cache", "description" : "Cache related file"}
 {"url" : "caching", "description" : "Cache related file"}
 {"url" : "cachemgr.cgi", "description" : "Squid proxy admin interface", "no_suffix": True}
 {"url" : "ccbill", "description" : "CCBill.com logs"}
+{"url" : "fckeditor", "description" : "CkEditor"}
 {"url" : "config", "description" : "Config file"}
+{"url" : "conf", "description" : "Config file"}
 {"url" : "common", "description" : "Config file"}
 {"url" : "cron", "description" : "crontab file"}
 {"url" : "crossdomain.xml", "description" : "Crossdomain policy file", "no_suffix": True}
@@ -55,6 +59,8 @@
 {"url" : "errors", "description" : "errors log"}
 {"url" : "export", "description" : "database backup"}
 {"url" : "foo", "description" : "random backup"}
+{"url" : "files", "description" : "files reference"}
+{"url" : "global", "description" : "global settings"}
 {"url" : ".htaccess", "description" : "htacces file", "no_suffix": True}
 {"url" : ".hta", "description" : "htacces file", "no_suffix": True}
 {"url" : ".htpasswd", "description" : "htpasswd file", "no_suffix": True}
@@ -72,6 +78,7 @@
 {"url" : "login", "description" : "login log (login.txt could be Gallery key)"}
 {"url" : "log", "description" : "Log file"}
 {"url" : "logs", "description" : "Log file"}
+{"url" : "logfile", "description" : "Log file"}
 {"url" : "logger", "description" : "Log file"}
 {"url" : "master", "description" : "master file"}
 {"url" : "main.mdb", "description" : "ASP-Nuke db", "no_suffix": True}
@@ -95,8 +102,10 @@
 {"url" : "redis", "description" : "redis monitoring"}
 {"url" : "rsync", "description" : "Remote sync file"}
 {"url" : "service", "description" : "Password file"}
+{"url" : "server", "description" : "server file"}
 {"url" : "settings", "description" : "settings file"}
 {"url" : "site", "description" : "database backup"}
+{"url" : "stats", "description" : "statistic file"}
 {"url" : "test", "description" : "test dir/file"}
 {"url" : "test_db", "description" : "database backup"}
 {"url" : "transactions", "description" : "transactions log"}
@@ -141,11 +150,6 @@
 # Svn entries file
 {"url" : ".svn/entries", "description" : "SVN entries file", "no_suffix": True}
 
-# cache monitoring
-{"url" : "apc.php", "description" : "Zend cache monitoring", "no_suffix": True}
-{"url" : "memcached.php", "description" : "memcached monitoring"}
-{"url" : "redis.php", "description" : "redis monitoring"}
-
 # Frontpage
 {"url": "_vti_bin/_vti_adm/admin.dll", "description": "Frontpage file", "no_suffix": True}
 {"url": "_vti_bin/_vti_aut/author.dll", "description": "Frontpage file", "no_suffix": True}
@@ -158,3 +162,55 @@
  
 # git
 {"url": ".git/HEAD", "description": "git HEAD file", "no_suffix": True}
+
+# Listing files
+{"url": ".listing", "description": "File/Dir Listing", "no_suffix": True}
+{"url": ".listings", "description": "File/Dir Listing", "no_suffix": True}
+
+# Awstats
+{"url": "awstats.conf", "description": "AWstats log analyzer", "no_suffix": True}
+
+# Seldom admin script
+{"url": "admin.php", "description": "Admin script", "no_suffix": True}
+{"url": "admin.cgi", "description": "Admin script", "no_suffix": True}
+{"url": "admin.pl", "description": "Admin script", "no_suffix": True}
+
+# Various
+{"url": "showcode.asp", "description": "Possible file access", "no_suffix": True}
+{"url": "getFile.cfm", "description": "Possible file access", "no_suffix": True}
+{"url": "AT-admin.cgi", "description": "Possible file access", "no_suffix": True}
+
+# Ruby logger
+{"url": "development.log  ", "description": "Ruby logger", "no_suffix": True}
+{"url": "production.log", "description": "Ruby logger", "no_suffix": True}
+
+# Executables
+
+# cache monitoring
+{"url" : "apc", "description" : "Zend cache monitoring", "executable" : True}
+{"url" : "memcached", "description" : "memcached monitoring", "executable" : True}
+{"url" : "redis", "description" : "redis monitoring", "executable" : True}
+{"url" : "cachemgr", "description" : "cache manager", "executable" : True}
+
+# Upload/Download management Scripts - Executables
+{"url": "download", "description": "Possible file access", "executable" : True}
+{"url": "readfile", "description": "Possible file access", "executable" : True}
+{"url": "getfile", "description": "Possible file access", "executable" : True}
+{"url": "get", "description": "Possible file access", "executable" : True}
+{"url": "show", "description": "Possible file access", "executable" : True}
+{"url": "forcedownload", "description": "Possible file access", "executable" : True}
+{"url": "upload", "description": "Possible file access", "executable" : True}
+{"url": "uploadfile", "description": "Possible file access", "executable" : True}
+{"url": "uploader", "description": "Possible file access", "executable" : True}
+{"url": "upload_file", "description": "Possible file access", "executable" : True}
+{"url": "view", "description": "Possible file access", "executable" : True}
+{"url": "viewfile", "description": "Possible file access", "executable" : True}
+{"url": "source", "description": "Possible file access", "executable" : True}
+
+
+
+
+
+
+
+

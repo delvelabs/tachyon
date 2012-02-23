@@ -36,7 +36,7 @@ def execute():
         target = target[0:first_slash]
 
     target = target.replace('/', '')
-    new_target = dict(conf.path_template)
+    new_target = conf.path_template.copy()
     new_target['url'] = target
     new_target['description'] = "HostProcessor generated filename"
     database.files.append(new_target)
@@ -45,7 +45,7 @@ def execute():
 
     # www.oksala.org -> oksala.org
     target = target.replace('www.', '')
-    new_target = dict(conf.path_template)
+    new_target = conf.path_template.copy()
     new_target['url'] = target
     new_target['description'] = "HostProcessor generated filename"
     database.files.append(new_target)
@@ -55,7 +55,7 @@ def execute():
     # oksala.org -> oksala
     dom_pos = target.rfind('.')
     nodom_target = target[0:dom_pos]
-    new_target = dict(conf.path_template)
+    new_target = conf.path_template.copy()
     new_target['url'] = nodom_target
     new_target['description'] = "HostProcessor generated filename"
     database.files.append(new_target)
@@ -63,7 +63,7 @@ def execute():
     added += 1
 
     # shortdom (blabla.ok.ok.test.com -> test)
-    new_target = dict(conf.path_template)
+    new_target = conf.path_template.copy()
     dom_pos = target.rfind('.')
     if dom_pos > 0:
         nodom_target = target[0:dom_pos]
@@ -79,13 +79,13 @@ def execute():
         textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
         added += 1
         
-        new_target = dict(new_target)    
+        new_target = new_target.copy()
         new_target['url'] = short_dom + 'admin'
         database.files.append(new_target)
         textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
         added += 1
         
-        new_target = dict(new_target)     
+        new_target = new_target.copy()
         new_target['url'] = short_dom + '-admin'
         database.files.append(new_target)
         textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
@@ -93,7 +93,7 @@ def execute():
 
     # flatten subdomains
     target = target.replace('.', '')
-    new_target = dict(conf.path_template)
+    new_target = conf.path_template.copy()
     new_target['url'] = target
     new_target['description'] = "HostProcessor generated filename"
     database.files.append(new_target)

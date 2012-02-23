@@ -16,53 +16,70 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import re
 from core import database, conf
 from datetime import datetime
 
 
-def output_result_raw(text):
-    """ Output raw result text to the synchronized result output queue """
-    database.results_output_queue.put(text)
+def output_result_eval(info_dict):
+    """ Output Eval-able result text to the synchronized result output queue """
+    time_dict = {'time' : str(datetime.now().strftime("%H:%M:%S"))}
+    result_dict = dict(time_dict, **info_dict)
+    database.results_output_queue.put(str(result_dict))
 
+def output_message_eval(info_dict):
+    """ Output Eval-able result text to the synchronized message output queue """
+    time_dict = {'time' : str(datetime.now().strftime("%H:%M:%S"))}
+    result_dict = dict(time_dict, **info_dict)
+    database.results_output_queue.put(str(result_dict))
 
 def output_result(text):
     """ Output result text to the synchronized result output queue """
-    output_result_raw('[' + str(datetime.now().strftime("%H:%M:%S")) + '] ' + text)
-
-
-def output_message_raw(text):
-    """ Output raw text to the synchronized output queue """
-    database.messages_output_queue.put(text)
-
+    output_text = '[' + str(datetime.now().strftime("%H:%M:%S")) + '] ' + text
+    database.results_output_queue.put(str(output_text))
 
 def output_message(text):
     """ Output text to the synchronized output queue """
-    output_message_raw('[' + str(datetime.now().strftime("%H:%M:%S")) + '] ' + text)
+    out_text = '[' + str(datetime.now().strftime("%H:%M:%S")) + '] ' + text
+    database.messages_output_queue.put(out_text)
+
+def output_raw_message(text):
+    """ Output a raw message to output buffer """
+    database.messages_output_queue.put(text)
+
 
 
 def output_error(text):
     """ Output text to the synchronized output queue """
-    if not conf.raw_output:
+    if conf.eval_output:
+        info_dict = {'type':'error', 'text' : text}
+        output_result_eval(info_dict)
+    else:
         output_result('[ERROR] ' + text)
 
 
 def output_info(text):
     """ Output text to the synchronized output queue """
-    if not conf.raw_output:
+    if conf.eval_output:
+        info_dict = {'type':'info', 'text' : text}
+        output_message_eval(info_dict)
+    else:
         output_message('[INFO] ' + text)
 
 
 def output_timeout(text):
     """ Output text to the synchronized output queue """
-    if not conf.raw_output:
+    if conf.eval_output:
+        info_dict = {'type':'timeout', 'text' : text}
+        output_result_eval(info_dict)
+    else:
         output_result('[TIMEOUT] ' + text)
 
 
 def output_found(text):
     """ Output text to the synchronized output queue """
-    if conf.raw_output:
-        output_result_raw(text)
+    if conf.eval_output:
+        info_dict = {'type':'found', 'text' : text}
+        output_result_eval(info_dict)
     else:
         output_result('[FOUND] ' + text)
 
