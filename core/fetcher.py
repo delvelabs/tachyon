@@ -19,7 +19,10 @@ from core import database
 from core import conf
 
 class Fetcher(object):
-    def fetch_url(self, url, user_agent, timeout, limit_len=True, add_headers=dict()):
+    def fetch_url(self, url, user_agent, timeout, limit_len=True):
+
+        add_headers = dict()
+
         """ Fetch a given url, with a given user_agent and timeout"""
         try:
             if not add_headers.get('User-Agent'):
