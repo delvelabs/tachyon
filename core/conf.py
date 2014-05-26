@@ -43,6 +43,7 @@ executables_suffixes = ['.php', '.asp', '.aspx', '.pl', '.cgi', '.cfm']
 # User config
 target_host = ''
 target_base_path = ''
+target_port = 80
 is_ssl = False
 forge_vhost='' 
 subatomic = None

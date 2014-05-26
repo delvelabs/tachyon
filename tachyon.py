@@ -337,6 +337,11 @@ if __name__ == "__main__":
     conf.target_host = parsed_host
     conf.target_base_path = parsed_path
     conf.is_ssl = is_ssl
+
+    if is_ssl and parsed_port == 80:
+        conf.target_port = 443
+    else:
+        conf.target_port = parsed_port
     
     
     textutils.output_debug('Version: ' + str(conf.version))
@@ -360,7 +365,7 @@ if __name__ == "__main__":
     # Handle keyboard exit before multi-thread operations
     try:
         # Resolve target host to avoid multiple dns lookups
-        resolved, port = dnscache.get_host_ip(parsed_host, parsed_port)
+        resolved, port = dnscache.get_host_ip(conf.target_host, conf.target_port)
 
         # Benchmark target host
         if is_ssl:
