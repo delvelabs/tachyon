@@ -16,39 +16,43 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from core import conf, textutils, database
+from core import conf, textutils, database, dbutils
 from core.fetcher import Fetcher
 from urlparse import urljoin
 from xml.etree import ElementTree
 
-def execute():
-    """ Fetch /.svn/entries and parse for target paths """
-    current_template = dict(conf.path_template)
-    current_template['description'] = '/.svn/entries found directory'
-    target_url = conf.target_base_path + "/.svn/entries"
+
+def parse_svn_entries(url):
+    description_file = 'SVN entries file at'
+    description_dir = "SVN entries Dir at"
+    target_url = url + "/.svn/entries"
     fetcher = Fetcher()
     response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
-    if response_code is 200 or response_code is 302 and content:
-        added = 0
-        try:
-            tree = ElementTree.fromstring(content)
-            entry_tags = tree.iter()
-            if entry_tags:
-                for entry in entry_tags:
-                    kind = entry.attrib.get("kind")
-                    if kind and kind == "dir":
-                        current_template = current_template.copy()
-                        current_template['url'] = '/' + entry.attrib["name"]
-                        database.paths.append(current_template)
-                        added += 1
 
-        except Exception:
-            textutils.output_info(' - Svn Plugin: no usable entries in /.svn/entries')
-        else:
-            if added > 0:
-                textutils.output_info(' - Svn Plugin: added ' + str(added) + ' base paths using /.svn/entries')
-            else :
-                textutils.output_info(' - Svn Plugin: no usable entries in /.svn/entries')
+    if response_code is 200 or response_code is 302 and content:
+        tokens = content.split('\n')
+        if 'dir' in tokens:
+            for pos, token in enumerate(tokens):
+                if token == 'dir':
+                    # Fetch more entries recursively
+                    if tokens[pos-1] != '':
+                        textutils.output_found(description_dir + ' at: ' + url + '/' + tokens[pos-1])
+                        parse_svn_entries(url + "/" + tokens[pos-1])
+                elif token == 'file':
+                    textutils.output_found(description_file + ' at: ' + url + '/' + tokens[pos-1])
+
+
+def execute():
+    """ Fetch /.svn/entries and parse for target paths """
+
+    textutils.output_info(' - Svn Plugin: Searching for /.svn/entries')
+    target_url = conf.target_base_path + "/.svn/entries"
+
+    fetcher = Fetcher()
+    response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
+    if response_code is 200 or response_code is 302:
+        textutils.output_info(' - Svn Plugin: /.svn/entries found! crawling... (use svn-extractor to download)')
+        parse_svn_entries(conf.target_base_path)
     else:
         textutils.output_info(' - Svn Plugin: no /.svn/entries found')
 
