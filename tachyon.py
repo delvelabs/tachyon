@@ -241,39 +241,72 @@ def print_program_header():
     print("\t https://github.com/initnull/tachyon\n") 
 
 
+def load_cookie_file(afile):
+    """
+    Loads the supplied cookie file
+    """
+    if not afile:
+        return None
+
+    try:
+        with open(afile, 'r') as cookie_file:
+            content = cookie_file.read()
+            content = content.replace('Cookie: ', '')
+            content = content.replace('\n', '')
+            return content
+    except IOError:
+        textutils.output_info('Supplied cookie file not found, will use server provided cookies')
+        return None
+
+
 def generate_options():
     """ Generate command line parser """
     usage_str = "usage: %prog <host> [options]"
     parser = OptionParser(usage=usage_str)
     parser.add_option("-d", action="store_true",
-                    dest="debug", help="Enable debug [default: %default]", default=False)        
+                    dest="debug", help="Enable debug [default: %default]", default=False)
+
     parser.add_option("-f", action="store_true",
                     dest="search_files", help="search only for files [default: %default]", default=False)
+
     parser.add_option("-s", action="store_true",
                     dest="search_dirs", help="search only for subdirs [default: %default]", default=False)
+
+    parser.add_option("-c", metavar="COOKIES", dest="cookie_file",
+                    help="load cookies from file [default: %default]", default=None)
+
+    parser.add_option("-a", action="store_true",
+                    dest="download", help="Allow plugin to download files to 'output/' [default: %default]", default=False)
+
     parser.add_option("-b", action="store_true",
                     dest="recursive", help="Search for subdirs recursively [default: %default]", default=False)
+
     parser.add_option("-l", metavar="LIMIT", dest="limit",
                     help="limit recursive depth [default: %default]", default=conf.recursive_depth_limit)
-    #parser.add_option("-p", action="store_true",
-                   # dest="use_tor", help="Use Tor [default: %default]", default=False)
+
     parser.add_option("-e", action="store_true",
                     dest="eval_output", help="Eval-able output [default: %default]", default=False)
+
     parser.add_option("-m", metavar="MAXTIMEOUT", dest="max_timeout",
                     help="Max number of timeouts for a given request [default: %default]", default=conf.max_timeout_count)
+
     parser.add_option("-w", metavar="WORKERS", dest="workers", 
                     help="Number of worker threads [default: %default]", default=conf.thread_count)
+
     parser.add_option("-v", metavar="VHOST", dest="forge_vhost",
                     help="forge destination vhost [default: %default]", default='<host>')
+
     parser.add_option("-z", action="store_true",
                     dest="plugins_only", help="Only run plugins then exit [default: %default]", default=False)
+
     parser.add_option("-u", metavar="AGENT", dest="user_agent",
                     help="User-agent [default: %default]", default=conf.user_agent)
+
     parser.add_option("-o", metavar="SUBATOMIC", dest="subatomic",
                     help="Output log to a Subatomic server (ip:port:runid) [default: %default]", default=conf.subatomic)
     return parser
     
-    
+
 def parse_args(parser, system_args):
     """ Parse and assign options """
     (options, args) = parser.parse_args(system_args)
@@ -281,7 +314,7 @@ def parse_args(parser, system_args):
     conf.max_timeout_count = int(options.max_timeout)
     conf.thread_count = int(options.workers)
     conf.user_agent = options.user_agent
-    #conf.use_tor = options.use_tor
+    conf.cookies = load_cookie_file(options.cookie_file)
     conf.search_files = options.search_files
     conf.eval_output = options.eval_output
     conf.files_only = options.search_files
@@ -291,6 +324,7 @@ def parse_args(parser, system_args):
     conf.forge_vhost = options.forge_vhost
     conf.plugins_only = options.plugins_only
     conf.subatomic = options.subatomic
+    conf.allow_download = options.download
     return options, args
 
 def test_python_version():

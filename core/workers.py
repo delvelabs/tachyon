@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Tachyon - Fast Multi-Threaded Web Discovery Tool
 # Copyright (c) 2011 Gabriel Tremblay - initnull hat gmail.com
 #
@@ -25,6 +26,7 @@ from difflib import SequenceMatcher
 from Queue import Empty
 from threading import Thread
 from urlparse import urlparse
+
 
 def compute_request_time(start_time, end_time):
     """
@@ -352,7 +354,12 @@ class PrintWorker(Thread):
             if conf.subatomic:
                 subatomic.post_message(text)
             else:
-                print(text)
+                if text.endswith('\r'):
+                    print(" " * database.last_printed_len, file=sys.stdout, end="\r")
+                    print(text, file=sys.stdout, end="\r")
+                    database.last_printed_len = len(text)
+                else:
+                    print(text)
                 sys.stdout.flush()
 
             database.messages_output_queue.task_done()

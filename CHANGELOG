@@ -1,3 +1,15 @@
+2.0.0-beta10 (27/05/2014) (lol)
+=====================
+- Minor maintenance patchs
+- Fixed https handling
+- Fixed keep-alive connection closing
+- Fixed SVN parser plugin
+    - Will crawl /.svn/entries and print files
+    - Will download files if -a is used
+- Added user-supplied cookie support with -c <file>
+    - Just paste all the "Cookie: blablabla" lines you have in that file 
+
+
 2.0.0-beta9 (23/02/2012)
 =====================
 - Added numerous path, file and some new extension based on stats gathering

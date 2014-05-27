@@ -65,3 +65,6 @@ session_cookie = None
 
 """ Stats values """
 successful_fetch_count = 0
+
+""" Last printed len """
+last_printed_len = 0

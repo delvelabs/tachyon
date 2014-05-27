@@ -29,8 +29,10 @@ class Fetcher(object):
             if not add_headers.get('Host'):
                 add_headers['Host'] = conf.target_host
 
-            # Session cookie
-            if database.session_cookie:
+            # Session cookie, priority to used-supplied.
+            if conf.cookies:
+                add_headers['Cookie'] = conf.cookies
+            elif database.session_cookie:
                 add_headers['Cookie'] = database.session_cookie
 
             # Limit request len on binary types

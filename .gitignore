@@ -6,3 +6,8 @@
 #PyDev
 .project
 .pydevproject
+#output
+output/
+
+# cookies
+cookies*

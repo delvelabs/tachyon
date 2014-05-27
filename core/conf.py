@@ -17,7 +17,7 @@
 #
 
 # Internal config and consts
-version = '2.0.0-beta9'
+version = '2.0.0-beta10'
 expected_path_responses = [200, 206, 401, 403]
 expected_file_responses = [200, 206]
 timeout_codes = [0, 500, 502, 503]
@@ -62,7 +62,8 @@ directories_only = False
 recursive_depth_limit=2
 test_plugin = None
 plugins_only = False
-
+cookies = None
+allow_download = False
 
 # Templates, used by plugins
 path_template = {'url': '', 'timeout_count': 0, 'description': ''}
