@@ -23,9 +23,15 @@ from core import database, conf, stats, textutils, subatomic
 from core.fetcher import Fetcher
 from datetime import datetime
 from difflib import SequenceMatcher
-from Queue import Empty
+try:
+    from Queue import Empty
+except ImportError:
+    from queue import Empty
 from threading import Thread
-from urlparse import urlparse
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
 
 
 def compute_request_time(start_time, end_time):
@@ -112,7 +118,7 @@ def test_valid_result(content):
         content = content[0:conf.file_sample_len -1]
 
     # False positive cleanup for some edge cases
-    content = content.strip('\r\n ')
+    content = content.strip(b'\r\n ')
 
     # Test signatures
     for fingerprint in database.crafted_404s:
@@ -133,7 +139,7 @@ def test_valid_result(content):
 
 def detect_tomcat_fake_404(content):
     """ An apache setup will issue a 404 on an existing path if theres a tomcat trying to handle jsp on the same host """
-    if content.find('Apache Tomcat/') != -1:
+    if content.find(b'Apache Tomcat/') != -1:
         return True
 
     return False

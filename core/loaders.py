@@ -18,8 +18,8 @@
 
 import ast
 import codecs
-import textutils
-from exceptions import SyntaxError
+from . import textutils
+#from exceptions import SyntaxError
 
 def load_targets(file):
     """ Load the list of target paths """
@@ -33,8 +33,8 @@ def load_targets(file):
                 parsed_path = ast.literal_eval(path)
                 parsed_path['timeout_count'] = 0
                 loaded.append(parsed_path)
-            except SyntaxError as (errno, strerror):
-                textutils.output_error('Path parsing error: ' + str(strerror))
+            except SyntaxError as e:
+                textutils.output_error('Path parsing error: ' + str(e.strerror))
 
     f.close()
     return loaded

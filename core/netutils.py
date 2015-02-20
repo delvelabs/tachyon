@@ -18,7 +18,7 @@
 
 import re
 from core import textutils
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 def parse_hostname(hostname):
     ssl = False

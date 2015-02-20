@@ -16,7 +16,11 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import Queue
+try:
+    import queue as Queue
+except ImportError:
+    import Queue
+
 from core import conf
 from datetime import datetime
 

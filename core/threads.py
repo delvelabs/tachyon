@@ -18,7 +18,8 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import sys, database
+import sys
+from . import database
 from core import textutils
 from time import sleep
 from core import stats

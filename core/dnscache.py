@@ -16,10 +16,10 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import database
 import random
 import socket
-import textutils
+from . import textutils
+from . import database
 
 def _get_random_ip_from_cache(cache_info):
     """ Get a random ip from the caches entries """
