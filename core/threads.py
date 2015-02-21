@@ -19,10 +19,9 @@
 #
 
 import sys
-from . import database
-from core import textutils
 from time import sleep
-from core import stats
+from core import database
+from core import textutils, stats
 
 class ThreadManager(object):
     def __init__(self):

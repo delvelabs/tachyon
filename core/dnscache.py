@@ -18,8 +18,8 @@
 
 import random
 import socket
-from . import textutils
-from . import database
+from core import textutils
+from core import database
 
 def _get_random_ip_from_cache(cache_info):
     """ Get a random ip from the caches entries """

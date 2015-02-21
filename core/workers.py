@@ -19,19 +19,20 @@ from __future__ import print_function
 
 import re
 import sys
-from core import database, conf, stats, textutils, subatomic
-from core.fetcher import Fetcher
 from datetime import datetime
 from difflib import SequenceMatcher
+from threading import Thread
 try:
     from Queue import Empty
 except ImportError:
     from queue import Empty
-from threading import Thread
 try:
     from urlparse import urlparse
 except ImportError:
     from urllib.parse import urlparse
+
+from core import database, conf, stats, textutils, subatomic
+from core.fetcher import Fetcher
 
 
 def compute_request_time(start_time, end_time):
