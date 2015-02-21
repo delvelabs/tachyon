@@ -19,7 +19,6 @@
 import ast
 import codecs
 from . import textutils
-#from exceptions import SyntaxError
 
 def load_targets(file):
     """ Load the list of target paths """
