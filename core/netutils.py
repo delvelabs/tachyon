@@ -17,8 +17,14 @@
 #
 
 import re
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
+
 from core import textutils
-from urlparse import urlparse
+
+
 
 def parse_hostname(hostname):
     ssl = False

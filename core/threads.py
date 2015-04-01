@@ -18,10 +18,10 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import sys, database
-from core import textutils
+import sys
 from time import sleep
-from core import stats
+from core import database
+from core import textutils, stats
 
 class ThreadManager(object):
     def __init__(self):

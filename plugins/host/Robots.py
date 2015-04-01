@@ -19,7 +19,10 @@
 import re
 from core import conf, textutils, database
 from core.fetcher import Fetcher
-from urlparse import urljoin
+try:
+    from urlparse import urljoin
+except ImportError:
+    from urllib.parse import urljoin
 
 def execute():
     """ Fetch /robots.txt and add the disallowed paths as target """
