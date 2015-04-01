@@ -22,6 +22,7 @@ import sys
 from datetime import datetime
 from difflib import SequenceMatcher
 from threading import Thread
+import json
 try:
     from Queue import Empty
 except ImportError:
@@ -254,7 +255,12 @@ class TestPathExistsWorker(Thread):
                     handle_timeout(queued, url, self.thread_id, output=self.output)
                 elif response_code == 404 and detect_tomcat_fake_404(content):
                     database.valid_paths.append(queued)
-                    textutils.output_found('Tomcat redirect, ' + description + ' at: ' + conf.target_host + url)
+                    textutils.output_found('Tomcat redirect, ' + description + ' at: ' + conf.target_host + url, {
+                        "description": description,
+                        "url": conf.base_url + url,
+                        "code": response_code,
+                        "special": "tomcat-redirect",
+                    })
                 elif response_code in conf.expected_path_responses:
                     # Compare content with generated 404 samples
                     is_valid_result = test_valid_result(content)
@@ -262,17 +268,33 @@ class TestPathExistsWorker(Thread):
                     # Skip subfile testing if forbidden
                     if response_code == 401:
                         # Output result, but don't keep the url since we can't poke in protected folder
-                        textutils.output_found('Password Protected - ' + description + ' at: ' + conf.target_host + url)
+                        textutils.output_found('Password Protected - ' + description + ' at: ' + conf.target_host + url, {
+                            "description": description,
+                            "url": conf.base_url + url,
+                            "code": response_code,
+                        })
                     elif is_valid_result:
                         # Add path to valid_path for future actions
                         database.valid_paths.append(queued)
 
                         if response_code == 500:
-                            textutils.output_found('ISE, ' + description + ' at: ' + conf.target_host + url)    
+                            textutils.output_found('ISE, ' + description + ' at: ' + conf.target_host + url, {
+                                "description": description,
+                                "url": conf.base_url + url,
+                                "code": response_code,
+                            })
                         elif response_code == 403:
-                            textutils.output_found('*Forbidden* ' + description + ' at: ' + conf.target_host + url)
+                            textutils.output_found('*Forbidden* ' + description + ' at: ' + conf.target_host + url, {
+                                "description": description,
+                                "url": conf.base_url + url,
+                                "code": response_code,
+                            })
                         else:
-                            textutils.output_found(description + ' at: ' + conf.target_host + url)
+                            textutils.output_found(description + ' at: ' + conf.target_host + url, {
+                                "description": description,
+                                "url": conf.base_url + url,
+                                "code": response_code,
+                            })
 
                 elif response_code in conf.redirect_codes:
                     location = headers.get('location')
@@ -324,13 +346,26 @@ class TestFileExistsWorker(Thread):
                 if response_code in conf.timeout_codes:
                     handle_timeout(queued, url, self.thread_id, output=self.output)
                 elif response_code == 500:
-                    textutils.output_found('ISE, ' + description + ' at: ' + conf.target_host + url)
+                    textutils.output_found('ISE, ' + description + ' at: ' + conf.target_host + url, {
+                        "description": description,
+                        "url": conf.base_url + url,
+                        "code": response_code,
+                    })
                 elif response_code in conf.expected_file_responses:
                     # If the CRC missmatch, and we have an expected code, we found a valid link
                     if match_string and re.search(re.escape(match_string), content, re.I):
-                        textutils.output_found("String-Matched " + description + ' at: ' + conf.target_host + url)
+                        textutils.output_found("String-Matched " + description + ' at: ' + conf.target_host + url, {
+                            "description": description,
+                            "url": conf.base_url + url,
+                            "code": response_code,
+                            "string": match_string,
+                        })
                     elif test_valid_result(content):
-                        textutils.output_found(description + ' at: ' + conf.target_host + url)
+                        textutils.output_found(description + ' at: ' + conf.target_host + url, {
+                            "description": description,
+                            "url": conf.base_url + url,
+                            "code": response_code,
+                        })
 
                 elif response_code in conf.redirect_codes:
                     location = headers.get('location')
@@ -380,7 +415,7 @@ class PrintResultsWorker(Thread):
 
     def run(self):
         while not self.kill_received:
-            text = database.results_output_queue.get()
+            text = str(database.results_output_queue.get())
             if conf.subatomic:
                 subatomic.post_message(text)
             else:
@@ -389,3 +424,24 @@ class PrintResultsWorker(Thread):
 
             database.results_output_queue.task_done()
 
+class JSONPrintResultWorker(Thread):
+    """ This worker is used to generate a synchronized non-overlapping console output for results """
+    def __init__(self):
+        Thread.__init__(self)
+        self.kill_received = False
+        self.data = []
+
+    def run(self):
+        while not self.kill_received:
+            entry = database.results_output_queue.get()
+            self.data.append(entry)
+
+            database.results_output_queue.task_done()
+
+    def finalize(self):
+        print(json.dumps({
+            "from": conf.name,
+            "version": conf.version,
+            "result": self.data,
+        }))
+        sys.stdout.flush()

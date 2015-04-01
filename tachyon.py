@@ -22,7 +22,7 @@ import sys
 import uuid
 from core import conf, database, dnscache, loaders, textutils, netutils, dbutils
 from core.fetcher import Fetcher
-from core.workers import PrintWorker, PrintResultsWorker, FetchCrafted404Worker, TestPathExistsWorker, TestFileExistsWorker
+from core.workers import PrintWorker, PrintResultsWorker, JSONPrintResultWorker, FetchCrafted404Worker, TestPathExistsWorker, TestFileExistsWorker
 from core.threads import ThreadManager
 from optparse import OptionParser
 from plugins import host, file
@@ -287,6 +287,9 @@ def generate_options():
     parser.add_option("-e", action="store_true",
                     dest="eval_output", help="Eval-able output [default: %default]", default=False)
 
+    parser.add_option("-j", action="store_true",
+                    dest="json_output", help="JSON output [default: %default]", default=False)
+
     parser.add_option("-m", metavar="MAXTIMEOUT", dest="max_timeout",
                     help="Max number of timeouts for a given request [default: %default]", default=conf.max_timeout_count)
 
@@ -317,6 +320,7 @@ def parse_args(parser, system_args):
     conf.cookies = load_cookie_file(options.cookie_file)
     conf.search_files = options.search_files
     conf.eval_output = options.eval_output
+    conf.json_output = options.json_output
     conf.files_only = options.search_files
     conf.directories_only = options.search_dirs
     conf.recursive = options.recursive
@@ -325,6 +329,10 @@ def parse_args(parser, system_args):
     conf.plugins_only = options.plugins_only
     conf.subatomic = options.subatomic
     conf.allow_download = options.download
+
+    if conf.json_output:
+        conf.eval_output = True
+
     return options, args
 
 def test_python_version():
@@ -349,7 +357,7 @@ if __name__ == "__main__":
     parser = generate_options()
     options, args = parse_args(parser, sys.argv)
 
-    if not conf.eval_output:
+    if not conf.eval_output and not conf.json_output:
         print_program_header()
         
     if len(sys.argv) <= 1:
@@ -377,6 +385,9 @@ if __name__ == "__main__":
     else:
         conf.target_port = parsed_port
     
+    scheme = 'https' if is_ssl else 'http'
+    port = "" if (is_ssl and parsed_port == 443) or (not is_ssl and parsed_port == 80) else ":%s" % parsed_port
+    conf.base_url = "%s://%s%s" % (scheme, parsed_host, port)
     
     textutils.output_debug('Version: ' + str(conf.version))
     textutils.output_debug('Max timeouts per url: ' + str(conf.max_timeout_count))
@@ -384,6 +395,7 @@ if __name__ == "__main__":
     textutils.output_debug('Target Host: ' + str(conf.target_host))
     textutils.output_debug('Using Tor: ' + str(conf.use_tor))
     textutils.output_debug('Eval-able output: ' + str(conf.eval_output))
+    textutils.output_debug('JSON output: ' + str(conf.json_output))
     textutils.output_debug('Using User-Agent: ' + str(conf.user_agent))
     textutils.output_debug('Search only for files: ' + str(conf.files_only))
     textutils.output_debug('Search only for subdirs: ' + str(conf.directories_only))
@@ -411,6 +423,11 @@ if __name__ == "__main__":
         if conf.forge_vhost != '<host>':
             conf.target_host = conf.forge_vhost
 
+        if conf.json_output:
+            SelectedPrintWorker = JSONPrintResultWorker
+        else:
+            SelectedPrintWorker = PrintResultsWorker
+
         root_path = ''
         if conf.files_only:
             get_session_cookies()
@@ -428,7 +445,7 @@ if __name__ == "__main__":
             textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
             database.messages_output_queue.join()
             # Start print result worker.
-            print_results_worker = PrintResultsWorker()
+            print_results_worker = SelectedPrintWorker()
             print_results_worker.daemon = True
             print_results_worker.start()
             test_file_exists()
@@ -441,7 +458,7 @@ if __name__ == "__main__":
             database.paths.append(root_path)
             database.valid_paths.append(root_path)
             load_execute_host_plugins()
-            print_results_worker = PrintResultsWorker()
+            print_results_worker = SelectedPrintWorker()
             print_results_worker.daemon = True
             print_results_worker.start()
             load_target_paths()
@@ -472,7 +489,7 @@ if __name__ == "__main__":
             load_execute_file_plugins()
             textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
             database.messages_output_queue.join()
-            print_results_worker = PrintResultsWorker()
+            print_results_worker = SelectedPrintWorker()
             print_results_worker.daemon = True
             print_results_worker.start()
             test_file_exists()
@@ -484,6 +501,9 @@ if __name__ == "__main__":
         textutils.output_info('Scan completed in: ' + str(end_scan_time - start_scan_time) + '\n')
         database.results_output_queue.join()
         database.messages_output_queue.join()
+
+        if 'finalize' in dir(print_results_worker):
+            print_results_worker.finalize()
     except KeyboardInterrupt:
         textutils.output_raw_message('')
         textutils.output_error('Keyboard Interrupt Received')

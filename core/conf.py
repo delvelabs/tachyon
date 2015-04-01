@@ -17,6 +17,7 @@
 #
 
 # Internal config and consts
+name = "delvelabs/tachyon"
 version = '2.0.0-beta10'
 expected_path_responses = [200, 206, 401, 403]
 expected_file_responses = [200, 206]
@@ -44,6 +45,7 @@ executables_suffixes = ['.php', '.asp', '.aspx', '.pl', '.cgi', '.cfm']
 target_host = ''
 target_base_path = ''
 target_port = 80
+base_url = ''
 is_ssl = False
 forge_vhost='' 
 subatomic = None
