@@ -20,6 +20,7 @@
 
 import sys
 import uuid
+import urllib3
 from core import conf, database, dnscache, loaders, textutils, netutils, dbutils
 from core.fetcher import Fetcher
 from core.workers import PrintWorker, PrintResultsWorker, JSONPrintResultWorker, FetchCrafted404Worker, TestPathExistsWorker, TestFileExistsWorker
@@ -27,7 +28,6 @@ from core.threads import ThreadManager
 from optparse import OptionParser
 from plugins import host, file
 from socket import gaierror
-import urllib3
 from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
 from datetime import datetime
 
