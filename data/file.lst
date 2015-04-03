@@ -208,9 +208,24 @@
 {"url": "source", "description": "Possible file access", "executable" : True}
 
 
-
-
-
+#Comon backdoors
+{"url": "r57shell.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
+{"url": "r57.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
+{"url": "c99shell.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
+{"url": "c99.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
+{"url": "nstview.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
+{"url": "nst.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
+{"url": "rst.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
+{"url": "r57eng.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
+{"url": "r.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
+{"url": "lol.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
+{"url": "zenhir.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
+{"url": "c-h.v2.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
+{"url": "php-backdoor.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
+{"url": "cmdasp.asp", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
+{"url": "shell", "description": "Common backdoor", "type" : "malware"}
+{"url": "backdoor", "description": "Common backdoor", "type" : "malware"}
+{"url": "cmd", "description": "Common backdoor", "type" : "malware"}
 
 
 
