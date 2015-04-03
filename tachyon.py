@@ -21,6 +21,7 @@
 import sys
 import uuid
 import urllib3
+import os
 from core import conf, database, dnscache, loaders, textutils, netutils, dbutils
 from core.fetcher import Fetcher
 from core.workers import PrintWorker, PrintResultsWorker, JSONPrintResultWorker, FetchCrafted404Worker, TestPathExistsWorker, TestFileExistsWorker
@@ -31,15 +32,15 @@ from socket import gaierror
 from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
 from datetime import datetime
 
-def load_target_paths():
+def load_target_paths(running_path):
     """ Load the target paths in the database """
     textutils.output_info('Loading target paths')
-    database.paths += loaders.load_targets('data/path.lst') 
+    database.paths += loaders.load_targets(running_path + '/data/path.lst') 
 
-def load_target_files():
+def load_target_files(running_path):
     """ Load the target files in the database """
     textutils.output_info('Loading target files')
-    database.files += loaders.load_targets('data/file.lst')
+    database.files += loaders.load_targets(running_path + '/data/file.lst')
 
 def get_session_cookies():
     """ Fetch initial session cookies """
@@ -339,6 +340,9 @@ def parse_args(parser, system_args):
 
 # Entry point / main application logic
 if __name__ == "__main__":
+    # Get running path
+    running_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+
     # Benchmark
     start_scan_time = datetime.now()
     
@@ -429,7 +433,7 @@ if __name__ == "__main__":
             root_path = conf.path_template.copy()
             root_path['url'] = ''
             database.valid_paths.append(root_path)
-            load_target_files()
+            load_target_files(running_path)
             load_execute_host_plugins()
             sample_404_from_found_path()
             add_files_to_paths()
@@ -453,7 +457,7 @@ if __name__ == "__main__":
             print_results_worker = SelectedPrintWorker()
             print_results_worker.daemon = True
             print_results_worker.start()
-            load_target_paths()
+            load_target_paths(running_path)
             test_paths_exists()
         elif conf.plugins_only:
             get_session_cookies()
@@ -471,8 +475,8 @@ if __name__ == "__main__":
             root_path = conf.path_template.copy()
             root_path['url'] = '/'
             database.paths.append(root_path)
-            load_target_paths()
-            load_target_files()
+            load_target_paths(running_path)
+            load_target_files(running_path)
             # Execute all Host plugins
             load_execute_host_plugins()
             test_paths_exists()
