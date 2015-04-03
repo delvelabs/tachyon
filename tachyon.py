@@ -27,6 +27,7 @@ from core.threads import ThreadManager
 from optparse import OptionParser
 from plugins import host, file
 from socket import gaierror
+import urllib3
 from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
 from datetime import datetime
 
@@ -335,24 +336,12 @@ def parse_args(parser, system_args):
 
     return options, args
 
-def test_python_version():
-    """ Test python version, return True if version is high enough, False if not """
-    if sys.version_info[:2] < (2, 6):
-        return False
-    else:
-        return True
-        
 
 # Entry point / main application logic
 if __name__ == "__main__":
     # Benchmark
     start_scan_time = datetime.now()
     
-    # Test python version
-    if not test_python_version():
-        print("Your python interpreter is so old it has to wear diapers. Please upgrade to at least 2.6 ;)")
-        sys.exit()
-        
     # Parse command line
     parser = generate_options()
     options, args = parse_args(parser, sys.argv)
@@ -412,6 +401,9 @@ if __name__ == "__main__":
     try:
         # Resolve target host to avoid multiple dns lookups
         resolved, port = dnscache.get_host_ip(conf.target_host, conf.target_port)
+
+        # disable urllib'3 SSL warning (globally)
+        urllib3.disable_warnings()
 
         # Benchmark target host
         if is_ssl:
