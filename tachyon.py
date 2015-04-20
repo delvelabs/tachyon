@@ -240,7 +240,7 @@ def test_file_exists():
 def print_program_header():
     """ Print a _cute_ program header """
     print("\n\t Tachyon v" + conf.version + " - Fast Multi-Threaded Web Discovery Tool")
-    print("\t https://github.com/initnull/tachyon\n") 
+    print("\t https://github.com/delvelabs/tachyon\n") 
 
 
 def load_cookie_file(afile):

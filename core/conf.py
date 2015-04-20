@@ -18,7 +18,7 @@
 
 # Internal config and consts
 name = "delvelabs/tachyon"
-version = '2.0.0-beta11'
+version = '2.0.0-beta12'
 expected_path_responses = [200, 206, 401, 403]
 expected_file_responses = [200, 206]
 timeout_codes = [0, 500, 502, 503]
