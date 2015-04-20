@@ -15,113 +15,112 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
-{"url" : "access", "description" : "access log"}
-{"url" : "account", "description" : "Accounts"}
-{"url" : "accounts", "description" : "Accounts"}
-{"url" : "authors", "description" : "Accounts"}
-{"url" : "akeeba.backend.log", "description" : "Akeeba backup transation logs", "no_suffix": True}
-{"url" : "analog.html", "description" : "Analog web statistics", "no_suffix": True}
-{"url" : "admin", "description" : "Admin file"}
-{"url" : "administrators", "description" : "Admin file"}
-{"url" : "administration", "description" : "Admin file"}
-{"url" : "application", "description" : "Application file"}
-{"url" : "application.wadl", "description" : "REST API description file", "no_suffix": True}
-{"url" : "authors", "description" : "Password file"}
-{"url" : "auth", "description" : "auth file"}
-{"url" : "authuser", "description" : "auth file"}
-{"url" : "authusers", "description" : "auth file"}
-{"url" : "archive", "description" : "archive file"}
-{"url" : "archives", "description" : "archive file"}
-{"url" : "backup", "description" : "backup"}
-{"url" : "bar", "description" : "random backup"}
-{"url" : "browser", "description" : "Browser-oriented file"}
-{"url" : "cache", "description" : "Cache related file"}
-{"url" : "caching", "description" : "Cache related file"}
-{"url" : "cachemgr.cgi", "description" : "Squid proxy admin interface", "no_suffix": True}
-{"url" : "ccbill", "description" : "CCBill.com logs"}
-{"url" : "fckeditor", "description" : "CkEditor"}
-{"url" : "config", "description" : "Config file"}
-{"url" : "conf", "description" : "Config file"}
-{"url" : "common", "description" : "Config file"}
-{"url" : "cron", "description" : "crontab file"}
-{"url" : "crossdomain.xml", "description" : "Crossdomain policy file", "no_suffix": True}
-{"url" : "crypt", "description" : "encryption file"}
-{"url" : "crypto", "description" : "encryption file"}
-{"url" : "data", "description" : "database backup"}
-{"url" : "database", "description" : "database backup"}
-{"url" : "db", "description" : "database backup"}
-{"url" : "default", "description" : "default file"}
-{"url" : "deploy", "description" : "Site backup"}
-{"url" : "digest", "description" : "digest file"}
-{"url" : "dokuwiki", "description" : "Dokuwiki backup"}
-{"url" : "encrypt", "description" : "encryption file"}
-{"url" : "error", "description" : "error log"}
-{"url" : "errors", "description" : "errors log"}
-{"url" : "export", "description" : "database backup"}
-{"url" : "foo", "description" : "random backup"}
-{"url" : "files", "description" : "files reference"}
-{"url" : "global", "description" : "global settings"}
-{"url" : ".htaccess", "description" : "htacces file", "no_suffix": True}
-{"url" : ".hta", "description" : "htacces file", "no_suffix": True}
-{"url" : ".htpasswd", "description" : "htpasswd file", "no_suffix": True}
-{"url" : "id_rsa", "description" : "rsa private key", "no_suffix": True}
-{"url" : "id_rsa.pub", "description" : "rsa public key", "no_suffix": True}
-{"url" : "known_hosts", "description" : "ssh known hosts", "no_suffix": True}
-{"url" : "import", "description" : "database backup"}
-{"url" : "index", "description" : "index.php backup"}
-{"url" : "install", "description" : "install file"}
-{"url" : "info", "description" : "info file"}
-{"url" : "infos", "description" : "info file"}
-{"url" : "key", "description" : "key file"}
-{"url" : "keys", "description" : "key file"}
-{"url" : "local", "description" : "Local config"}
-{"url" : "login", "description" : "login log (login.txt could be Gallery key)"}
-{"url" : "log", "description" : "Log file"}
-{"url" : "logs", "description" : "Log file"}
-{"url" : "logfile", "description" : "Log file"}
-{"url" : "logger", "description" : "Log file"}
-{"url" : "master", "description" : "master file"}
-{"url" : "main.mdb", "description" : "ASP-Nuke db", "no_suffix": True}
-{"url" : "mysql", "description" : "Mysql config"}
-{"url" : "my", "description" : "Mysql config"}
-{"url" : "memcached", "description" : "memcached monitoring"}
-{"url" : "note", "description" : "notes file"}
-{"url" : "notes", "description" : "notes file"}
-{"url" : "pass", "description" : "Password file"}
-{"url" : "password", "description" : "password file"}
-{"url" : "passwords", "description" : "password file"}
-{"url" : "passwd", "description" : "Password file"}
-{"url" : ".passwd", "description" : "Password file", "no_suffix": True}
-{"url" : "php", "description" : "php config"}
-{"url" : "proftpd", "description" : "ProFTPD config"}
-{"url" : "pixelpost", "description" : "Pixelpost config"}
-{"url" : "pmwiki", "description" : "pmwiki file"}
-{"url" : "putty", "description" : "PuTTY logs"}
-{"url" : "putty.reg", "description" : "PuTTY logs", "no_suffix": True}
-{"url" : "register", "description" : "Register file"}
-{"url" : "redis", "description" : "redis monitoring"}
-{"url" : "rsync", "description" : "Remote sync file"}
-{"url" : "service", "description" : "Password file"}
-{"url" : "server", "description" : "server file"}
-{"url" : "settings", "description" : "settings file"}
-{"url" : "site", "description" : "database backup"}
-{"url" : "stats", "description" : "statistic file"}
-{"url" : "test", "description" : "test dir/file"}
-{"url" : "test_db", "description" : "database backup"}
-{"url" : "transactions", "description" : "transactions log"}
-{"url" : "transaction", "description" : "transactions log"}
-{"url" : "user", "description" : "username file"}
-{"url" : "users", "description" : "usernames file"}
-{"url" : "usernames", "description" : "usernames file"}
-{"url" : "username", "description" : "usernames file"}
-{"url" : "WS_FTP.LOG", "description" : "WS_FTP client logs", "no_suffix": True}
-{"url" : "ws_ftp", "description" : "WS_FTP client config"}
-{"url" : "xmlrpc.php", "description" : "Website API", "no_suffix": True}
-{"url" : "xml-rpc", "description" : "Website API"}
-{"url" : "rpc", "description" : "Website API"}
-{"url" : "json", "description" : "Website API"}
-{"url" : "json-api", "description" : "Website API"}
-{"url" : "web", "description" : "Web file"}
+{"url" : "access", "description" : "access log", "severity" : "info"}
+{"url" : "account", "description" : "Accounts", "severity" : "info"}
+{"url" : "accounts", "description" : "Accounts", "severity" : "info"}
+{"url" : "authors", "description" : "Accounts", "severity" : "info"}
+{"url" : "akeeba.backend.log", "description" : "Akeeba backup transation logs", "no_suffix": True, "severity" : "critical"}
+{"url" : "analog.html", "description" : "Analog web statistics", "no_suffix": True, "severity" : "medium"}
+{"url" : "admin", "description" : "Admin file", "severity" : "info"}
+{"url" : "administrators", "description" : "Admin file", "severity" : "info"}
+{"url" : "administration", "description" : "Admin file", "severity" : "info"}
+{"url" : "application", "description" : "Application file", "severity" : "info"}
+{"url" : "application.wadl", "description" : "REST API description file", "no_suffix": True, "severity" : ""}
+{"url" : "auth", "description" : "auth file", "severity" : "info"}
+{"url" : "authuser", "description" : "auth file", "severity" : "info"}
+{"url" : "authusers", "description" : "auth file", "severity" : "info"}
+{"url" : "archive", "description" : "archive file", "severity" : "warning"}
+{"url" : "archives", "description" : "archive file", "severity" : "warning"}
+{"url" : "backup", "description" : "backup", "severity" : "cricital"}
+{"url" : "bar", "description" : "random backup", "severity" : "info"}
+{"url" : "browser", "description" : "Browser-oriented file", "severity" : "info"}
+{"url" : "cache", "description" : "Cache related file", "severity" : "warning"}
+{"url" : "caching", "description" : "Cache related file", "severity" : "warning"}
+{"url" : "cachemgr.cgi", "description" : "Squid proxy admin interface", "no_suffix": True, "severity" : "critical"}
+{"url" : "ccbill", "description" : "CCBill.com logs", "severity" : "critical"}
+{"url" : "fckeditor", "description" : "CkEditor", "severity" : "medium"}
+{"url" : "config", "description" : "Config file", "severity" : "critical"}
+{"url" : "conf", "description" : "Config file", "severity" : "critical"}
+{"url" : "common", "description" : "Config file", "severity" : "medium"}
+{"url" : "cron", "description" : "crontab file", "severity" : "medium"}
+{"url" : "crossdomain.xml", "description" : "Crossdomain policy file", "no_suffix": True, "severity" : "info"}
+{"url" : "crypt", "description" : "encryption file", "severity" : "warning"}
+{"url" : "crypto", "description" : "encryption file", "severity" : "warning"}
+{"url" : "data", "description" : "database backup", "severity" : "critical"}
+{"url" : "database", "description" : "database backup", "severity" : "critical"}
+{"url" : "db", "description" : "database backup", "severity" : "critical"}
+{"url" : "default", "description" : "default file", "severity" : "info"}
+{"url" : "deploy", "description" : "Site backup", "severity" : "warning"}
+{"url" : "digest", "description" : "digest file", "severity" : "info"}
+{"url" : "dokuwiki", "description" : "Dokuwiki backup", "severity" : "warning"}
+{"url" : "encrypt", "description" : "encryption file", "severity" : "warning"}
+{"url" : "error", "description" : "error log", "severity" : "medium"}
+{"url" : "errors", "description" : "errors log", "severity" : "warning"}
+{"url" : "export", "description" : "database backup", "severity" : "warning"}
+{"url" : "foo", "description" : "random backup", "severity" : "info"}
+{"url" : "files", "description" : "files reference", "severity" : "warning"}
+{"url" : "global", "description" : "global settings", "severity" : "warning"}
+{"url" : ".htaccess", "description" : "htacces file", "no_suffix": True, "severity" : "medium"}
+{"url" : ".hta", "description" : "htacces file", "no_suffix": True, "severity" : "medium"}
+{"url" : ".htpasswd", "description" : "htpasswd file", "no_suffix": True, "severity" : "critical"}
+{"url" : "id_rsa", "description" : "rsa private key", "no_suffix": True, "severity" : "critical"}
+{"url" : "id_rsa.pub", "description" : "rsa public key", "no_suffix": True, "severity" : "warning"}
+{"url" : "known_hosts", "description" : "ssh known hosts", "no_suffix": True, "severity" : "medium"}
+{"url" : "import", "description" : "database backup", "severity" : "medium"}
+{"url" : "index", "description" : "index.php backup", "severity" : "info"}
+{"url" : "install", "description" : "install file", "severity" : "medium"}
+{"url" : "info", "description" : "info file", "severity" : "warning"}
+{"url" : "infos", "description" : "info file", "severity" : "warning"}
+{"url" : "key", "description" : "key file", "severity" : "critical"}
+{"url" : "keys", "description" : "key file", "severity" : "critical"}
+{"url" : "local", "description" : "Local config", "severity" : "warning"}
+{"url" : "login", "description" : "login log (login.txt could be Gallery key)", "severity" : "warning"}
+{"url" : "log", "description" : "Log file", "severity" : "medium"}
+{"url" : "logs", "description" : "Log file", "severity" : "medium"}
+{"url" : "logfile", "description" : "Log file", "severity" : "medium"}
+{"url" : "logger", "description" : "Log file", "severity" : "medium"}
+{"url" : "master", "description" : "master file", "severity" : "critical"}
+{"url" : "main.mdb", "description" : "ASP-Nuke db", "no_suffix": True, "severity" : "critical"}
+{"url" : "mysql", "description" : "Mysql config", "severity" : "medium"}
+{"url" : "my", "description" : "Mysql config", "severity" : "medium"}
+{"url" : "memcached", "description" : "memcached monitoring", "severity" : "warning"}
+{"url" : "note", "description" : "notes file", "severity" : "warning"}
+{"url" : "notes", "description" : "notes file", "severity" : "warning"}
+{"url" : "pass", "description" : "Password file", "severity" : "critical"}
+{"url" : "password", "description" : "password file", "severity" : "critical"}
+{"url" : "passwords", "description" : "password file", "severity" : "critical"}
+{"url" : "passwd", "description" : "Password file", "severity" : "critical"}
+{"url" : ".passwd", "description" : "Password file", "no_suffix": True, "severity" : "critical"}
+{"url" : "php", "description" : "php config", "severity" : "info"}
+{"url" : "proftpd", "description" : "ProFTPD config", "severity" : "warning"}
+{"url" : "pixelpost", "description" : "Pixelpost config", "severity" : "info"}
+{"url" : "pmwiki", "description" : "pmwiki file", "severity" : "info"}
+{"url" : "putty", "description" : "PuTTY logs", "severity" : "warning"}
+{"url" : "putty.reg", "description" : "PuTTY logs", "no_suffix": True, "severity" : "critical"}
+{"url" : "register", "description" : "Register file", "severity" : "info"}
+{"url" : "redis", "description" : "redis monitoring", "severity" : "info"}
+{"url" : "rsync", "description" : "Remote sync file", "severity" : "info"}
+{"url" : "service", "description" : "Password file", "severity" : "info"}
+{"url" : "server", "description" : "server file", "severity" : "info"}
+{"url" : "settings", "description" : "settings file", "severity" : "medium"}
+{"url" : "site", "description" : "database backup", "severity" : "info"}
+{"url" : "stats", "description" : "statistic file", "severity" : "warning"}
+{"url" : "test", "description" : "test dir/file", "severity" : "warning"}
+{"url" : "test_db", "description" : "database backup", "severity" : "medium"}
+{"url" : "transactions", "description" : "transactions log", "severity" : "critical"}
+{"url" : "transaction", "description" : "transactions log", "severity" : "critical"}
+{"url" : "user", "description" : "username file", "severity" : "medium"}
+{"url" : "users", "description" : "usernames file", "severity" : "medium"}
+{"url" : "usernames", "description" : "usernames file", "severity" : "medium"}
+{"url" : "username", "description" : "usernames file", "severity" : "medium"}
+{"url" : "WS_FTP.LOG", "description" : "WS_FTP client logs", "no_suffix": True, "severity" : "critical"}
+{"url" : "ws_ftp", "description" : "WS_FTP client config", "severity" : "critical"}
+{"url" : "xmlrpc.php", "description" : "Website API", "no_suffix": True, "severity" : "info"}
+{"url" : "xml-rpc", "description" : "Website API", "severity" : "info"}
+{"url" : "rpc", "description" : "Website API", "severity" : "info"}
+{"url" : "json", "description" : "Website API", "severity" : "info"}
+{"url" : "json-api", "description" : "Website API", "severity" : "info"}
+{"url" : "web", "description" : "Web file", "severity" : "warning"}
 
 
 ###
@@ -130,102 +129,102 @@
 ##
 
 # PHP common developer files
-{"url" : "info.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42", "no_suffix": True}
-{"url" : "infos.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42", "no_suffix": True}
-{"url" : "phpinfo.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42", "no_suffix": True}
-{"url" : "phpinfos.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42", "no_suffix": True}
+{"url" : "info.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42", "no_suffix": True, "severity" : "medium"}
+{"url" : "infos.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42", "no_suffix": True, "severity" : "medium"}
+{"url" : "phpinfo.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42", "no_suffix": True, "severity" : "medium"}
+{"url" : "phpinfos.php", "description" : "Common phpinfo() wrapper script", "match_string" : "PHPE9568F34-D428-11d2-A769-00AA001ACF42", "no_suffix": True, "severity" : "medium"}
 
 # Home shell temporary files
-{"url" : ".bash_history", "description" : "Bash history", "no_suffix": True}
-{"url" : ".bashrc", "description" : "Bash default config file", "no_suffix": True}
-{"url" : ".config", "description" : "Generic config", "no_suffix": True}
-{"url" : ".mysql_history", "description" : "mysql history", "no_suffix": True}
-{"url" : ".profile", "description" : "Common default shell config file", "no_suffix": True}
-{"url" : ".sh_history", "description" : "sh history", "no_suffix": True}
+{"url" : ".bash_history", "description" : "Bash history", "no_suffix": True, "severity" : "critical"}
+{"url" : ".bashrc", "description" : "Bash default config file", "no_suffix": True, "severity" : "critical"}
+{"url" : ".config", "description" : "Generic config", "no_suffix": True, "severity" : "critical"}
+{"url" : ".mysql_history", "description" : "mysql history", "no_suffix": True, "severity" : "critical"}
+{"url" : ".profile", "description" : "Common default shell config file", "no_suffix": True, "severity" : "critical"}
+{"url" : ".sh_history", "description" : "sh history", "no_suffix": True, "severity" : "critical"}
 
 # Common guess we don't want to be appended with suffixes
-{"url" : "index2.php", "description" : "Backup index page", "no_suffix": True}
-{"url" : "index3.php", "description" : "Backup index page", "no_suffix": True}
+{"url" : "index2.php", "description" : "Backup index page", "no_suffix": True, "severity" : "info"}
+{"url" : "index3.php", "description" : "Backup index page", "no_suffix": True, "severity" : "info"}
 
 # Svn entries file
-{"url" : ".svn/entries", "description" : "SVN entries file", "no_suffix": True}
+{"url" : ".svn/entries", "description" : "SVN entries file", "no_suffix": True, "severity" : "crtical"}
 
 # Frontpage
-{"url": "_vti_bin/_vti_adm/admin.dll", "description": "Frontpage file", "no_suffix": True}
-{"url": "_vti_bin/_vti_aut/author.dll", "description": "Frontpage file", "no_suffix": True}
-{"url": "_vti_bin/shtml.dll", "description": "Frontpage file", "no_suffix": True}
+{"url": "_vti_bin/_vti_adm/admin.dll", "description": "Frontpage administration file", "no_suffix": True, "severity" : "critical"}
+{"url": "_vti_bin/_vti_aut/author.dll", "description": "Frontpage administration file", "no_suffix": True, "severity" : "critical"}
+{"url": "_vti_bin/shtml.dll", "description": "Frontpage administration file", "no_suffix": True, "severity" : "critical"}
  
 # CVS
-{"url": "CVS/Entries", "description": "CVS entries file", "no_suffix": True}
-{"url": "CVS/Root", "description": "CVS root file", "no_suffix": True}
-{"url": "CVS/Repository", "description": "CVS repository file", "no_suffix": True}
+{"url": "CVS/Entries", "description": "CVS entries file", "no_suffix": True, "severity" : "critical"}
+{"url": "CVS/Root", "description": "CVS root file", "no_suffix": True, "severity" : "critical"}
+{"url": "CVS/Repository", "description": "CVS repository file", "no_suffix": True, "severity" : "critical"}
  
 # git
-{"url": ".git/HEAD", "description": "git HEAD file", "no_suffix": True}
+{"url": ".git/HEAD", "description": "git HEAD file", "no_suffix": True, "severity" : "critical"}
 
 # Listing files
-{"url": ".listing", "description": "File/Dir Listing", "no_suffix": True}
-{"url": ".listings", "description": "File/Dir Listing", "no_suffix": True}
+{"url": ".listing", "description": "File/Dir Listing", "no_suffix": True, "severity" : "critical"}
+{"url": ".listings", "description": "File/Dir Listing", "no_suffix": True, "severity" : "critical"}
 
 # Awstats
-{"url": "awstats.conf", "description": "AWstats log analyzer", "no_suffix": True}
+{"url": "awstats.conf", "description": "AWstats log analyzer", "no_suffix": True, "severity" : "critical"}
 
 # Seldom admin script
-{"url": "admin.php", "description": "Admin script", "no_suffix": True}
-{"url": "admin.cgi", "description": "Admin script", "no_suffix": True}
-{"url": "admin.pl", "description": "Admin script", "no_suffix": True}
+{"url": "admin.php", "description": "Admin script", "no_suffix": True, "severity" : "warning"}
+{"url": "admin.cgi", "description": "Admin script", "no_suffix": True, "severity" : "warning"}
+{"url": "admin.pl", "description": "Admin script", "no_suffix": True, "severity" : "warning"}
 
 # Various
-{"url": "showcode.asp", "description": "Possible file access", "no_suffix": True}
-{"url": "getFile.cfm", "description": "Possible file access", "no_suffix": True}
-{"url": "AT-admin.cgi", "description": "Possible file access", "no_suffix": True}
+{"url": "showcode.asp", "description": "Possible file access", "no_suffix": True, "severity" : "critical"}
+{"url": "getFile.cfm", "description": "Possible file access", "no_suffix": True, "severity" : "critical"}
+{"url": "AT-admin.cgi", "description": "Possible file access", "no_suffix": True, "severity" : "critical"}
 
 # Ruby logger
-{"url": "development.log  ", "description": "Ruby logger", "no_suffix": True}
-{"url": "production.log", "description": "Ruby logger", "no_suffix": True}
+{"url": "development.log  ", "description": "Ruby logger", "no_suffix": True, "severity" : "critical"}
+{"url": "production.log", "description": "Ruby logger", "no_suffix": True, "severity" : "critical"}
 
 # Executables
 
 # cache monitoring
-{"url" : "apc", "description" : "Zend cache monitoring", "executable" : True}
-{"url" : "memcached", "description" : "memcached monitoring", "executable" : True}
-{"url" : "redis", "description" : "redis monitoring", "executable" : True}
-{"url" : "cachemgr", "description" : "cache manager", "executable" : True}
+{"url" : "apc", "description" : "Zend cache monitoring", "executable" : True, "severity" : "warning"}
+{"url" : "memcached", "description" : "memcached monitoring", "executable" : True, "severity" : "warning"}
+{"url" : "redis", "description" : "redis monitoring", "executable" : True, "severity" : "warning"}
+{"url" : "cachemgr", "description" : "cache manager", "executable" : True, "severity" : "warning"}
 
 # Upload/Download management Scripts - Executables
-{"url": "download", "description": "Possible file access", "executable" : True}
-{"url": "readfile", "description": "Possible file access", "executable" : True}
-{"url": "getfile", "description": "Possible file access", "executable" : True}
-{"url": "get", "description": "Possible file access", "executable" : True}
-{"url": "show", "description": "Possible file access", "executable" : True}
-{"url": "forcedownload", "description": "Possible file access", "executable" : True}
-{"url": "upload", "description": "Possible file access", "executable" : True}
-{"url": "uploadfile", "description": "Possible file access", "executable" : True}
-{"url": "uploader", "description": "Possible file access", "executable" : True}
-{"url": "upload_file", "description": "Possible file access", "executable" : True}
-{"url": "view", "description": "Possible file access", "executable" : True}
-{"url": "viewfile", "description": "Possible file access", "executable" : True}
-{"url": "source", "description": "Possible file access", "executable" : True}
+{"url": "download", "description": "Possible file access", "executable" : True, "severity" : "info"}
+{"url": "readfile", "description": "Possible file access", "executable" : True, "severity" : "warning"}
+{"url": "getfile", "description": "Possible file access", "executable" : True, "severity" : "info"}
+{"url": "get", "description": "Possible file access", "executable" : True, "severity" : "info"}
+{"url": "show", "description": "Possible file access", "executable" : True, "severity" : "info"}
+{"url": "forcedownload", "description": "Possible file access", "executable" : True, "severity" : "warning"}
+{"url": "upload", "description": "Possible file access", "executable" : True, "severity" : "info"}
+{"url": "uploadfile", "description": "Possible file access", "executable" : True, "severity" : "info"}
+{"url": "uploader", "description": "Possible file access", "executable" : True, "severity" : "info"}
+{"url": "upload_file", "description": "Possible file access", "executable" : True, "severity" : "info"}
+{"url": "view", "description": "Possible file access", "executable" : True, "severity" : "info"}
+{"url": "viewfile", "description": "Possible file access", "executable" : True, "severity" : "warning"}
+{"url": "source", "description": "Possible file access", "executable" : True, "severity" : "warning"}
 
 
 #Comon backdoors
-{"url": "r57shell.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
-{"url": "r57.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
-{"url": "c99shell.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
-{"url": "c99.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
-{"url": "nstview.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
-{"url": "nst.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
-{"url": "rst.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
-{"url": "r57eng.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
-{"url": "r.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
-{"url": "lol.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
-{"url": "zenhir.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
-{"url": "c-h.v2.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
-{"url": "php-backdoor.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
-{"url": "cmdasp.asp", "description": "Common backdoor", "no_suffix": True, "type" : "malware"}
-{"url": "shell", "description": "Common backdoor", "type" : "malware"}
-{"url": "backdoor", "description": "Common backdoor", "type" : "malware"}
-{"url": "cmd", "description": "Common backdoor", "type" : "malware"}
+{"url": "r57shell.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware", "severity" : "critical"}
+{"url": "r57.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware", "severity" : "critical"}
+{"url": "c99shell.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware", "severity" : "critical"}
+{"url": "c99.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware", "severity" : "critical"}
+{"url": "nstview.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware", "severity" : "critical"}
+{"url": "nst.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware", "severity" : "critical"}
+{"url": "rst.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware", "severity" : "critical"}
+{"url": "r57eng.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware", "severity" : "critical"}
+{"url": "r.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware", "severity" : "critical"}
+{"url": "lol.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware", "severity" : "critical"}
+{"url": "zenhir.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware", "severity" : "critical"}
+{"url": "c-h.v2.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware", "severity" : "critical"}
+{"url": "php-backdoor.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware", "severity" : "critical"}
+{"url": "cmdasp.asp", "description": "Common backdoor", "no_suffix": True, "type" : "malware", "severity" : "critical"}
+{"url": "shell", "description": "Common backdoor", "type" : "malware", "severity" : "critical"}
+{"url": "backdoor", "description": "Common backdoor", "type" : "malware", "severity" : "critical"}
+{"url": "cmd", "description": "Common backdoor", "type" : "malware", "severity" : "critical"}
 
 
 
