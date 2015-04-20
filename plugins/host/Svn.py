@@ -21,6 +21,8 @@ from core import conf, textutils, database, dbutils
 from core.fetcher import Fetcher
 from xml.etree import ElementTree
 
+base_headers = dict()
+
 def save_file(path, content):
     output = "output/" + conf.target_host + path
 
@@ -36,10 +38,11 @@ def parse_svn_entries(url):
     description_dir = "SVN entries Dir at"
     target_url = url + "/.svn/entries"
     fetcher = Fetcher()
-    response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
 
-    if response_code is 200 or response_code is 302 and content:
-        tokens = content.split('\n')
+    response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False, add_headers=base_headers)
+    
+    if response_code in conf.expected_file_responses and content:
+        tokens = content.decode().split('\n')
         if 'dir' in tokens:
             for pos, token in enumerate(tokens):
                 if token == 'dir':
@@ -77,7 +80,14 @@ def execute():
 
     fetcher = Fetcher()
     response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
-    if response_code is 200 or response_code is 302:
+
+    if response_code in conf.expected_file_responses and content:
+        # Edge case for 206:
+        if response_code is 206 and 'Content-Range' in headers:
+            range_value = headers.get('Content-Range')
+            max_bytes = range_value[range_value.find('/')+1:]
+            base_headers['Range'] = '0-' + max_bytes 
+
         if conf.allow_download:
             textutils.output_info(' - Svn Plugin: /.svn/entries found! crawling... (will download files to output/)')
         else:
