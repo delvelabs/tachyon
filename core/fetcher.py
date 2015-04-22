@@ -39,6 +39,9 @@ class Fetcher(object):
             if limit_len:
                 content_range = 'bytes=0-' + str(conf.file_sample_len-1)
                 add_headers['Range'] = content_range
+            else:
+                if 'Range' in add_headers:
+                    del add_headers['Range']
 
             # Was release_conn=True
             response = database.connection_pool.request('GET', url, headers=add_headers, retries=0, redirect=False,

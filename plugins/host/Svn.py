@@ -17,6 +17,7 @@
 #
 
 import os
+import sqlite3
 from core import conf, textutils, database, dbutils
 from core.fetcher import Fetcher
 from xml.etree import ElementTree
@@ -30,8 +31,13 @@ def save_file(path, content):
         os.makedirs(output[:output.rfind('/')])
 
     with open(output, "wb") as outfile:
-        outfile.write(content)
+        if isinstance(content, str):
+            outfile.write(content.encode('utf-8'))
+        else:
+            outfile.write(content)
 
+def parse_svn_17_db(filename):
+    pass
 
 def parse_svn_entries(url):
     description_file = 'SVN entries file at'
@@ -80,20 +86,31 @@ def execute():
 
     fetcher = Fetcher()
     response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
+    svn_legacy = True
 
     if response_code in conf.expected_file_responses and content:
-        # Edge case for 206:
-        if response_code is 206 and 'Content-Range' in headers:
-            range_value = headers.get('Content-Range')
-            max_bytes = range_value[range_value.find('/')+1:]
-            base_headers['Range'] = '0-' + max_bytes 
 
         if conf.allow_download:
             textutils.output_info(' - Svn Plugin: /.svn/entries found! crawling... (will download files to output/)')
         else:
             textutils.output_info(' - Svn Plugin: /.svn/entries found! crawling... (use -a to download files instead of printing)')
-        # parse entries
-        parse_svn_entries(conf.target_base_path)
+       
+        # test for version 1.7+
+        target_url = conf.target_base_path + "/.svn/wc.db"
+        fetcher = Fetcher()
+        response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
+
+        if response_code in conf.expected_file_responses and content:
+            textutils.output_info(' - Svn Plugin: SVN 1.7+ detected, parsing wc.db')
+            svn_legacy = False
+            save_file(conf.target_base_path + '/wc.db', content)
+
+        # Process index
+        if svn_legacy:
+            # parse entries
+            parse_svn_entries(conf.target_base_path)
+        else:
+            parse_svn_17_db(conf.target_base_path + '/wc.db')        
 
         # Clean up display
         if conf.allow_download:

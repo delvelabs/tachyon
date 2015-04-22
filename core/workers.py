@@ -187,6 +187,9 @@ class FetchCrafted404Worker(Thread):
                         crafted_404 = content[0:conf.file_sample_len - 1]
 
                     # Edge case control
+                    if not isinstance(crafted_404, str):
+                        crafted_404 = crafted_404.decode()
+
                     crafted_404 = crafted_404.strip('\r\n ')
                     database.crafted_404s.append(crafted_404)
 
