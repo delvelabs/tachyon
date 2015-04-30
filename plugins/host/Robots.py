@@ -35,8 +35,6 @@ def execute():
     response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
     if isinstance(content, str):
         content = content.encode('utf-8')
-    textutils.output_debug(str(response_code))
-    textutils.output_debug(content.decode('utf-8'))
 
     if response_code is 200 or response_code is 302 and content:
         matches = re.findall(r'Disallow:\s*/[a-zA-Z0-9-/\r]+\n', content.decode('utf-8'))
