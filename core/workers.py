@@ -263,6 +263,7 @@ class TestPathExistsWorker(Thread):
                         "url": conf.base_url + url,
                         "code": response_code,
                         "special": "tomcat-redirect",
+                        "severity": queued.get('severity'),
                     })
                 elif response_code in conf.expected_path_responses:
                     # Compare content with generated 404 samples
@@ -275,6 +276,7 @@ class TestPathExistsWorker(Thread):
                             "description": description,
                             "url": conf.base_url + url,
                             "code": response_code,
+                            "severity": queued.get('severity'),
                         })
                     elif is_valid_result:
                         # Add path to valid_path for future actions
@@ -285,18 +287,21 @@ class TestPathExistsWorker(Thread):
                                 "description": description,
                                 "url": conf.base_url + url,
                                 "code": response_code,
+                                "severity": queued.get('severity'),
                             })
                         elif response_code == 403:
                             textutils.output_found('*Forbidden* ' + description + ' at: ' + conf.target_host + url, {
                                 "description": description,
                                 "url": conf.base_url + url,
                                 "code": response_code,
+                                "severity": queued.get('severity'),
                             })
                         else:
                             textutils.output_found(description + ' at: ' + conf.target_host + url, {
                                 "description": description,
                                 "url": conf.base_url + url,
                                 "code": response_code,
+                                "severity": queued.get('severity'),
                             })
 
                 elif response_code in conf.redirect_codes:
@@ -353,6 +358,7 @@ class TestFileExistsWorker(Thread):
                         "description": description,
                         "url": conf.base_url + url,
                         "code": response_code,
+                        "severity": queued.get('severity'),
                     })
                 elif response_code in conf.expected_file_responses:
                     # If the CRC missmatch, and we have an expected code, we found a valid link
@@ -362,12 +368,14 @@ class TestFileExistsWorker(Thread):
                             "url": conf.base_url + url,
                             "code": response_code,
                             "string": match_string,
+                            "severity": queued.get('severity'),
                         })
                     elif test_valid_result(content):
                         textutils.output_found(description + ' at: ' + conf.target_host + url, {
                             "description": description,
                             "url": conf.base_url + url,
                             "code": response_code,
+                            "severity": queued.get('severity'),
                         })
 
                 elif response_code in conf.redirect_codes:
