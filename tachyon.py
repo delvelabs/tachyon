@@ -30,6 +30,8 @@ from optparse import OptionParser
 from plugins import host, file
 from socket import gaierror
 from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
+from urllib3.poolmanager import ProxyManager
+
 from datetime import datetime
 
 def load_target_paths(running_path):
@@ -307,8 +309,10 @@ def generate_options():
     parser.add_option("-u", metavar="AGENT", dest="user_agent",
                     help="User-agent [default: %default]", default=conf.user_agent)
 
-    parser.add_option("-o", metavar="SUBATOMIC", dest="subatomic",
-                    help="Output log to a Subatomic server (ip:port:runid) [default: %default]", default=conf.subatomic)
+    parser.add_option("-p", metavar="PROXY", dest="proxy",
+                    help="Use http proxy [default: no proxy]", default='')
+
+
     return parser
     
 
@@ -329,8 +333,8 @@ def parse_args(parser, system_args):
     conf.recursive_depth_limit = int(options.limit)
     conf.forge_vhost = options.forge_vhost
     conf.plugins_only = options.plugins_only
-    conf.subatomic = options.subatomic
     conf.allow_download = options.download
+    conf.proxy_url = options.proxy
 
     if conf.json_output:
         conf.eval_output = True
@@ -378,9 +382,9 @@ if __name__ == "__main__":
     else:
         conf.target_port = parsed_port
     
-    scheme = 'https' if is_ssl else 'http'
+    conf.scheme = 'https' if is_ssl else 'http'
     port = "" if (is_ssl and parsed_port == 443) or (not is_ssl and parsed_port == 80) else ":%s" % parsed_port
-    conf.base_url = "%s://%s%s" % (scheme, parsed_host, port)
+    conf.base_url = "%s://%s%s" % (conf.scheme, parsed_host, port)
     
     textutils.output_debug('Version: ' + str(conf.version))
     textutils.output_debug('Max timeouts per url: ' + str(conf.max_timeout_count))
@@ -392,6 +396,9 @@ if __name__ == "__main__":
     textutils.output_debug('Using User-Agent: ' + str(conf.user_agent))
     textutils.output_debug('Search only for files: ' + str(conf.files_only))
     textutils.output_debug('Search only for subdirs: ' + str(conf.directories_only))
+
+    if conf.proxy_url:
+        textutils.output_debug('Using proxy: ' + str(conf.proxy_url))
 
     textutils.output_info('Starting Discovery on ' + conf.target_host)
     
@@ -410,10 +417,13 @@ if __name__ == "__main__":
         urllib3.disable_warnings()
 
         # Benchmark target host
-        if is_ssl:
-            database.connection_pool = HTTPSConnectionPool(resolved,port=str(port), timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
+        if conf.proxy_url:
+            database.connection_pool = ProxyManager(conf.proxy_url, timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
+        elif not conf.proxy_url and is_ssl:
+            database.connection_pool = HTTPSConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
         else:
             database.connection_pool = HTTPConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
+        
 
         # Vhost forgery
         if conf.forge_vhost != '<host>':

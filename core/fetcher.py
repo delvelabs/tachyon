@@ -15,7 +15,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from core import database
+from core import database, textutils
 from core import conf
 
 class Fetcher(object):
@@ -42,15 +42,18 @@ class Fetcher(object):
             else:
                 if 'Range' in add_headers:
                     del add_headers['Range']
-
-            # Was release_conn=True
+            
+            if conf.proxy_url:
+                url = conf.scheme + '://' + conf.target_host + ':' + str(conf.target_port) + url
+            
             response = database.connection_pool.request('GET', url, headers=add_headers, retries=0, redirect=False,
                                                         release_conn=False, assert_same_host=False, timeout=timeout)
 
             content = response.data
             code = response.status
             headers = response.headers
-        except Exception:
+        except Exception as e:
+            #raise
             code = 0
             content = ''
             headers = dict()

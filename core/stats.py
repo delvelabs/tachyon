@@ -27,7 +27,10 @@ def update_processed_items():
 
 def output_stats():
     elapsed_time = datetime.now() - database.scan_start_time
-    request_per_seconds = database.successful_fetch_count / elapsed_time.seconds
+    if not elapsed_time.seconds:
+        request_per_seconds = 0
+    else:
+        request_per_seconds = database.successful_fetch_count / elapsed_time.seconds
 
     if request_per_seconds:
         remaining_seconds = int(database.fetch_queue.qsize() / request_per_seconds)

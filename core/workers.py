@@ -32,7 +32,7 @@ try:
 except ImportError:
     from urllib.parse import urlparse
 
-from core import database, conf, stats, textutils, subatomic
+from core import database, conf, stats, textutils
 from core.fetcher import Fetcher
 
 
@@ -404,16 +404,13 @@ class PrintWorker(Thread):
     def run(self):
         while not self.kill_received:
             text = database.messages_output_queue.get()
-            if conf.subatomic:
-                subatomic.post_message(text)
+            if text.endswith('\r'):
+                print(" " * database.last_printed_len, file=sys.stdout, end="\r")
+                print(text, file=sys.stdout, end="\r")
+                database.last_printed_len = len(text)
             else:
-                if text.endswith('\r'):
-                    print(" " * database.last_printed_len, file=sys.stdout, end="\r")
-                    print(text, file=sys.stdout, end="\r")
-                    database.last_printed_len = len(text)
-                else:
-                    print(text)
-                sys.stdout.flush()
+                print(text)
+            sys.stdout.flush()
 
             database.messages_output_queue.task_done()
 
@@ -427,11 +424,8 @@ class PrintResultsWorker(Thread):
     def run(self):
         while not self.kill_received:
             text = str(database.results_output_queue.get())
-            if conf.subatomic:
-                subatomic.post_message(text)
-            else:
-                print(text)
-                sys.stdout.flush()
+            print(text)
+            sys.stdout.flush()
 
             database.results_output_queue.task_done()
 

@@ -37,6 +37,10 @@ def save_file(path, content):
             outfile.write(content)
 
 def parse_svn_17_db(filename):
+    conn = sqlite3.connect(filename)
+    files = conn.execute('select local_relpath, ".svn/pristine/" || substr(checksum,7,2) || "/" || substr(checksum,7) || ".svn-base" as alpha from NODES;')
+    #for entries in files:
+    #    if 
     pass
 
 def parse_svn_entries(url):

@@ -25,7 +25,7 @@
 {"url" : "administrators", "description" : "Admin file", "severity" : "info"}
 {"url" : "administration", "description" : "Admin file", "severity" : "info"}
 {"url" : "application", "description" : "Application file", "severity" : "info"}
-{"url" : "application.wadl", "description" : "REST API description file", "no_suffix": True, "severity" : ""}
+{"url" : "application.wadl", "description" : "REST API description file", "no_suffix": True, "severity" : "medium"}
 {"url" : "auth", "description" : "auth file", "severity" : "info"}
 {"url" : "authuser", "description" : "auth file", "severity" : "info"}
 {"url" : "authusers", "description" : "auth file", "severity" : "info"}
