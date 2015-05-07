@@ -104,10 +104,10 @@ def execute():
         fetcher = Fetcher()
         response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
 
-        if response_code in conf.expected_file_responses and content:
-            textutils.output_info(' - Svn Plugin: SVN 1.7+ detected, parsing wc.db')
-            svn_legacy = False
-            save_file(conf.target_base_path + '/wc.db', content)
+        #if response_code in conf.expected_file_responses and content:
+        #    textutils.output_info(' - Svn Plugin: SVN 1.7+ detected, parsing wc.db')
+        #    svn_legacy = False
+        #    save_file(conf.target_base_path + '/wc.db', content)
 
         # Process index
         if svn_legacy:
