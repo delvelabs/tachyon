@@ -48,6 +48,8 @@ class Fetcher(object):
                 url = conf.scheme + '://' + conf.target_host + ':' + str(conf.target_port) + url
                 textutils.output_debug(url)
             
+            if conf.is_ssl:
+                database.connection_pool.ConnectionCls = UnverifiedHTTPSConnection
 
             response = database.connection_pool.request('GET', url, headers=add_headers, retries=0, redirect=False,
                                                         release_conn=False, assert_same_host=False, timeout=timeout)
