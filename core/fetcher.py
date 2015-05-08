@@ -49,8 +49,6 @@ class Fetcher(object):
                 textutils.output_debug(url)
             
 
-            database.connection_pool.ConnectionCls = UnverifiedHTTPSConnection
-            
             response = database.connection_pool.request('GET', url, headers=add_headers, retries=0, redirect=False,
                                                         release_conn=False, assert_same_host=False, timeout=timeout)
 
