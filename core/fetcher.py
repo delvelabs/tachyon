@@ -17,6 +17,7 @@
 #
 from core import database, textutils
 from core import conf
+from urllib3.connection import UnverifiedHTTPSConnection
 
 class Fetcher(object):
     def fetch_url(self, url, user_agent, timeout, limit_len=True, add_headers=dict()):
@@ -45,6 +46,10 @@ class Fetcher(object):
             
             if conf.proxy_url:
                 url = conf.scheme + '://' + conf.target_host + ':' + str(conf.target_port) + url
+                textutils.output_debug(url)
+            
+
+            database.connection_pool.ConnectionCls = UnverifiedHTTPSConnection
             
             response = database.connection_pool.request('GET', url, headers=add_headers, retries=0, redirect=False,
                                                         release_conn=False, assert_same_host=False, timeout=timeout)

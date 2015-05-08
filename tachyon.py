@@ -310,7 +310,7 @@ def generate_options():
                     help="User-agent [default: %default]", default=conf.user_agent)
 
     parser.add_option("-p", metavar="PROXY", dest="proxy",
-                    help="Use http proxy [default: no proxy]", default='')
+                    help="Use http proxy <scheme://url:port> [default: no proxy]", default='')
 
 
     return parser
@@ -411,14 +411,15 @@ if __name__ == "__main__":
     # Handle keyboard exit before multi-thread operations
     try:
         # Resolve target host to avoid multiple dns lookups
-        resolved, port = dnscache.get_host_ip(conf.target_host, conf.target_port)
+        if not conf.proxy_url:
+            resolved, port = dnscache.get_host_ip(conf.target_host, conf.target_port)
 
         # disable urllib'3 SSL warning (globally)
         urllib3.disable_warnings()
 
         # Benchmark target host
         if conf.proxy_url:
-            database.connection_pool = ProxyManager(conf.proxy_url, timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
+            database.connection_pool = ProxyManager(conf.proxy_url, timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count, cert_reqs='CERT_NONE')
         elif not conf.proxy_url and is_ssl:
             database.connection_pool = HTTPSConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
         else:
