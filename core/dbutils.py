@@ -22,8 +22,7 @@ def _get_cached_url_string(url_obj):
     if len(url_obj['url']) == 1 and url_obj['url'] == '/':
         return url_obj['url']
 
-    return url_obj['url'].translate({'/' : None})
-
+    return url_obj['url'].strip('/')
 
 def add_path_to_fetch_queue(url_obj):
     """
