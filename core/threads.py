@@ -51,7 +51,7 @@ class ThreadManager(object):
                                 worker.join(1)
             
                         # Kill the soft
-                        sys.exit()  
+                        break
 
             # Make sure everything is done before sending control back to application
             textutils.output_debug("Threads: joining queue of size: " + str(queue.qsize()))

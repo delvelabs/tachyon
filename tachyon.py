@@ -409,6 +409,7 @@ if __name__ == "__main__":
         conf.fetch_timeout_secs *= 2
 
     # Handle keyboard exit before multi-thread operations
+    print_results_worker = None
     try:
         # Resolve target host to avoid multiple dns lookups
         if not conf.proxy_url:
@@ -509,8 +510,6 @@ if __name__ == "__main__":
         database.results_output_queue.join()
         database.messages_output_queue.join()
 
-        if 'finalize' in dir(print_results_worker):
-            print_results_worker.finalize()
     except KeyboardInterrupt:
         textutils.output_raw_message('')
         textutils.output_error('Keyboard Interrupt Received')
@@ -520,6 +519,10 @@ if __name__ == "__main__":
 
     # Close program
     database.messages_output_queue.join()
+
+    if print_results_worker != None and 'finalize' in dir(print_results_worker):
+        print_results_worker.finalize()
+
     sys.exit(0)
 
 
