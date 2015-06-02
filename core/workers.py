@@ -124,7 +124,9 @@ def test_valid_result(content):
 
     # Test signatures
     for fingerprint in database.crafted_404s:
-        textutils.output_debug("Testing [" + content.encode('hex') + "]" + " against Fingerprint: [" + fingerprint.encode('hex') + "]")
+        encoded = content.encode('hex') if isinstance(content, str) else content
+
+        textutils.output_debug("Testing [" + encoded + "]" + " against Fingerprint: [" + fingerprint.encode('hex') + "]")
         matcher = SequenceMatcher(isjunk=None, a=fingerprint, b=content, autojunk=False)
 
         textutils.output_debug("Ratio " + str(matcher.ratio()))
