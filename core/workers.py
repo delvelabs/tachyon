@@ -198,9 +198,10 @@ class FetchCrafted404Worker(Thread):
                     # Exception case for root 404, since it's used as a model for other directories
                     textutils.output_debug("Computed and saved a sample 404 for: " + str(queued) + ": " + crafted_404)
                 elif response_code in conf.redirect_codes:
-                    location = headers.get('location')
-                    if location:
-                        handle_redirects(queued, location)
+                    if queued.get('handle_redirect', True):
+                        location = headers.get('location')
+                        if location:
+                            handle_redirects(queued, location)
 
                 # Stats
                 if response_code not in conf.timeout_codes:
@@ -382,9 +383,10 @@ class TestFileExistsWorker(Thread):
                         })
 
                 elif response_code in conf.redirect_codes:
-                    location = headers.get('location')
-                    if location:
-                        handle_redirects(queued, location)
+                    if queued.get('handle_redirect', True):
+                        location = headers.get('location')
+                        if location:
+                            handle_redirects(queued, location)
 
                 # Stats
                 if response_code not in conf.timeout_codes:
