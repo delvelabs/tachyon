@@ -16,9 +16,11 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from collections import defaultdict
+
 # Internal config and consts
 name = "delvelabs/tachyon"
-version = '2.0.0-beta12'
+version = '2.0.1'
 expected_path_responses = [200, 206, 401, 403]
 expected_file_responses = [200, 206]
 timeout_codes = [0, 500, 502, 503]
@@ -70,4 +72,6 @@ allow_download = False
 
 # Templates, used by plugins
 path_template = {'url': '', 'timeout_count': 0, 'description': ''}
-  
+
+
+plugin_settings = defaultdict(list)

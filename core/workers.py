@@ -307,9 +307,10 @@ class TestPathExistsWorker(Thread):
                             })
 
                 elif response_code in conf.redirect_codes:
-                    location = headers.get('location')
-                    if location:
-                        handle_redirects(queued, location)
+                    if queued.get('handle_redirect', True):
+                        location = headers.get('location')
+                        if location:
+                            handle_redirects(queued, location)
 
                 # Stats
                 if response_code not in conf.timeout_codes:
