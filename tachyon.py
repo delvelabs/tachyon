@@ -287,7 +287,7 @@ if __name__ == "__main__":
         conf.target_port = parsed_port
     
     conf.scheme = 'https' if is_ssl else 'http'
-    port = "" if (is_ssl and parsed_port == 443) or (not is_ssl and parsed_port == 80) else ":%s" % parsed_port
+    port = "" if (is_ssl and conf.target_port == 443) or (not is_ssl and conf.target_port == 80) else ":%s" % conf.target_port
     conf.base_url = "%s://%s%s" % (conf.scheme, parsed_host, port)
     
     textutils.output_debug('Version: ' + str(conf.version))
