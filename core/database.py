@@ -63,6 +63,9 @@ latest_successful_request_time = conf.fetch_timeout_secs
 total_request_time = 0
 total_timeouts = 0
 
+""" App global kill """
+kill_received = False
+
 
 """ Session cookie """
 session_cookie = None

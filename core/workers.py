@@ -75,7 +75,7 @@ def handle_timeout(queued, url, thread_id, output=True):
 
         # Add back the timed-out item
         database.fetch_queue.put(queued)
-    elif output:
+    elif output and not database.kill_received:
         # We definitely timed out
         textutils.output_timeout(queued.get('description') + ' at ' + url)
 
@@ -110,24 +110,28 @@ def handle_redirects(queued, target):
         textutils.output_debug("Bad redirect! " + str(matcher.ratio()))
 
 
-
 # If we can speed up this, the whole app will benefit from it.
 def test_valid_result(content):
     is_valid_result = True
 
-    # Tweak the content len
-    if len(content) > conf.file_sample_len:
-        content = content[0:conf.file_sample_len -1]
+    # Encoding edge case
+    # Must be a string to be compared to the 404 fingerprint
+    if not isinstance(content, str):
+        content = content.decode('utf-8', 'ignore')
+
+    if not len(content):
+        content = ""  # empty file, still a forged 404
+    elif len(content) < conf.file_sample_len:
+        content = content[0:len(content) - 1]
+    else:
+        content = content[0:conf.file_sample_len - 1]
 
     # False positive cleanup for some edge cases
-    content = content.strip(b'\r\n ')
+    content = content.strip('\r\n ')
 
     # Test signatures
     for fingerprint in database.crafted_404s:
-        encoded = content.encode('hex') if isinstance(content, str) else content
-        encoded_fingerprint = fingerprint.encode('hex') if isinstance(fingerprint, str) else fingerprint
-
-        textutils.output_debug("Testing [" + encoded + "]" + " against Fingerprint: [" + encoded_fingerprint + "]")
+        textutils.output_debug("Testing [" + content + "]" + " against Fingerprint: [" + fingerprint + "]")
         matcher = SequenceMatcher(isjunk=None, a=fingerprint, b=content, autojunk=False)
 
         textutils.output_debug("Ratio " + str(matcher.ratio()))
@@ -139,7 +143,6 @@ def test_valid_result(content):
             break
 
     return is_valid_result
-
 
 
 def detect_tomcat_fake_404(content):
@@ -181,17 +184,18 @@ class FetchCrafted404Worker(Thread):
                 if response_code is 0 or response_code is 500:
                     handle_timeout(queued, url, self.thread_id, output=self.output)
                 elif response_code in conf.expected_file_responses:
+                    # Encoding edge case
+                    # Must be a string to be compared to the 404 fingerprint
+                    if not isinstance(content, str):
+                        content = content.decode('utf-8', 'ignore')
+
                     # The server responded with whatever code but 404 or invalid stuff (500). We take a sample
                     if not len(content):
-                        crafted_404 = "" # empty file, still a forged 404
+                        crafted_404 = ""  # empty file, still a forged 404
                     elif len(content) < conf.file_sample_len:
                         crafted_404 = content[0:len(content) - 1]
                     else:
                         crafted_404 = content[0:conf.file_sample_len - 1]
-
-                    # Edge case control
-                    if not isinstance(crafted_404, str):
-                        crafted_404 = crafted_404.decode()
 
                     crafted_404 = crafted_404.strip('\r\n ')
                     database.crafted_404s.append(crafted_404)

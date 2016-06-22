@@ -24,13 +24,10 @@ from core import database
 from core import textutils, stats
 
 class ThreadManager(object):
-    def __init__(self):
-        self.kill_received = False 
-     
-        
+
     def wait_for_idle(self, workers, queue):
             """ Wait until fetch queue is empty and handle user interrupt """
-            while not self.kill_received and not queue.empty():
+            while not database.kill_received and not queue.empty():
                 try:
                     sleep(0.1)
                 except KeyboardInterrupt:
@@ -41,16 +38,19 @@ class ThreadManager(object):
                         textutils.output_info('Keyboard Interrupt Received, cleaning up threads')
                         # Clean reference to sockets
                         database.connection_pool = None
-
-                        self.kill_received = True
+                        database.kill_received = True
                         
                         # Kill remaining workers but don't join the queue (we want to abort:))
                         for worker in workers:
-                            worker.kill_received = True
                             if worker is not None and worker.isAlive():
-                                worker.join(1)
-            
-                        # Kill the soft
+                                worker.kill_received = True
+                                worker.join(0)
+
+                        # Set leftover done in cas of a kill.
+                        while not queue.empty():
+                            queue.get()
+                            queue.task_done()
+
                         break
 
             # Make sure everything is done before sending control back to application
@@ -58,11 +58,13 @@ class ThreadManager(object):
             queue.join()
             textutils.output_debug("Threads: join done")
 
+            # Make sure we get all the worker's results before continuing the next step
             for worker in workers:
-                worker.kill_received = True
-                worker.join()
-    
-    
+                if worker is not None and worker.isAlive():
+                    worker.kill_received = True
+                    worker.join()
+
+
     def spawn_workers(self, count, worker_type, output=True):
         """ Spawn a given number of workers and return a reference list to them """
         # Keep track of all worker threads
@@ -73,4 +75,3 @@ class ThreadManager(object):
             workers.append(worker)
             worker.start()
         return workers
-        
