@@ -1,4 +1,21 @@
-2.0.0-beta10 (27/05/2014) (lol)
+2.1.0 (27/06/2016)
+=====================
+- Added Behavioral detection
+- Fixed thread hangups
+- Python3 encoding fixes
+- Json output
+- Added requirements file
+- Updated user agent
+- Fixed edge cases detection on some 404
+- Added more detections
+- Added severity
+- Fixed https behavior
+- Stats format fix
+- Speed improvement with low thread count
+- Fixes in robots.txt plugin
+
+
+2.0.0-beta10 (27/05/2014)
 =====================
 - Minor maintenance patchs
 - Fixed https handling

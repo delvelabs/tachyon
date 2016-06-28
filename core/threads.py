@@ -18,51 +18,48 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import sys
 from time import sleep
 from core import database
 from core import textutils, stats
 
 class ThreadManager(object):
-    def __init__(self):
-        self.kill_received = False 
-     
-        
+
     def wait_for_idle(self, workers, queue):
             """ Wait until fetch queue is empty and handle user interrupt """
-            while not self.kill_received and not queue.empty():
+            while not database.kill_received and not queue.empty():
                 try:
-                    sleep(0.1)
+                    # Make sure everything is done before sending control back to application
+                    textutils.output_debug("Threads: joining queue of size: " + str(queue.qsize()))
+                    queue.join()
+                    textutils.output_debug("Threads: join done")
                 except KeyboardInterrupt:
                     try:
                         stats.output_stats()
-                        sleep(1)  
+                        sleep(1)  # The time you have to re-press ctrl+c to kill the app.
                     except KeyboardInterrupt:
-                        textutils.output_info('Keyboard Interrupt Received, cleaning up threads')
+                        textutils.output_info('Keyboard Interrupt Received, waiting for blocking threads to exit')
                         # Clean reference to sockets
                         database.connection_pool = None
-
-                        self.kill_received = True
+                        database.kill_received = True
                         
                         # Kill remaining workers but don't join the queue (we want to abort:))
                         for worker in workers:
-                            worker.kill_received = True
                             if worker is not None and worker.isAlive():
-                                worker.join(1)
-            
-                        # Kill the soft
-                        sys.exit()  
+                                worker.kill_received = True
+                                worker.join(0)
 
-            # Make sure everything is done before sending control back to application
-            textutils.output_debug("Threads: joining queue of size: " + str(queue.qsize()))
-            queue.join()
-            textutils.output_debug("Threads: join done")
+                        # Set leftover done in cas of a kill.
+                        while not queue.empty():
+                            queue.get()
+                            queue.task_done()
+                        break
 
+            # Make sure we get all the worker's results before continuing the next step
             for worker in workers:
-                worker.kill_received = True
-                worker.join()
-    
-    
+                if worker is not None and worker.isAlive():
+                    worker.kill_received = True
+                    worker.join()
+
     def spawn_workers(self, count, worker_type, output=True):
         """ Spawn a given number of workers and return a reference list to them """
         # Keep track of all worker threads
@@ -73,4 +70,3 @@ class ThreadManager(object):
             workers.append(worker)
             worker.start()
         return workers
-        

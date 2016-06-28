@@ -15,8 +15,9 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from core import database
+from core import database, textutils
 from core import conf
+from urllib3.connection import UnverifiedHTTPSConnection
 
 class Fetcher(object):
     def fetch_url(self, url, user_agent, timeout, limit_len=True, add_headers=dict()):
@@ -39,19 +40,26 @@ class Fetcher(object):
             if limit_len:
                 content_range = 'bytes=0-' + str(conf.file_sample_len-1)
                 add_headers['Range'] = content_range
+            else:
+                if 'Range' in add_headers:
+                    del add_headers['Range']
+            
+            if conf.proxy_url:
+                url = conf.scheme + '://' + conf.target_host + ':' + str(conf.target_port) + url
+                textutils.output_debug(url)
+            
+            if conf.is_ssl:
+                database.connection_pool.ConnectionCls = UnverifiedHTTPSConnection
 
-            # Was release_conn=True
             response = database.connection_pool.request('GET', url, headers=add_headers, retries=0, redirect=False,
                                                         release_conn=False, assert_same_host=False, timeout=timeout)
 
             content = response.data
             code = response.status
             headers = response.headers
-        except Exception:
+        except Exception as e:
             code = 0
             content = ''
             headers = dict()
 
         return code, content, headers
-        
-        

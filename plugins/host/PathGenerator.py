@@ -19,11 +19,14 @@
 from core import conf, database, textutils, dbutils
 from datetime import date
 
+plugin_settings = conf.plugin_settings["PathGenerator"]
+
 def add_generated_path(path):
     current_template = conf.path_template.copy()
     current_template['description'] = 'Computer generated path'
     current_template['is_file'] = False
     current_template['url'] = '/' + path
+    current_template['handle_redirect'] = "ignoreRedirect" not in plugin_settings
     database.paths.append(current_template)
     textutils.output_debug(' - PathGenerator Plugin Generated path: ' + str(current_template))
 
@@ -32,6 +35,7 @@ def add_generated_file(file):
     current_template = conf.path_template.copy()
     current_template['description'] = 'Computer generated file'
     current_template['url'] = file
+    current_template['handle_redirect'] = "ignoreRedirect" not in plugin_settings
     database.files.append(current_template)
     textutils.output_debug(' - PathGenerator Plugin Generated file: ' + str(current_template))
 
@@ -40,21 +44,24 @@ def execute():
     path_added = 0
     file_added = 0
 
-    for char in range(ord('a'), ord('z')+1):
-        add_generated_path(chr(char))
-        path_added += 1
-        add_generated_file(chr(char))
-        file_added += 1    
+    if "skipAlpha" not in plugin_settings:
+        for char in range(ord('a'), ord('z')+1):
+            add_generated_path(chr(char))
+            path_added += 1
+            add_generated_file(chr(char))
+            file_added += 1
 
-    for char in range(ord('0'), ord('9')+1):
-        add_generated_path(chr(char))
-        path_added += 1
-        add_generated_file(chr(char))
-        file_added += 1
+    if "skipNumeric" not in plugin_settings:
+        for char in range(ord('0'), ord('9')+1):
+            add_generated_path(chr(char))
+            path_added += 1
+            add_generated_file(chr(char))
+            file_added += 1
 
-    for year in range(1990, date.today().year + 5):
-        add_generated_path(str(year))
-        path_added += 1
+    if "skipYear" not in plugin_settings:
+        for year in range(1990, date.today().year + 5):
+            add_generated_path(str(year))
+            path_added += 1
 
     textutils.output_info(' - PathGenerator Plugin: added ' + str(path_added) + ' computer generated path.')
     textutils.output_info(' - PathGenerator Plugin: added ' + str(file_added) + ' computer generated files.')

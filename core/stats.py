@@ -27,7 +27,10 @@ def update_processed_items():
 
 def output_stats():
     elapsed_time = datetime.now() - database.scan_start_time
-    request_per_seconds = database.successful_fetch_count / elapsed_time.seconds
+    if not elapsed_time.seconds:
+        request_per_seconds = 0
+    else:
+        request_per_seconds = database.successful_fetch_count / elapsed_time.seconds
 
     if request_per_seconds:
         remaining_seconds = int(database.fetch_queue.qsize() / request_per_seconds)
@@ -35,6 +38,8 @@ def output_stats():
     else:
         remaining_seconds = 0
         remaining_timedelta = timedelta(seconds=remaining_seconds)
+
+    request_per_seconds = "%.2f" % round(request_per_seconds,2)
 
     stats_string = ''.join([
         str(request_per_seconds), ' reqs/sec',

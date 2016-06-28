@@ -8,6 +8,9 @@
 .pydevproject
 #output
 output/
+bin/
+include/
+lib/
 
 # cookies
 cookies*

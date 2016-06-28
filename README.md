@@ -24,6 +24,10 @@ It provides:
 - Python 2.7 or 3.x
 - urllib3 1.1+ (`easy_install urllib3` or `pip install urllib3`)
 
+```
+pip install -r requirements.txt
+```
+
 # How to help (for sysadmins)
 
 - Run tachyon on your domain

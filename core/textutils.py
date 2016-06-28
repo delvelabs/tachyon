@@ -24,18 +24,18 @@ def output_result_eval(info_dict):
     """ Output Eval-able result text to the synchronized result output queue """
     time_dict = {'time' : str(datetime.now().strftime("%H:%M:%S"))}
     result_dict = dict(time_dict, **info_dict)
-    database.results_output_queue.put(str(result_dict))
+    database.results_output_queue.put(result_dict)
 
 def output_message_eval(info_dict):
     """ Output Eval-able result text to the synchronized message output queue """
     time_dict = {'time' : str(datetime.now().strftime("%H:%M:%S"))}
     result_dict = dict(time_dict, **info_dict)
-    database.results_output_queue.put(str(result_dict))
+    database.results_output_queue.put(result_dict)
 
 def output_result(text):
     """ Output result text to the synchronized result output queue """
     output_text = '[' + str(datetime.now().strftime("%H:%M:%S")) + '] ' + text
-    database.results_output_queue.put(str(output_text))
+    database.results_output_queue.put(output_text)
 
 def output_message(text):
     """ Output text to the synchronized output queue """
@@ -75,10 +75,11 @@ def output_timeout(text):
         output_result('[TIMEOUT] ' + text)
 
 
-def output_found(text):
+def output_found(text, data=None):
     """ Output text to the synchronized output queue """
     if conf.eval_output:
         info_dict = {'type':'found', 'text' : text}
+        info_dict.update(data or {})
         output_result_eval(info_dict)
     else:
         output_result('[FOUND] ' + text)
@@ -88,4 +89,3 @@ def output_debug(text):
     """ Output text to the synchronized output queue """
     if conf.debug:
         output_message('[DEBUG] ' + text)
-        

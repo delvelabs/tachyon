@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 #
 # Tachyon - Fast Multi-Threaded Web Discovery Tool
 # Copyright (c) 2011 Gabriel Tremblay - initnull hat gmail.com
@@ -20,25 +20,28 @@
 
 import sys
 import uuid
+import urllib3
+import os
 from core import conf, database, dnscache, loaders, textutils, netutils, dbutils
 from core.fetcher import Fetcher
-from core.workers import PrintWorker, PrintResultsWorker, FetchCrafted404Worker, TestPathExistsWorker, TestFileExistsWorker
+from core.workers import PrintWorker, PrintResultsWorker, JSONPrintResultWorker, FetchCrafted404Worker, TestPathExistsWorker, TestFileExistsWorker
 from core.threads import ThreadManager
-from optparse import OptionParser
 from plugins import host, file
 from socket import gaierror
 from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
+from urllib3.poolmanager import ProxyManager
+
 from datetime import datetime
 
-def load_target_paths():
+def load_target_paths(running_path):
     """ Load the target paths in the database """
     textutils.output_info('Loading target paths')
-    database.paths += loaders.load_targets('data/path.lst') 
+    database.paths += loaders.load_targets(running_path + '/data/path.lst') 
 
-def load_target_files():
+def load_target_files(running_path):
     """ Load the target files in the database """
     textutils.output_info('Loading target files')
-    database.files += loaders.load_targets('data/file.lst')
+    database.files += loaders.load_targets(running_path + '/data/file.lst')
 
 def get_session_cookies():
     """ Fetch initial session cookies """
@@ -108,10 +111,11 @@ def test_paths_exists():
     textutils.output_debug('Cached: ' + str(database.path_cache))
     while database.fetch_queue.qsize() > 0:
         textutils.output_info('Probing ' + str(database.fetch_queue.qsize()) + ' paths')
-        
+
         # Wait for initial valid path lookup
         workers = manager.spawn_workers(conf.thread_count, TestPathExistsWorker)
         manager.wait_for_idle(workers, database.fetch_queue)
+
         recursion_depth += 1
         
         if not conf.recursive:
@@ -238,118 +242,24 @@ def test_file_exists():
 def print_program_header():
     """ Print a _cute_ program header """
     print("\n\t Tachyon v" + conf.version + " - Fast Multi-Threaded Web Discovery Tool")
-    print("\t https://github.com/initnull/tachyon\n") 
+    print("\t https://github.com/delvelabs/tachyon\n") 
 
 
-def load_cookie_file(afile):
-    """
-    Loads the supplied cookie file
-    """
-    if not afile:
-        return None
-
-    try:
-        with open(afile, 'r') as cookie_file:
-            content = cookie_file.read()
-            content = content.replace('Cookie: ', '')
-            content = content.replace('\n', '')
-            return content
-    except IOError:
-        textutils.output_info('Supplied cookie file not found, will use server provided cookies')
-        return None
-
-
-def generate_options():
-    """ Generate command line parser """
-    usage_str = "usage: %prog <host> [options]"
-    parser = OptionParser(usage=usage_str)
-    parser.add_option("-d", action="store_true",
-                    dest="debug", help="Enable debug [default: %default]", default=False)
-
-    parser.add_option("-f", action="store_true",
-                    dest="search_files", help="search only for files [default: %default]", default=False)
-
-    parser.add_option("-s", action="store_true",
-                    dest="search_dirs", help="search only for subdirs [default: %default]", default=False)
-
-    parser.add_option("-c", metavar="COOKIES", dest="cookie_file",
-                    help="load cookies from file [default: %default]", default=None)
-
-    parser.add_option("-a", action="store_true",
-                    dest="download", help="Allow plugin to download files to 'output/' [default: %default]", default=False)
-
-    parser.add_option("-b", action="store_true",
-                    dest="recursive", help="Search for subdirs recursively [default: %default]", default=False)
-
-    parser.add_option("-l", metavar="LIMIT", dest="limit",
-                    help="limit recursive depth [default: %default]", default=conf.recursive_depth_limit)
-
-    parser.add_option("-e", action="store_true",
-                    dest="eval_output", help="Eval-able output [default: %default]", default=False)
-
-    parser.add_option("-m", metavar="MAXTIMEOUT", dest="max_timeout",
-                    help="Max number of timeouts for a given request [default: %default]", default=conf.max_timeout_count)
-
-    parser.add_option("-w", metavar="WORKERS", dest="workers", 
-                    help="Number of worker threads [default: %default]", default=conf.thread_count)
-
-    parser.add_option("-v", metavar="VHOST", dest="forge_vhost",
-                    help="forge destination vhost [default: %default]", default='<host>')
-
-    parser.add_option("-z", action="store_true",
-                    dest="plugins_only", help="Only run plugins then exit [default: %default]", default=False)
-
-    parser.add_option("-u", metavar="AGENT", dest="user_agent",
-                    help="User-agent [default: %default]", default=conf.user_agent)
-
-    parser.add_option("-o", metavar="SUBATOMIC", dest="subatomic",
-                    help="Output log to a Subatomic server (ip:port:runid) [default: %default]", default=conf.subatomic)
-    return parser
-    
-
-def parse_args(parser, system_args):
-    """ Parse and assign options """
-    (options, args) = parser.parse_args(system_args)
-    conf.debug = options.debug
-    conf.max_timeout_count = int(options.max_timeout)
-    conf.thread_count = int(options.workers)
-    conf.user_agent = options.user_agent
-    conf.cookies = load_cookie_file(options.cookie_file)
-    conf.search_files = options.search_files
-    conf.eval_output = options.eval_output
-    conf.files_only = options.search_files
-    conf.directories_only = options.search_dirs
-    conf.recursive = options.recursive
-    conf.recursive_depth_limit = int(options.limit)
-    conf.forge_vhost = options.forge_vhost
-    conf.plugins_only = options.plugins_only
-    conf.subatomic = options.subatomic
-    conf.allow_download = options.download
-    return options, args
-
-def test_python_version():
-    """ Test python version, return True if version is high enough, False if not """
-    if sys.version_info[:2] < (2, 6):
-        return False
-    else:
-        return True
-        
 
 # Entry point / main application logic
 if __name__ == "__main__":
+    # Get running path
+    running_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+
     # Benchmark
     start_scan_time = datetime.now()
     
-    # Test python version
-    if not test_python_version():
-        print("Your python interpreter is so old it has to wear diapers. Please upgrade to at least 2.6 ;)")
-        sys.exit()
-        
     # Parse command line
+    from core.arguments import generate_options, parse_args
     parser = generate_options()
     options, args = parse_args(parser, sys.argv)
 
-    if not conf.eval_output:
+    if not conf.eval_output and not conf.json_output:
         print_program_header()
         
     if len(sys.argv) <= 1:
@@ -377,6 +287,9 @@ if __name__ == "__main__":
     else:
         conf.target_port = parsed_port
     
+    conf.scheme = 'https' if is_ssl else 'http'
+    port = "" if (is_ssl and conf.target_port == 443) or (not is_ssl and conf.target_port == 80) else ":%s" % conf.target_port
+    conf.base_url = "%s://%s%s" % (conf.scheme, parsed_host, port)
     
     textutils.output_debug('Version: ' + str(conf.version))
     textutils.output_debug('Max timeouts per url: ' + str(conf.max_timeout_count))
@@ -384,9 +297,13 @@ if __name__ == "__main__":
     textutils.output_debug('Target Host: ' + str(conf.target_host))
     textutils.output_debug('Using Tor: ' + str(conf.use_tor))
     textutils.output_debug('Eval-able output: ' + str(conf.eval_output))
+    textutils.output_debug('JSON output: ' + str(conf.json_output))
     textutils.output_debug('Using User-Agent: ' + str(conf.user_agent))
     textutils.output_debug('Search only for files: ' + str(conf.files_only))
     textutils.output_debug('Search only for subdirs: ' + str(conf.directories_only))
+
+    if conf.proxy_url:
+        textutils.output_debug('Using proxy: ' + str(conf.proxy_url))
 
     textutils.output_info('Starting Discovery on ' + conf.target_host)
     
@@ -397,19 +314,32 @@ if __name__ == "__main__":
         conf.fetch_timeout_secs *= 2
 
     # Handle keyboard exit before multi-thread operations
+    print_results_worker = None
     try:
         # Resolve target host to avoid multiple dns lookups
-        resolved, port = dnscache.get_host_ip(conf.target_host, conf.target_port)
+        if not conf.proxy_url:
+            resolved, port = dnscache.get_host_ip(conf.target_host, conf.target_port)
+
+        # disable urllib'3 SSL warning (globally)
+        urllib3.disable_warnings()
 
         # Benchmark target host
-        if is_ssl:
-            database.connection_pool = HTTPSConnectionPool(resolved,port=str(port), timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
+        if conf.proxy_url:
+            database.connection_pool = ProxyManager(conf.proxy_url, timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count, cert_reqs='CERT_NONE')
+        elif not conf.proxy_url and is_ssl:
+            database.connection_pool = HTTPSConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
         else:
             database.connection_pool = HTTPConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
+        
 
         # Vhost forgery
         if conf.forge_vhost != '<host>':
             conf.target_host = conf.forge_vhost
+
+        if conf.json_output:
+            SelectedPrintWorker = JSONPrintResultWorker
+        else:
+            SelectedPrintWorker = PrintResultsWorker
 
         root_path = ''
         if conf.files_only:
@@ -420,7 +350,7 @@ if __name__ == "__main__":
             root_path = conf.path_template.copy()
             root_path['url'] = ''
             database.valid_paths.append(root_path)
-            load_target_files()
+            load_target_files(running_path)
             load_execute_host_plugins()
             sample_404_from_found_path()
             add_files_to_paths()
@@ -428,7 +358,7 @@ if __name__ == "__main__":
             textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
             database.messages_output_queue.join()
             # Start print result worker.
-            print_results_worker = PrintResultsWorker()
+            print_results_worker = SelectedPrintWorker()
             print_results_worker.daemon = True
             print_results_worker.start()
             test_file_exists()
@@ -441,10 +371,10 @@ if __name__ == "__main__":
             database.paths.append(root_path)
             database.valid_paths.append(root_path)
             load_execute_host_plugins()
-            print_results_worker = PrintResultsWorker()
+            print_results_worker = SelectedPrintWorker()
             print_results_worker.daemon = True
             print_results_worker.start()
-            load_target_paths()
+            load_target_paths(running_path)
             test_paths_exists()
         elif conf.plugins_only:
             get_session_cookies()
@@ -462,8 +392,8 @@ if __name__ == "__main__":
             root_path = conf.path_template.copy()
             root_path['url'] = '/'
             database.paths.append(root_path)
-            load_target_paths()
-            load_target_files()
+            load_target_paths(running_path)
+            load_target_files(running_path)
             # Execute all Host plugins
             load_execute_host_plugins()
             test_paths_exists()
@@ -472,7 +402,7 @@ if __name__ == "__main__":
             load_execute_file_plugins()
             textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
             database.messages_output_queue.join()
-            print_results_worker = PrintResultsWorker()
+            print_results_worker = SelectedPrintWorker()
             print_results_worker.daemon = True
             print_results_worker.start()
             test_file_exists()
@@ -484,15 +414,19 @@ if __name__ == "__main__":
         textutils.output_info('Scan completed in: ' + str(end_scan_time - start_scan_time) + '\n')
         database.results_output_queue.join()
         database.messages_output_queue.join()
+
     except KeyboardInterrupt:
         textutils.output_raw_message('')
         textutils.output_error('Keyboard Interrupt Received')
     except gaierror:
         textutils.output_error('Error resolving host')
 
-
     # Close program
     database.messages_output_queue.join()
+
+    if print_results_worker != None and 'finalize' in dir(print_results_worker):
+        print_results_worker.finalize()
+
     sys.exit(0)
 
 

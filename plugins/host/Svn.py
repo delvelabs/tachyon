@@ -17,9 +17,12 @@
 #
 
 import os
+import sqlite3
 from core import conf, textutils, database, dbutils
 from core.fetcher import Fetcher
 from xml.etree import ElementTree
+
+base_headers = dict()
 
 def save_file(path, content):
     output = "output/" + conf.target_host + path
@@ -28,17 +31,30 @@ def save_file(path, content):
         os.makedirs(output[:output.rfind('/')])
 
     with open(output, "wb") as outfile:
-        outfile.write(content)
+        if isinstance(content, str):
+            outfile.write(content.encode('utf-8'))
+        else:
+            outfile.write(content)
 
+# Fixme
+#def parse_svn_17_db(filename):
+#    conn = sqlite3.connect(filename)
+#    files = conn.execute('select local_relpath, ".svn/pristine/" || substr(checksum,7,2) || "/" || substr(checksum,7) || ".svn-base" as alpha from NODES;')
+#    #for entries in files:
+#    #    if
+#    pass
 
 def parse_svn_entries(url):
     description_file = 'SVN entries file at'
     description_dir = "SVN entries Dir at"
     target_url = url + "/.svn/entries"
     fetcher = Fetcher()
-    response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
 
-    if response_code is 200 or response_code is 302 and content:
+    response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False, add_headers=base_headers)
+    if not isinstance(content, str):
+        content = content.decode('utf-8', 'ignore')
+
+    if response_code in conf.expected_file_responses and content:
         tokens = content.split('\n')
         if 'dir' in tokens:
             for pos, token in enumerate(tokens):
@@ -77,13 +93,34 @@ def execute():
 
     fetcher = Fetcher()
     response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
-    if response_code is 200 or response_code is 302:
+    svn_legacy = True
+
+    if not isinstance(content, str):
+        content = content.decode('utf-8', 'ignore')
+
+    if response_code in conf.expected_file_responses and content:
+
         if conf.allow_download:
             textutils.output_info(' - Svn Plugin: /.svn/entries found! crawling... (will download files to output/)')
         else:
             textutils.output_info(' - Svn Plugin: /.svn/entries found! crawling... (use -a to download files instead of printing)')
-        # parse entries
-        parse_svn_entries(conf.target_base_path)
+       
+        # test for version 1.7+
+        target_url = conf.target_base_path + "/.svn/wc.db"
+        fetcher = Fetcher()
+        response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
+
+        #if response_code in conf.expected_file_responses and content:
+        #    textutils.output_info(' - Svn Plugin: SVN 1.7+ detected, parsing wc.db')
+        #    svn_legacy = False
+        #    save_file(conf.target_base_path + '/wc.db', content)
+
+        # Process index
+        if svn_legacy:
+            # parse entries
+            parse_svn_entries(conf.target_base_path)
+        #else:
+          #  parse_svn_17_db(conf.target_base_path + '/wc.db')
 
         # Clean up display
         if conf.allow_download:

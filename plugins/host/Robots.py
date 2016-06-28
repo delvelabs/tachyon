@@ -28,25 +28,33 @@ def execute():
     """ Fetch /robots.txt and add the disallowed paths as target """
     current_template = dict(conf.path_template)
     current_template['description'] = 'Robots.txt entry'
-
+    
     target_url = urljoin(conf.target_base_path, "/robots.txt")
+
     fetcher = Fetcher()
     response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
+    if isinstance(content, str):
+        content = content.encode('utf-8')
 
     if response_code is 200 or response_code is 302 and content:
+        if not isinstance(content, str):
+            content = content.decode('utf-8', 'ignore')
         matches = re.findall(r'Disallow:\s*/[a-zA-Z0-9-/\r]+\n', content)
+        textutils.output_debug(content)
+
         added = 0
         for match in matches:
             # Filter out some characters
             match = filter(lambda c: c not in ' *?.\n\r\t', match)
+
+            if match:
+                match = ''.join(match)
             
-            if conf.debug:
-                textutils.output_debug(match)
-                
             # Split on ':'               
             splitted = match.split(':')
             if splitted[1]:
                 target_path = splitted[1]
+                textutils.output_debug(target_path)
                 
                 # Remove trailing /
                 if target_path.endswith('/'):
