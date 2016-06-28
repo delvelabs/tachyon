@@ -58,7 +58,7 @@ def execute():
 
     if response_code is 200 or response_code is 302 and content:
 
-        regexp = re.compile(b'(?im).*<url>\s*<loc>(.*)</loc>\s*</url>.*')
+        regexp = re.compile('(?im).*<url>\s*<loc>(.*)</loc>\s*</url>.*')
         matches = re.findall(regexp, content)
 
         textutils.output_debug("SitemapXML plugin")
