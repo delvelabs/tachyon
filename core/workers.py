@@ -509,7 +509,7 @@ class TestFileExistsWorker(Thread):
                                 "description": "Empty " + description,
                                 "url": conf.base_url + url,
                                 "code": response_code,
-                                "severity": queued.get('severity'),
+                                "severity": 'info',
                             })
                         else:
                             textutils.output_found(description + ' at: ' + conf.target_host + url, {
