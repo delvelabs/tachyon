@@ -97,9 +97,11 @@
 {"url" : "/migrate", "description" : "Database migration directory", "severity" : "medium"}
 {"url" : "/migration", "description" : "Database migration directory", "severity" : "medium"}
 {"url" : "/migrations", "description" : "Database migration directory", "severity" : "medium"}
+{"url" : "/munin", "description" : "Munin network monitoring", "severity" : "info"}
 {"url" : "/modules", "description" : "Modules directory", "severity" : "info"}
 {"url" : "/nagios", "description" : "Nagios monitoring", "severity" : "warning"}
 {"url" : "/old", "description" : "Old website version", "severity" : "warning"}
+{"url" : "/piwik", "description" : "Piwik analytics platform", "severity" : "info"}
 {"url" : "/private", "description" : "Private directory", "severity" : "info"}
 {"url" : "/protected", "description" : "_Protected_ directory", "severity" : "info"}
 {"url" : "/pub", "description" : "Public directory", "severity" : "info"}

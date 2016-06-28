@@ -37,7 +37,7 @@ class ThreadManager(object):
                         stats.output_stats()
                         sleep(1)  # The time you have to re-press ctrl+c to kill the app.
                     except KeyboardInterrupt:
-                        textutils.output_info('Keyboard Interrupt Received, cleaning up threads')
+                        textutils.output_info('Keyboard Interrupt Received, waiting for blocking threads to exit')
                         # Clean reference to sockets
                         database.connection_pool = None
                         database.kill_received = True

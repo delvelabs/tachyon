@@ -429,7 +429,7 @@ class TestFileExistsWorker(Thread):
         reset_behavior_database()
 
     def run(self):
-         while not self.kill_received:
+        while not self.kill_received:
             try:
                 # Non-Blocking get since we use the queue as a ringbuffer
                 queued = database.fetch_queue.get(False)

@@ -14,8 +14,6 @@
 - Speed improvement with low thread count
 - Fixes in robots.txt plugin
 
-(This is the last changelog, refer to the git log from now on)
-
 
 2.0.0-beta10 (27/05/2014)
 =====================

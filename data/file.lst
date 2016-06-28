@@ -207,7 +207,7 @@
 {"url": "source", "description": "Possible file access", "executable" : True, "severity" : "warning"}
 
 
-#Comon backdoors
+# Comon backdoors
 {"url": "r57shell.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware", "severity" : "critical"}
 {"url": "r57.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware", "severity" : "critical"}
 {"url": "c99shell.php", "description": "Common backdoor", "no_suffix": True, "type" : "malware", "severity" : "critical"}
@@ -225,6 +225,3 @@
 {"url": "shell", "description": "Common backdoor", "type" : "malware", "severity" : "critical"}
 {"url": "backdoor", "description": "Common backdoor", "type" : "malware", "severity" : "critical"}
 {"url": "cmd", "description": "Common backdoor", "type" : "malware", "severity" : "critical"}
-
-
-
