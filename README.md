@@ -21,8 +21,8 @@ It provides:
 # Requirements    
 
 - A mainstream OS (Windows, Linux, Mac OS X)
-- Python 3.x
-- urllib3 1.1+ (`easy_install urllib3` or `pip install urllib3`)
+- Python 3.x (Could still work with 2.7, with minor issues)
+- urllib3 1.1+
 
 ```
 pip install -r requirements.txt
