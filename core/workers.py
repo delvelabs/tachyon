@@ -506,7 +506,7 @@ class TestFileExistsWorker(Thread):
 
                         if len(content) == 0:
                             textutils.output_found('Empty ' + description + ' at: ' + conf.target_host + url, {
-                                "description": description,
+                                "description": "Empty " + description,
                                 "url": conf.base_url + url,
                                 "code": response_code,
                                 "severity": queued.get('severity'),
