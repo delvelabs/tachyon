@@ -19,6 +19,13 @@
 #
 
 import sys
+
+# Ensure python3 runtime
+import sys
+if sys.version_info[0] < 3:
+    print("Must be using Python 3")
+    sys.exit()
+
 import uuid
 import urllib3
 import os
