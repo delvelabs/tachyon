@@ -230,9 +230,7 @@ class FetchCrafted404Worker(Thread):
                         content = content.decode('utf-8', 'ignore')
 
                     # The server responded with whatever code but 404 or invalid stuff (500). We take a sample
-                    if not len(content):
-                        crafted_404 = ""  # empty file, still a forged 404
-                    elif len(content) < conf.file_sample_len:
+                    if len(content) < conf.file_sample_len:
                         crafted_404 = content[0:len(content) - 1]
                     else:
                         crafted_404 = content[0:conf.file_sample_len - 1]
