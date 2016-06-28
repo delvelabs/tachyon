@@ -39,6 +39,8 @@ def output_stats():
         remaining_seconds = 0
         remaining_timedelta = timedelta(seconds=remaining_seconds)
 
+    request_per_seconds = "%.2f" % round(request_per_seconds,2)
+
     stats_string = ''.join([
         str(request_per_seconds), ' reqs/sec',
         ', Done: ', str(database.successful_fetch_count),

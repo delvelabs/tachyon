@@ -89,4 +89,3 @@ def output_debug(text):
     """ Output text to the synchronized output queue """
     if conf.debug:
         output_message('[DEBUG] ' + text)
-        

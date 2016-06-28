@@ -66,7 +66,6 @@ total_timeouts = 0
 """ App global kill """
 kill_received = False
 
-
 """ Session cookie """
 session_cookie = None
 
@@ -75,3 +74,8 @@ successful_fetch_count = 0
 
 """ Last printed len """
 last_printed_len = 0
+
+
+""" Behavioral queue, used to buffer different behaviors """
+behavioral_buffer = list()
+behavior_error = False

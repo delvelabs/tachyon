@@ -111,10 +111,11 @@ def test_paths_exists():
     textutils.output_debug('Cached: ' + str(database.path_cache))
     while database.fetch_queue.qsize() > 0:
         textutils.output_info('Probing ' + str(database.fetch_queue.qsize()) + ' paths')
-        
+
         # Wait for initial valid path lookup
         workers = manager.spawn_workers(conf.thread_count, TestPathExistsWorker)
         manager.wait_for_idle(workers, database.fetch_queue)
+
         recursion_depth += 1
         
         if not conf.recursive:
@@ -419,7 +420,6 @@ if __name__ == "__main__":
         textutils.output_error('Keyboard Interrupt Received')
     except gaierror:
         textutils.output_error('Error resolving host')
-
 
     # Close program
     database.messages_output_queue.join()

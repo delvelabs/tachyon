@@ -20,12 +20,12 @@ from collections import defaultdict
 
 # Internal config and consts
 name = "delvelabs/tachyon"
-version = '2.0.2'
+version = '2.1.0'
 expected_path_responses = [200, 206, 401, 403]
 expected_file_responses = [200, 206]
-timeout_codes = [0, 500, 502, 503]
+timeout_codes = [0, 500, 502, 503, 504]
 redirect_codes = [301, 302, 303, 307]
-file_sample_len = 200
+file_sample_len = 512
 
 # Templates, used by plugins
 path_template = {'url': '', 'timeout_count': 0, 'description': ''}
@@ -69,6 +69,10 @@ test_plugin = None
 plugins_only = False
 cookies = None
 allow_download = False
+
+# Behavioral tests
+behavior_queue_size = 5
+max_behavior_tries = 5
 
 # Templates, used by plugins
 path_template = {'url': '', 'timeout_count': 0, 'description': ''}

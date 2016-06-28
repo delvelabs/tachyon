@@ -36,12 +36,13 @@ def save_file(path, content):
         else:
             outfile.write(content)
 
-def parse_svn_17_db(filename):
-    conn = sqlite3.connect(filename)
-    files = conn.execute('select local_relpath, ".svn/pristine/" || substr(checksum,7,2) || "/" || substr(checksum,7) || ".svn-base" as alpha from NODES;')
-    #for entries in files:
-    #    if 
-    pass
+# Fixme
+#def parse_svn_17_db(filename):
+#    conn = sqlite3.connect(filename)
+#    files = conn.execute('select local_relpath, ".svn/pristine/" || substr(checksum,7,2) || "/" || substr(checksum,7) || ".svn-base" as alpha from NODES;')
+#    #for entries in files:
+#    #    if
+#    pass
 
 def parse_svn_entries(url):
     description_file = 'SVN entries file at'
@@ -50,9 +51,11 @@ def parse_svn_entries(url):
     fetcher = Fetcher()
 
     response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False, add_headers=base_headers)
-    
+    if not isinstance(content, str):
+        content = content.decode('utf-8', 'ignore')
+
     if response_code in conf.expected_file_responses and content:
-        tokens = content.decode().split('\n')
+        tokens = content.split('\n')
         if 'dir' in tokens:
             for pos, token in enumerate(tokens):
                 if token == 'dir':
@@ -92,6 +95,9 @@ def execute():
     response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
     svn_legacy = True
 
+    if not isinstance(content, str):
+        content = content.decode('utf-8', 'ignore')
+
     if response_code in conf.expected_file_responses and content:
 
         if conf.allow_download:
@@ -113,8 +119,8 @@ def execute():
         if svn_legacy:
             # parse entries
             parse_svn_entries(conf.target_base_path)
-        else:
-            parse_svn_17_db(conf.target_base_path + '/wc.db')        
+        #else:
+          #  parse_svn_17_db(conf.target_base_path + '/wc.db')
 
         # Clean up display
         if conf.allow_download:

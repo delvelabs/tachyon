@@ -37,8 +37,10 @@ def execute():
         content = content.encode('utf-8')
 
     if response_code is 200 or response_code is 302 and content:
-        matches = re.findall(r'Disallow:\s*/[a-zA-Z0-9-/\r]+\n', content.decode('utf-8'))
-        textutils.output_debug(content.decode('utf-8'))
+        if not isinstance(content, str):
+            content = content.decode('utf-8', 'ignore')
+        matches = re.findall(r'Disallow:\s*/[a-zA-Z0-9-/\r]+\n', content)
+        textutils.output_debug(content)
 
         added = 0
         for match in matches:

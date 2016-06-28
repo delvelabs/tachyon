@@ -58,11 +58,8 @@ class Fetcher(object):
             code = response.status
             headers = response.headers
         except Exception as e:
-            #raise
             code = 0
             content = ''
             headers = dict()
 
         return code, content, headers
-        
-        

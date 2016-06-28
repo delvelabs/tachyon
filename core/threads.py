@@ -18,7 +18,6 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import sys
 from time import sleep
 from core import database
 from core import textutils, stats
@@ -29,11 +28,14 @@ class ThreadManager(object):
             """ Wait until fetch queue is empty and handle user interrupt """
             while not database.kill_received and not queue.empty():
                 try:
-                    sleep(0.1)
+                    # Make sure everything is done before sending control back to application
+                    textutils.output_debug("Threads: joining queue of size: " + str(queue.qsize()))
+                    queue.join()
+                    textutils.output_debug("Threads: join done")
                 except KeyboardInterrupt:
                     try:
                         stats.output_stats()
-                        sleep(1)  
+                        sleep(1)  # The time you have to re-press ctrl+c to kill the app.
                     except KeyboardInterrupt:
                         textutils.output_info('Keyboard Interrupt Received, cleaning up threads')
                         # Clean reference to sockets
@@ -50,20 +52,13 @@ class ThreadManager(object):
                         while not queue.empty():
                             queue.get()
                             queue.task_done()
-
                         break
-
-            # Make sure everything is done before sending control back to application
-            textutils.output_debug("Threads: joining queue of size: " + str(queue.qsize()))
-            queue.join()
-            textutils.output_debug("Threads: join done")
 
             # Make sure we get all the worker's results before continuing the next step
             for worker in workers:
                 if worker is not None and worker.isAlive():
                     worker.kill_received = True
                     worker.join()
-
 
     def spawn_workers(self, count, worker_type, output=True):
         """ Spawn a given number of workers and return a reference list to them """
