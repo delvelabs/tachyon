@@ -53,6 +53,9 @@ def execute():
                                                         add_headers={}
                                                         )
 
+    if not isinstance(content, str):
+        content = content.decode('utf-8', 'ignore')
+
     if response_code is 200 or response_code is 302 and content:
 
         regexp = re.compile(b'(?im).*<url>\s*<loc>(.*)</loc>\s*</url>.*')
