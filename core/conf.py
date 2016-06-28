@@ -31,7 +31,7 @@ file_sample_len = 512
 path_template = {'url': '', 'timeout_count': 0, 'description': ''}
 
 # Extensions used by crafted 404 sampling
-crafted_404_extensions = ['', '.php', '.jsp', '.asp', '.html']
+crafted_404_extensions = ['', '.php', '.jsp', '.asp', '.html', '.rb', '.js']
 
 # Values used to generate file list (maybe this sould be configurable)
 file_suffixes = ['', '.sql', '.bak', '-bak', '.old', '-old', '.dmp', '.dump', '.zip', '.rar', '.7z',
@@ -73,9 +73,5 @@ allow_download = False
 # Behavioral tests
 behavior_queue_size = 5
 max_behavior_tries = 5
-
-# Templates, used by plugins
-path_template = {'url': '', 'timeout_count': 0, 'description': ''}
-
 
 plugin_settings = defaultdict(list)
