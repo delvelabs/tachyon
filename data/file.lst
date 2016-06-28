@@ -136,11 +136,16 @@
 
 # Home shell temporary files
 {"url" : ".bash_history", "description" : "Bash history", "no_suffix": True, "severity" : "critical"}
+{"url" : ".bash_profile", "description" : "Bash shell config file", "no_suffix": True, "severity" : "critical"}
 {"url" : ".bashrc", "description" : "Bash default config file", "no_suffix": True, "severity" : "critical"}
 {"url" : ".config", "description" : "Generic config", "no_suffix": True, "severity" : "critical"}
 {"url" : ".mysql_history", "description" : "mysql history", "no_suffix": True, "severity" : "critical"}
 {"url" : ".profile", "description" : "Common default shell config file", "no_suffix": True, "severity" : "critical"}
 {"url" : ".sh_history", "description" : "sh history", "no_suffix": True, "severity" : "critical"}
+
+# Home vim files
+{"url" : ".viminfo", "description" : "Vim history, can leak sensitive information", "no_suffix": True, "severity" : "critical"}
+{"url" : ".vimrc", "description" : "Vim default configuration file", "no_suffix": True, "severity" : "critical"}
 
 # Common guess we don't want to be appended with suffixes
 {"url" : "index2.php", "description" : "Backup index page", "no_suffix": True, "severity" : "info"}

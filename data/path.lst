@@ -144,6 +144,7 @@
 {"url" : "/users", "description" : "User directory", "severity" : "info"}
 {"url" : "/utils", "description" : "Utils directory", "severity" : "info"}
 {"url" : "/var", "description" : "Variable directory", "severity" : "info"}
+{"url" : "/.vim", "description" : "Vim config directory", "severity" : "medium"}
 {"url" : "/webadmin", "description" : "Admin section", "severity" : "info"}
 {"url" : "/webadm", "description" : "Admin section", "severity" : "info"}
 {"url" : "/webmail", "description" : "Webmail directory", "severity" : "info"}
