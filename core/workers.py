@@ -335,8 +335,8 @@ class TestPathExistsWorker(Thread):
                         if not database.behavior_error and queued.get('behavior_chances', 0) >= conf.max_behavior_tries:
                             textutils.output_info('Behavior change detected! Results may '
                                                   'be incomplete or tachyon may never exit.')
-                            textutils.output_info('Chances taken: ' + str(queued.get('behavior_chances', 0)))
-                            textutils.output_info(queued.get('url'))
+                            textutils.output_debug('Chances taken: ' + str(queued.get('behavior_chances', 0)))
+                            textutils.output_debug(queued.get('url'))
                             database.behavior_error = True
 
                     # If we find a valid result but the behavior buffer is not full, we give a chance to the
@@ -483,8 +483,8 @@ class TestFileExistsWorker(Thread):
                         if not database.behavior_error:
                             textutils.output_info('Behavior change detected! Results may '
                                                   'be incomplete or tachyon may never exit.')
-                            textutils.output_info('Chances taken: ' + str(queued.get('behavior_chances', 0)))
-                            textutils.output_info(queued.get('url'))
+                            textutils.output_debug('Chances taken: ' + str(queued.get('behavior_chances', 0)))
+                            textutils.output_debug(queued.get('url'))
                             database.behavior_error = True
 
                     # If we find a valid result but the behavior buffer is not full, we give a chance to the
@@ -500,7 +500,6 @@ class TestFileExistsWorker(Thread):
                             queued['behavior_chances'] += 1
 
                         if queued['behavior_chances'] < conf.max_behavior_tries:
-                            textutils.output_debug('Time for a chance')
                             textutils.output_debug('Chance left to target, re-queuing')
                             database.fetch_queue.put(queued)
                     elif is_valid_result:
