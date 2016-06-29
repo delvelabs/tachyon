@@ -588,6 +588,7 @@ class PrintResultsWorker(Thread):
 
 class JSONPrintResultWorker(Thread):
     """ This worker is used to generate a synchronized non-overlapping console output for results """
+
     def __init__(self):
         Thread.__init__(self)
         self.kill_received = False

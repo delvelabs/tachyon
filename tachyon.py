@@ -19,6 +19,7 @@
 #
 
 # Ensure python3 runtime
+import atexit
 import sys
 if sys.version_info[0] < 3:
     print("Must be using Python 3")
@@ -346,6 +347,18 @@ if __name__ == "__main__":
         else:
             SelectedPrintWorker = PrintResultsWorker
 
+        # Register cleanup functions to be executed at program exit
+        def finish_output():
+            # Close program and flush all the output queues.
+            database.messages_output_queue.join()
+
+            if print_results_worker and 'finalize' in dir(print_results_worker):
+                print_results_worker.finalize()
+
+        # Register cleanup function
+        atexit.register(finish_output)
+
+        # Select working modes
         root_path = ''
         if conf.files_only:
             get_session_cookies()
@@ -425,12 +438,6 @@ if __name__ == "__main__":
         textutils.output_error('Keyboard Interrupt Received')
     except gaierror:
         textutils.output_error('Error resolving host')
-
-    # Close program
-    database.messages_output_queue.join()
-
-    if print_results_worker != None and 'finalize' in dir(print_results_worker):
-        print_results_worker.finalize()
 
     sys.exit(0)
 
