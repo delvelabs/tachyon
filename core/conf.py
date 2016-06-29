@@ -49,6 +49,7 @@ target_base_path = ''
 target_port = 80
 base_url = ''
 is_ssl = False
+json_output = False
 scheme = ''
 proxy_url = ''
 forge_vhost='' 

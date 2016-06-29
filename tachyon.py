@@ -272,7 +272,6 @@ if __name__ == "__main__":
         parser.print_help()
         print('')
         sys.exit()
-   
 
     # Spawn synchronized print output worker
     print_worker = PrintWorker()
@@ -350,10 +349,14 @@ if __name__ == "__main__":
         # Register cleanup functions to be executed at program exit
         def finish_output():
             # Close program and flush all the output queues.
-            database.messages_output_queue.join()
+            try:
+                database.results_output_queue.join()
+                database.messages_output_queue.join()
 
-            if print_results_worker and 'finalize' in dir(print_results_worker):
-                print_results_worker.finalize()
+                if print_results_worker and 'finalize' in dir(print_results_worker):
+                    print_results_worker.finalize()
+            except KeyboardInterrupt:
+                pass
 
         # Register cleanup function
         atexit.register(finish_output)
@@ -415,7 +418,9 @@ if __name__ == "__main__":
             # Execute all Host plugins
             load_execute_host_plugins()
             test_paths_exists()
+            textutils.output_info('Sampling 404 for new paths')
             sample_404_from_found_path()
+            textutils.output_info('Generating file targets')
             add_files_to_paths()
             load_execute_file_plugins()
             textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
