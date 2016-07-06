@@ -63,6 +63,7 @@ def handle_timeout(queued, url, thread_id, output=True):
     else:
         database.latest_successful_request_time += 1
 
+    # Update pool timeout
     textutils.output_debug("-Ajusted timeout to: " + str(database.latest_successful_request_time))
 
     if not queued['timeout_count']:
@@ -355,6 +356,8 @@ class TestPathExistsWorker(Thread):
                                                    ' qsize: ' + str(database.fetch_queue.qsize()) +
                                                    ' chances: ' + str(queued.get('behavior_chances')))
                             database.fetch_queue.put(queued)
+                            database.fetch_queue.task_done()
+                            continue
                         else:
                             textutils.output_debug('Chances count busted! ' + queued.get('url') +
                                                    ' qsize: ' + str(database.fetch_queue.qsize()))

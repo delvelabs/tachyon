@@ -17,10 +17,12 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
+import sys
 
 from time import sleep
 from core import database
 from core import textutils, stats
+
 
 class ThreadManager(object):
 
@@ -41,24 +43,11 @@ class ThreadManager(object):
                         # Clean reference to sockets
                         database.connection_pool = None
                         database.kill_received = True
-                        
-                        # Kill remaining workers but don't join the queue (we want to abort:))
-                        for worker in workers:
-                            if worker is not None and worker.isAlive():
-                                worker.kill_received = True
-                                worker.join(1)
-
-                        # Set leftover done in cas of a kill.
-                        while not queue.empty():
-                            queue.get()
-                            queue.task_done()
-                        break
+                        self.kill_workers(workers)
+                        sys.exit(0)
 
             # Make sure we get all the worker's results before continuing the next step
-            for worker in workers:
-                #if worker is not None and worker.isAlive():
-                    worker.kill_received = True
-                    worker.join(1)
+            self.kill_workers(workers)
 
     def spawn_workers(self, count, worker_type, output=True):
         """ Spawn a given number of workers and return a reference list to them """
@@ -70,3 +59,9 @@ class ThreadManager(object):
             workers.append(worker)
             worker.start()
         return workers
+
+    def kill_workers(self, workers):
+        for worker in workers:
+            if worker and worker.isAlive():
+                worker.kill_received = True
+                worker.join(1)
