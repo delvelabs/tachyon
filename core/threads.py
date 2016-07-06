@@ -34,7 +34,7 @@ class ThreadManager(object):
                     textutils.output_debug("Threads: join done")
                 except KeyboardInterrupt:
                     try:
-                        stats.output_stats()
+                        stats.output_stats(workers)
                         sleep(1)  # The time you have to re-press ctrl+c to kill the app.
                     except KeyboardInterrupt:
                         textutils.output_info('Keyboard Interrupt Received, waiting for blocking threads to exit')
@@ -46,7 +46,7 @@ class ThreadManager(object):
                         for worker in workers:
                             if worker is not None and worker.isAlive():
                                 worker.kill_received = True
-                                worker.join(0)
+                                worker.join(1)
 
                         # Set leftover done in cas of a kill.
                         while not queue.empty():
@@ -56,9 +56,9 @@ class ThreadManager(object):
 
             # Make sure we get all the worker's results before continuing the next step
             for worker in workers:
-                if worker is not None and worker.isAlive():
+                #if worker is not None and worker.isAlive():
                     worker.kill_received = True
-                    worker.join()
+                    worker.join(1)
 
     def spawn_workers(self, count, worker_type, output=True):
         """ Spawn a given number of workers and return a reference list to them """

@@ -330,11 +330,11 @@ if __name__ == "__main__":
 
         # Benchmark target host
         if conf.proxy_url:
-            database.connection_pool = ProxyManager(conf.proxy_url, timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count, cert_reqs='CERT_NONE')
+            database.connection_pool = ProxyManager(conf.proxy_url, timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count, block=True, cert_reqs='CERT_NONE')
         elif not conf.proxy_url and is_ssl:
-            database.connection_pool = HTTPSConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
+            database.connection_pool = HTTPSConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs, block=True, maxsize=conf.thread_count)
         else:
-            database.connection_pool = HTTPConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count)
+            database.connection_pool = HTTPConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs, block=True, maxsize=conf.thread_count)
         
 
         # Vhost forgery

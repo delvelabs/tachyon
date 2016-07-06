@@ -22,6 +22,7 @@ from urllib3.connection import UnverifiedHTTPSConnection
 class Fetcher(object):
     def fetch_url(self, url, user_agent, timeout, limit_len=True, add_headers=dict()):
         """ Fetch a given url, with a given user_agent and timeout"""
+        response = None
         try:
             if not add_headers.get('User-Agent'):
                 add_headers['User-Agent'] = user_agent
@@ -52,12 +53,17 @@ class Fetcher(object):
                 database.connection_pool.ConnectionCls = UnverifiedHTTPSConnection
 
             response = database.connection_pool.request('GET', url, headers=add_headers, retries=0, redirect=False,
-                                                        release_conn=False, assert_same_host=False, timeout=timeout)
+                                                        release_conn=True, assert_same_host=False, timeout=timeout, preload_content=False)
 
             content = response.data
+            if len(content) >= 5012:
+                print("large len {}, {}" % (str(len(content)), url))
             code = response.status
             headers = response.headers
+            response.release_conn() # return the connection back to the pool
         except Exception as e:
+            if response:
+                response.release_conn()
             code = 0
             content = ''
             headers = dict()

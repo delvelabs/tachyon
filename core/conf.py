@@ -25,7 +25,7 @@ expected_path_responses = [200, 206, 401, 403]
 expected_file_responses = [200, 206]
 timeout_codes = [0, 500, 502, 503, 504]
 redirect_codes = [301, 302, 303, 307]
-file_sample_len = 512
+file_sample_len = 5120
 
 # Templates, used by plugins
 path_template = {'url': '', 'timeout_count': 0, 'description': ''}
@@ -59,7 +59,7 @@ recursive = False
 fetch_timeout_secs = 2
 max_timeout_secs = 15
 max_timeout_count = 500
-thread_count = 150
+thread_count = 50
 use_tor = False
 eval_output = False
 user_agent = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36' # maximum compatibility

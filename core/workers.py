@@ -208,7 +208,7 @@ class FetchCrafted404Worker(Thread):
         while not self.kill_received:
             try:
                 # Non-Blocking get since we use the queue as a ringbuffer
-                queued = database.fetch_queue.get(False)
+                queued = database.fetch_queue.get(block=False)
                 url = conf.target_base_path + queued.get('url')
 
                 textutils.output_debug("Fetching crafted 404: " + str(url))
@@ -273,7 +273,7 @@ class TestPathExistsWorker(Thread):
     def run(self):
         while not self.kill_received:
             try:
-                queued = database.fetch_queue.get(False)
+                queued = database.fetch_queue.get(block=False)
                 url = conf.target_base_path + queued.get('url')
                 description = queued.get('description')
                 textutils.output_debug("Testing directory: " + url + " " + str(queued))
@@ -430,7 +430,7 @@ class TestFileExistsWorker(Thread):
         while not self.kill_received:
             try:
                 # Non-Blocking get since we use the queue as a ringbuffer
-                queued = database.fetch_queue.get(False)
+                queued = database.fetch_queue.get(block=False)
                 url = conf.target_base_path + queued.get('url')
                 description = queued.get('description')
                 match_string = queued.get('match_string')

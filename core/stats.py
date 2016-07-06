@@ -25,7 +25,7 @@ def update_stats(url):
 def update_processed_items():
     database.successful_fetch_count += 1
 
-def output_stats():
+def output_stats(workers=None):
     elapsed_time = datetime.now() - database.scan_start_time
     if not elapsed_time.seconds:
         request_per_seconds = 0
@@ -46,7 +46,8 @@ def output_stats():
         ', Done: ', str(database.successful_fetch_count),
         ', Queued: ', str(database.fetch_queue.qsize()),
         ', Timeouts: ', str(database.total_timeouts), ' (~', str(database.latest_successful_request_time), 's)',
-        ', remaining: ', str(remaining_timedelta),
+        ', Remaining: ', str(remaining_timedelta),
+        ', Workers: ', str(len(workers)),
         ' (hit ctrl+c again to exit)'
     ])
 
