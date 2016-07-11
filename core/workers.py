@@ -306,7 +306,7 @@ class TestPathExistsWorker(Thread):
                     handle_timeout(queued, url, self.thread_id, output=self.output)
                 elif response_code == 404 and detect_tomcat_fake_404(content):
                     database.valid_paths.append(queued)
-                    textutils.output_found('Tomcat redirect, ' + description + ' at: ' + conf.target_host + url, {
+                    textutils.output_found('Tomcat redirect, ' + description + ' at: ' + conf.base_url + url, {
                         "description": description,
                         "url": conf.base_url + url,
                         "code": response_code,
@@ -364,7 +364,7 @@ class TestPathExistsWorker(Thread):
 
                     elif response_code == 401:
                         # Output result, but don't keep the url since we can't poke in protected folder
-                        textutils.output_found('Password Protected - ' + description + ' at: ' + conf.target_host + url, {
+                        textutils.output_found('Password Protected - ' + description + ' at: ' + conf.base_url + url, {
                             "description": description,
                             "url": conf.base_url + url,
                             "code": response_code,
@@ -381,21 +381,21 @@ class TestPathExistsWorker(Thread):
                         reset_behavior_database()
 
                         if response_code == 500:
-                            textutils.output_found('ISE, ' + description + ' at: ' + conf.target_host + url, {
+                            textutils.output_found('ISE, ' + description + ' at: ' + conf.base_url + url, {
                                 "description": description,
                                 "url": conf.base_url + url,
                                 "code": response_code,
                                 "severity": queued.get('severity'),
                             })
                         elif response_code == 403:
-                            textutils.output_found('*Forbidden* ' + description + ' at: ' + conf.target_host + url, {
+                            textutils.output_found('*Forbidden* ' + description + ' at: ' + conf.base_url + url, {
                                 "description": description,
                                 "url": conf.base_url + url,
                                 "code": response_code,
                                 "severity": queued.get('severity'),
                             })
                         else:
-                            textutils.output_found(description + ' at: ' + conf.target_host + url, {
+                            textutils.output_found(description + ' at: ' + conf.base_url + url, {
                                 "description": description,
                                 "url": conf.base_url + url,
                                 "code": response_code,
@@ -456,7 +456,7 @@ class TestFileExistsWorker(Thread):
                 if response_code in conf.timeout_codes:
                     handle_timeout(queued, url, self.thread_id, output=self.output)
                 elif response_code == 500:
-                    textutils.output_found('ISE, ' + description + ' at: ' + conf.target_host + url, {
+                    textutils.output_found('ISE, ' + description + ' at: ' + conf.base_url + url, {
                         "description": description,
                         "url": conf.base_url + url,
                         "code": response_code,
@@ -508,21 +508,21 @@ class TestFileExistsWorker(Thread):
                         reset_behavior_database()
 
                         if len(content) == 0:
-                            textutils.output_found('Empty ' + description + ' at: ' + conf.target_host + url, {
+                            textutils.output_found('Empty ' + description + ' at: ' + conf.base_url + url, {
                                 "description": "Empty " + description,
                                 "url": conf.base_url + url,
                                 "code": response_code,
                                 "severity": 'info',
                             })
                         else:
-                            textutils.output_found(description + ' at: ' + conf.target_host + url, {
+                            textutils.output_found(description + ' at: ' + conf.base_url + url, {
                                 "description": description,
                                 "url": conf.base_url + url,
                                 "code": response_code,
                                 "severity": queued.get('severity'),
                             })
                     elif match_string and re.search(re.escape(match_string), content, re.I):
-                        textutils.output_found("String-Matched " + description + ' at: ' + conf.target_host + url, {
+                        textutils.output_found("String-Matched " + description + ' at: ' + conf.base_url + url, {
                             "description": description,
                             "url": conf.base_url + url,
                             "code": response_code,

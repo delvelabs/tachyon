@@ -310,7 +310,7 @@ if __name__ == "__main__":
     if conf.proxy_url:
         textutils.output_debug('Using proxy: ' + str(conf.proxy_url))
 
-    textutils.output_info('Starting Discovery on ' + conf.target_host)
+    textutils.output_info('Starting Discovery on ' + conf.base_url)
     
     if conf.use_tor:
         textutils.output_info('Using Tor, be patient it WILL be slow!')
