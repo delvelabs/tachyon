@@ -230,3 +230,11 @@
 {"url": "shell", "description": "Common backdoor", "type" : "malware", "severity" : "critical"}
 {"url": "backdoor", "description": "Common backdoor", "type" : "malware", "severity" : "critical"}
 {"url": "cmd", "description": "Common backdoor", "type" : "malware", "severity" : "critical"}
+
+
+#Web Services
+{"url": "swagger.json", "description": "Common API Disclosure", "no_suffix": True, "severity":"warning"}
+{"url": "?wsdl", "description": "Common API Disclosure", "no_suffix": True, "severity":"warning"}
+
+#.net vulnerability
+{"url": "trace.axd", "description": "Information Disclosure", "no_suffix": True, "severity":"warning"}
