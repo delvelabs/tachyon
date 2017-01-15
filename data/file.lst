@@ -121,6 +121,7 @@
 {"url" : "json", "description" : "Website API", "severity" : "info"}
 {"url" : "json-api", "description" : "Website API", "severity" : "info"}
 {"url" : "web", "description" : "Web file", "severity" : "warning"}
+{"url" : "db.inc", "description" : "possible database credentials", "severity" : "medium"}
 
 
 ###
