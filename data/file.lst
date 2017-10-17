@@ -104,6 +104,7 @@
 {"url" : "server", "description" : "server file", "severity" : "info"}
 {"url" : "settings", "description" : "settings file", "severity" : "medium"}
 {"url" : "site", "description" : "database backup", "severity" : "info"}
+{"url" : "shadow", "description" : "Shadow file", "severity" : "critical"}
 {"url" : "stats", "description" : "statistic file", "severity" : "warning"}
 {"url" : "test", "description" : "test dir/file", "severity" : "warning"}
 {"url" : "test_db", "description" : "database backup", "severity" : "medium"}

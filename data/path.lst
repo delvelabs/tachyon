@@ -101,6 +101,7 @@
 {"url" : "/modules", "description" : "Modules directory", "severity" : "info"}
 {"url" : "/nagios", "description" : "Nagios monitoring", "severity" : "warning"}
 {"url" : "/old", "description" : "Old website version", "severity" : "warning"}
+{"url" : "/owa", "description" : "Outlook web access", "severity" : "info"}
 {"url" : "/piwik", "description" : "Piwik analytics platform", "severity" : "info"}
 {"url" : "/private", "description" : "Private directory", "severity" : "info"}
 {"url" : "/protected", "description" : "_Protected_ directory", "severity" : "info"}
