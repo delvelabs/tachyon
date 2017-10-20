@@ -21,22 +21,28 @@ from core import conf, textutils, database
 from core.fetcher import Fetcher
 try:
     from urlparse import urljoin
+    from urlparse import urlparse
 except ImportError:
     from urllib.parse import urljoin
+    from urllib.parse import urlparse
 
 def add_path(path):
     current_template = conf.path_template.copy()
     current_template['description'] = 'Found in sitemap.xml'
     current_template['is_file'] = False
     current_template['url'] = '/' + path
-    database.paths.append(current_template)
+    if current_template not in database.paths:
+        database.paths.append(current_template)
+        return True
 
 def add_file(filename):
     """ Add file to database """
     current_template = conf.path_template.copy()
     current_template['description'] = 'Found in sitemap.xml'
     current_template['url'] = filename
-    database.files.append(current_template)
+    if current_template not in database.files:
+        database.files.append(current_template)
+        return True
 
 def execute():
     """ Fetch sitemap.xml and add each entry as a target """
@@ -65,18 +71,22 @@ def execute():
 
         added = 0
         for match in matches:
-            new_path = match.decode().split(conf.target_host)[1]
+            if not isinstance(match, str):
+                match = match.decode('utf-8', 'ignore')
+            parsed = urlparse(match)
+            if parsed.path:
+                new_path = parsed.path
+            else:
+                continue
 
             # Remove trailing /
             if new_path.endswith('/'):
                 new_path = new_path[:-1]   
 
-            add_path(new_path)
-            add_file(new_path)
-
+            if add_path(new_path):
+                added +=1
+                
             textutils.output_debug(" - Added: %s from /sitemap.xml" % new_path)
-
-            added += 1
 
         if added > 0:
             textutils.output_info(' - SitemapXML Plugin: added %d base paths '

@@ -34,12 +34,14 @@
 {"url" : "backup", "description" : "backup", "severity" : "cricital"}
 {"url" : "bar", "description" : "random backup", "severity" : "info"}
 {"url" : "browser", "description" : "Browser-oriented file", "severity" : "info"}
+{"url" : "build", "description" : "Build file", "severity" : "warning"}
 {"url" : "cache", "description" : "Cache related file", "severity" : "warning"}
 {"url" : "caching", "description" : "Cache related file", "severity" : "warning"}
 {"url" : "cachemgr.cgi", "description" : "Squid proxy admin interface", "no_suffix": True, "severity" : "critical"}
 {"url" : "ccbill", "description" : "CCBill.com logs", "severity" : "critical"}
 {"url" : "fckeditor", "description" : "CkEditor", "severity" : "medium"}
 {"url" : "config", "description" : "Config file", "severity" : "critical"}
+{"url" : "configuration", "description" : "Config file", "severity" : "critical"}
 {"url" : "conf", "description" : "Config file", "severity" : "critical"}
 {"url" : "common", "description" : "Config file", "severity" : "medium"}
 {"url" : "cron", "description" : "crontab file", "severity" : "medium"}
@@ -51,6 +53,7 @@
 {"url" : "db", "description" : "database backup", "severity" : "critical"}
 {"url" : "default", "description" : "default file", "severity" : "info"}
 {"url" : "deploy", "description" : "Site backup", "severity" : "warning"}
+{"url" : "deploy.php", "description" : "Deployment Script", "no_suffix": True, "severity" : "warning"}
 {"url" : "digest", "description" : "digest file", "severity" : "info"}
 {"url" : "dokuwiki", "description" : "Dokuwiki backup", "severity" : "warning"}
 {"url" : "encrypt", "description" : "encryption file", "severity" : "warning"}
@@ -86,6 +89,7 @@
 {"url" : "memcached", "description" : "memcached monitoring", "severity" : "warning"}
 {"url" : "note", "description" : "notes file", "severity" : "warning"}
 {"url" : "notes", "description" : "notes file", "severity" : "warning"}
+{"url" : "parameters", "description" : "Parameter file", "severity" : "critical"}
 {"url" : "pass", "description" : "Password file", "severity" : "critical"}
 {"url" : "password", "description" : "password file", "severity" : "critical"}
 {"url" : "passwords", "description" : "password file", "severity" : "critical"}
@@ -106,6 +110,7 @@
 {"url" : "site", "description" : "database backup", "severity" : "info"}
 {"url" : "shadow", "description" : "Shadow file", "severity" : "critical"}
 {"url" : "stats", "description" : "statistic file", "severity" : "warning"}
+{"url" : "system", "description" : "system file", "severity" : "warning"}
 {"url" : "test", "description" : "test dir/file", "severity" : "warning"}
 {"url" : "test_db", "description" : "database backup", "severity" : "medium"}
 {"url" : "transactions", "description" : "transactions log", "severity" : "critical"}
@@ -239,3 +244,23 @@
 
 #.net vulnerability
 {"url": "trace.axd", "description": "Information Disclosure", "no_suffix": True, "severity":"warning"}
+
+# 2017 Goglu Dorks
+{"url": "FileListAbsolute.txt", "description": ".Net Deployment File List", "no_suffix": True, "severity":"warning"}
+{"url": "scan_result_file", "description": "ClamAV scan result", "no_suffix": True, "severity":"warning"}
+{"url": "SystemOut.log", "description": "Jboss Syslog dump", "no_suffix": True, "severity":"warning"}
+{"url": "main.cgi?next_file", "description": "Open Network Camera", "no_suffix": True, "severity":"warning"}
+{"url": "pgadmin.log ", "description": "Postgres admin logs", "no_suffix": True, "severity":"warning"}
+{"url": ".user", "description": "User Configuration", "severity":"warning"}
+{"url": "/wp-content/plugins/wordpress-social-stream/inc/dcwp_twitter.php?1=", "description": "Twitter api log", "no_suffix": True, "severity":"warning"}
+{"url": "/generator/data/urllist.txt", "description": "Gnu Zebra Configuration", "no_suffix": True, "severity":"critical"}
+{"url": "zebra.conf", "description": "Information Disclosure", "no_suffix": True, "severity":"warning"}
+{"url": "hts-log.txt", "description": "HTTrack logs", "no_suffix": True, "severity":"warning"}
+{"url": "iProber2.php", "description": "Website operational stats and data", "no_suffix": True, "severity":"warning"}
+{"url": "proftpdpasswd", "description": "ProFTPD Passwd file", "no_suffix": True, "severity":"critical"}
+{"url": "ipf.conf", "description": "IP Filter config", "no_suffix": True, "severity":"critical"}
+{"url": "bigdump.php", "description": "SQL Dump importer", "no_suffix": True, "severity":"critical"}
+{"url": "/phppgadmin/browser.php", "description": "PHPPGAdmin Portal", "no_suffix": True, "severity":"warning"}
+{"url": "/zabbix/httpmon.php", "description": "Zabbix http monitoring", "no_suffix": True, "severity":"warning"}
+{"url": "/status?full=true", "description": "Tomcat Status file", "no_suffix": True, "severity":"warning"}
+

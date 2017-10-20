@@ -26,6 +26,7 @@
 {"url" : "/ajax", "description" : "Ajax section", "severity" : "info"}
 {"url" : "/all", "description" : "Storage directory", "severity" : "info"}
 {"url" : "/applet", "description" : "Applet directory", "severity" : "info"}
+{"url" : "/app/config", "description" : "Random application Directory", "severity" : "info"}
 {"url" : "/application", "description" : "Random application Directory", "severity" : "info"}
 {"url" : "/archive", "description" : "Archive directory", "severity" : "warning"}
 {"url" : "/archives", "description" : "Archive directory", "severity" : "warning"}
@@ -211,3 +212,12 @@
 {"url" : "/sqlweb", "description" : "Database web console", "severity" : "medium"}
 {"url" : "/websql", "description" : "Database web console", "severity" : "medium"}
 {"url" : "/webdb", "description" : "Database web console", "severity" : "medium"}
+
+# 2017 Goglu Dorks
+{"url" : "/idx_config", "description" : "Configuration Folder", "severity" : "medium"}
+{"url" : "/$Recycle.Bin", "description" : "Windows recycle bin", "severity" : "medium"}
+{"url" : "/attachment", "description" : "Web application attachements", "severity" : "warning"}
+{"url" : "/wp-content/uploads/private", "description" : "Wordpress upload folder", "severity" : "warning"}
+{"url" : "/homedir/.cpanel/datastore", "description" : "CPanel datastore", "severity" : "warning"}
+
+

@@ -38,7 +38,7 @@ file_suffixes = ['', '.sql', '.bak', '-bak', '.old', '-old', '.dmp', '.dump', '.
                 '.tar.gz', '.tar.bz2', '.tar', '.tgz', '~', '.conf.old', '.conf', '.config',
                 '.conf.orig', '.conf.bak', '.cnf', '.cfg', '.ini', '.inc', '.inc.old', '.inc.orig', '.log', '.txt', '_log',
                 '.passwd', '.php.bak', '.php.old', '.php.inc', '.php.orig', '.sql.old', '.sql.bak', '0', '1', '2', '.xml',
-                '.csv', '.wsdl', '.pwd']
+                '.csv', '.wsdl', '.pwd', '.yml']
 
 # Values used to generate executable file lookup
 executables_suffixes = ['.php', '.asp', '.aspx', '.pl', '.cgi', '.cfm']
