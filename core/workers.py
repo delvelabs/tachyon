@@ -101,7 +101,7 @@ def handle_redirects(queued, target):
     textutils.output_debug("Handling redirect from: " + source_path + " to " + target_path)
 
     matcher = SequenceMatcher(isjunk=None, a=target_path, b=source_path, autojunk=False)
-    if matcher.ratio() > 0.8:
+    if round(matcher.ratio(), 1) > 0.8:
         queued['url'] = target_path
         queued['retries'] += 1
         # Add back the timed-out item
