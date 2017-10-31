@@ -75,6 +75,8 @@
 {"url" : "/foo", "description" : "Random directory", "severity" : "info"}
 {"url" : "/groupware", "description" : "Groupware directory", "severity" : "info"}
 {"url" : "/gui", "description" : "GUI / uTorrent Web GUI", "severity" : "info"}
+{"url" : "/icon", "description" : "Icon directory", "severity" : "info"}
+{"url" : "/icons", "description" : "Icon directory", "severity" : "info"}
 {"url" : "/img", "description" : "Images directory", "severity" : "info"}
 {"url" : "/images", "description" : "Images directory", "severity" : "info"}
 {"url" : "/import", "description" : "Import directory", "severity" : "warning"}
