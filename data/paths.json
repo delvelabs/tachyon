@@ -1,0 +1,1141 @@
+[
+    {
+        "description": "Interresting path",
+        "data": [
+            {
+                "url": "/_assets",
+                "description": "_assets directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/adm",
+                "description": "Admin section",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/admin",
+                "description": "Admin section",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/admincp",
+                "description": "Admin section",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/administration",
+                "description": "Admin section",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/administrator",
+                "description": "Admin section",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/auth",
+                "description": "Auth section",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/ajax",
+                "description": "Ajax section",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/all",
+                "description": "Storage directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/applet",
+                "description": "Applet directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/app/config",
+                "description": "Random application Directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/application",
+                "description": "Random application Directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/archive",
+                "description": "Archive directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/archives",
+                "description": "Archive directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/backup",
+                "description": "Backup directory",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/backups",
+                "description": "Backup directory",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/bar",
+                "description": "Random directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/board",
+                "description": "Forum directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/bulksms",
+                "description": "Sms Spam system",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/cache",
+                "description": "Cache directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/cfg",
+                "description": "Config directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/conf",
+                "description": "Config directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/css",
+                "description": "CSS directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/code",
+                "description": "source code directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/common",
+                "description": "common content directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/config",
+                "description": "Config directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/configuration",
+                "description": "Config directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/content",
+                "description": "Static content directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/cp",
+                "description": "Control panel",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/classes",
+                "description": "code classes directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/clients",
+                "description": "client section",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/client",
+                "description": "client section",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/cgi-bin",
+                "description": "Cgi-bin directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/data",
+                "description": "Static data directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/database",
+                "description": "Database directory",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/document",
+                "description": "document directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/documents",
+                "description": "document directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/docs",
+                "description": "document directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/download",
+                "description": "file directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/downloads",
+                "description": "file directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/default",
+                "description": "Default Directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/delete",
+                "description": "Backup Directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/deleteme",
+                "description": "Backup Directory",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/demo",
+                "description": "Demo Directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/dev",
+                "description": "Dev directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/db",
+                "description": "Database directory",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/dummy",
+                "description": "Dummy directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/_dummy",
+                "description": "Dummy directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/dump",
+                "description": "Dump directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/examples",
+                "description": "Examples directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/etc",
+                "description": "random/config directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/files",
+                "description": "Static files directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/file",
+                "description": "Static files directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/fileadmin",
+                "description": "Static files administration directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/ftp",
+                "description": "Ftp directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/forum",
+                "description": "Forum directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/foo",
+                "description": "Random directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/groupware",
+                "description": "Groupware directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/gui",
+                "description": "GUI / uTorrent Web GUI",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/icon",
+                "description": "Icon directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/icons",
+                "description": "Icon directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/img",
+                "description": "Images directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/images",
+                "description": "Images directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/import",
+                "description": "Import directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/inc",
+                "description": "Includes directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/include",
+                "description": "Includes directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/includes",
+                "description": "Includes directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/intern",
+                "description": "Intern directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/_inc",
+                "description": "Includes directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/_include",
+                "description": "Includes directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/_includes",
+                "description": "Includes directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/_layouts",
+                "description": "Sharepoint directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/lib",
+                "description": "Lib directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/_lib",
+                "description": "Lib directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/librairies",
+                "description": "Lib directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/local",
+                "description": "Local directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/login",
+                "description": "Login section",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/logs",
+                "description": "Logs directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/LogFiles",
+                "description": "IIS logs directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/mail",
+                "description": "Webmail directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/misc",
+                "description": "Miscellaneous directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/migrate",
+                "description": "Database migration directory",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/migration",
+                "description": "Database migration directory",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/migrations",
+                "description": "Database migration directory",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/munin",
+                "description": "Munin network monitoring",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/modules",
+                "description": "Modules directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/nagios",
+                "description": "Nagios monitoring",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/old",
+                "description": "Old website version",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/owa",
+                "description": "Outlook web access",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/piwik",
+                "description": "Piwik analytics platform",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/private",
+                "description": "Private directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/protected",
+                "description": "_Protected_ directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/pub",
+                "description": "Public directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/public",
+                "description": "Public directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/photo",
+                "description": "Photos directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/photos",
+                "description": "Photos directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/random",
+                "description": "Random stuff directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/rpc",
+                "description": "Site API",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/zeus/_reports",
+                "description": "Zeus botnet reports",
+                "timeout_count": 0,
+                "severity": "critical"
+            },
+            {
+                "url": "/_reports",
+                "description": "Zeus botnet reports",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/scripts",
+                "description": "Scripts directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/script",
+                "description": "Scripts directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/secret",
+                "description": "_Secret_ directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/secure",
+                "description": "_Secure_ directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/settings",
+                "description": "Settings directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/sites",
+                "description": "Subsites directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/slimstat",
+                "description": "SlimStats",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/src",
+                "description": "Source directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/.ssh",
+                "description": "SSH config directory",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/safe",
+                "description": "_Safe_ directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/shop",
+                "description": "Shop directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/static",
+                "description": "Static files directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/stats",
+                "description": "Stats directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/status",
+                "description": "Stats directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/statistics",
+                "description": "Stats directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/system",
+                "description": "System directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/update",
+                "description": "Update directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/updates",
+                "description": "Update directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/upload",
+                "description": "Upload directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/uploads",
+                "description": "Upload directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/unsafe",
+                "description": "Unsafe directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/tmp",
+                "description": "Temp directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/todel",
+                "description": "Backup Directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/temp",
+                "description": "Temp directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/test",
+                "description": "Test Directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/tests",
+                "description": "Test Directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/beta",
+                "description": "Test Directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/tx",
+                "description": "Transfer directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/user",
+                "description": "User directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/users",
+                "description": "User directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/utils",
+                "description": "Utils directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/var",
+                "description": "Variable directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/.vim",
+                "description": "Vim config directory",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/webadmin",
+                "description": "Admin section",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/webadm",
+                "description": "Admin section",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/webmail",
+                "description": "Webmail directory",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/webedit",
+                "description": "Admin directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/work",
+                "description": "work directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/WEB-INF",
+                "description": "web-inf directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/META-INF",
+                "description": "meta-inf directory",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/wp-admin",
+                "description": "Wordpress admin section",
+                "timeout_count": 0,
+                "severity": "info"
+            },
+            {
+                "url": "/xml",
+                "description": "Static xml directory",
+                "timeout_count": 0,
+                "severity": "info"
+            }
+        ]
+    },
+    {
+        "description": "Drupal",
+        "data": [
+            {
+                "url": "/sites/default/files/backup_migrate",
+                "description": "Drupal Migrations",
+                "timeout_count": 0,
+                "severity": "critical"
+            },
+            {
+                "url": "/webfm_send",
+                "description": "Drupal uploads",
+                "timeout_count": 0,
+                "severity": "warning"
+            }
+        ]
+    },
+    {
+        "description": "groupware",
+        "data": [
+            {
+                "url": "/lib/sql",
+                "description": "Groupware SQL",
+                "timeout_count": 0,
+                "severity": "critical"
+            }
+        ]
+    },
+    {
+        "description": "phpBB",
+        "data": [
+            {
+                "url": "/phpBB3",
+                "description": "phpBB backup",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/phpBB2",
+                "description": "phpBB backup",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/phpBB",
+                "description": "phpBB",
+                "timeout_count": 0,
+                "severity": "info"
+            }
+        ]
+    },
+    {
+        "description": "Textpattern cms",
+        "data": [
+            {
+                "url": "/textpattern",
+                "description": "Textpattern CMS",
+                "timeout_count": 0,
+                "severity": "warning"
+            }
+        ]
+    },
+    {
+        "description": "ActiveCollab",
+        "data": [
+            {
+                "url": "/activeCollab",
+                "description": "ActiveCollab",
+                "timeout_count": 0,
+                "severity": "warning"
+            }
+        ]
+    },
+    {
+        "description": "Source control directory (/.svn omited since theres a plugin to manage it)",
+        "data": [
+            {
+                "url": "/CVS",
+                "description": "CVS directory",
+                "timeout_count": 0,
+                "severity": "critical"
+            },
+            {
+                "url": "/.git",
+                "description": "Git directory",
+                "timeout_count": 0,
+                "severity": "critical"
+            },
+            {
+                "url": "/.hg",
+                "description": "Mercurial directory",
+                "timeout_count": 0,
+                "severity": "critical"
+            }
+        ]
+    },
+    {
+        "description": "Tomcat",
+        "data": [
+            {
+                "url": "/manager/html",
+                "description": "Tomcat manager",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/host-manager/html",
+                "description": "Tomcat virtual host manager",
+                "timeout_count": 0,
+                "severity": "medium"
+            }
+        ]
+    },
+    {
+        "description": "JBoss",
+        "data": [
+            {
+                "url": "/jmx-console",
+                "description": "JBoss JMX console",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/web-console",
+                "description": "JBoss web console",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/console",
+                "description": "Admin console / JBoss console",
+                "timeout_count": 0,
+                "severity": "medium"
+            }
+        ]
+    },
+    {
+        "description": "Resin",
+        "data": [
+            {
+                "url": "/resin-admin",
+                "description": "Resin administration",
+                "timeout_count": 0,
+                "severity": "warning"
+            }
+        ]
+    },
+    {
+        "description": "phpMyAdmin (source: http://downloads.skullsecurity.org/passwords/phpmyadmin-locations.txt)",
+        "data": [
+            {
+                "url": "/dh_phpmyadmin",
+                "description": "Dreamhost phpMyAdmin installation",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/myadmin",
+                "description": "phpMyAdmin installation",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/phpMyAdmin",
+                "description": "phpMyAdmin installation",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/phpmyadmin",
+                "description": "phpMyAdmin installation",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/phpmyadmin2",
+                "description": "phpMyAdmin installation",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/phpMyAdmin2",
+                "description": "phpMyAdmin installation",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/PMA",
+                "description": "phpMyAdmin installation",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/pma",
+                "description": "phpMyAdmin installation",
+                "timeout_count": 0,
+                "severity": "warning"
+            }
+        ]
+    },
+    {
+        "description": "Generic database related directories",
+        "data": [
+            {
+                "url": "/sql",
+                "description": "Sql backups directory",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/sqlmanager",
+                "description": "Database web console",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/mysqlmanager",
+                "description": "Database web console",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/mysql",
+                "description": "Database web console",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/sqlweb",
+                "description": "Database web console",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/websql",
+                "description": "Database web console",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/webdb",
+                "description": "Database web console",
+                "timeout_count": 0,
+                "severity": "medium"
+            }
+        ]
+    },
+    {
+        "description": "2017 Goglu Dorks",
+        "data": [
+            {
+                "url": "/idx_config",
+                "description": "Configuration Folder",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/$Recycle.Bin",
+                "description": "Windows recycle bin",
+                "timeout_count": 0,
+                "severity": "medium"
+            },
+            {
+                "url": "/attachment",
+                "description": "Web application attachements",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/wp-content/uploads/private",
+                "description": "Wordpress upload folder",
+                "timeout_count": 0,
+                "severity": "warning"
+            },
+            {
+                "url": "/homedir/.cpanel/datastore",
+                "description": "CPanel datastore",
+                "timeout_count": 0,
+                "severity": "warning"
+            }
+        ]
+    }
+]

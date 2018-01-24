@@ -42,12 +42,12 @@ from datetime import datetime
 def load_target_paths(running_path):
     """ Load the target paths in the database """
     textutils.output_info('Loading target paths')
-    database.paths += loaders.load_targets(running_path + '/data/path.lst') 
+    database.paths += loaders.load_targets(running_path + '/data/paths.json')
 
 def load_target_files(running_path):
     """ Load the target files in the database """
     textutils.output_info('Loading target files')
-    database.files += loaders.load_targets(running_path + '/data/file.lst')
+    database.files += loaders.load_targets(running_path + '/data/files.json')
 
 def get_session_cookies():
     """ Fetch initial session cookies """
