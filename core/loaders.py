@@ -16,25 +16,18 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import ast
-import codecs
 from . import textutils
+import json
+
 
 def load_targets(file):
     """ Load the list of target paths """
-    loaded = list()
-    f = codecs.open(file, 'r', 'UTF-8')
-    for path in f:
-        path = path.strip()
-        if len(path) > 0 and '#' not in path:
-            try:
-                # Add processing values
-                parsed_path = ast.literal_eval(path)
-                parsed_path['timeout_count'] = 0
-                loaded.append(parsed_path)
-            except SyntaxError as e:
-                textutils.output_error('Path parsing error: ' + str(e.strerror))
-
-    f.close()
+    loaded = []
+    with open(file) as fp:
+        try:
+            data = json.load(fp)
+            for section in data:
+                loaded.extend(section["data"])
+        except json.JSONDecodeError as e:
+            textutils.output_error("Error when loading file %s: %s" % (file, str(e)))
     return loaded
-
