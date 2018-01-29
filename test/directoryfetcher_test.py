@@ -18,18 +18,20 @@
 from unittest import TestCase
 from unittest.mock import MagicMock
 from hammertime.core import HammerTime
-from hammertime.ruleset import RejectRequest
+from hammertime.ruleset import RejectRequest, StopRequest
 from urllib.parse import urlparse
 
+from core import database
 from core.database import valid_paths
 from core.directoryfetcher import DirectoryFetcher
 from fixtures import async
 
 
-class TestPathDiscovery(TestCase):
+class TestDiscoveryFetcher(TestCase):
 
     def setUp(self):
         valid_paths.clear()
+        database.successful_fetch_count = 0
 
     @async()
     async def test_fetch_paths_add_valid_path_to_database(self, loop):
@@ -37,15 +39,35 @@ class TestPathDiscovery(TestCase):
         invalid = ["/d", "/e", "/4", "/5"]
         paths = valid + invalid
         hammertime = HammerTime(loop=loop, request_engine=FakeHammertimeEngine())
-        hammertime.heuristics.add(RejectInvalidPaths(invalid))
+        hammertime.heuristics.add(RaiseForPaths(invalid, RejectRequest("Invalid path")))
         directory_fetcher = DirectoryFetcher("http://example.com", hammertime)
 
-        await directory_fetcher.fetch_paths(paths)
+        await directory_fetcher.fetch_paths(self.to_json_data(paths))
 
         self.assertEqual(len(valid), len(valid_paths))
         for path in valid_paths:
-            self.assertIn(path, valid)
-            self.assertNotIn(path, invalid)
+            self.assertIn(path["url"], valid)
+            self.assertNotIn(path["url"], invalid)
+
+    @async()
+    async def test_fetch_paths_update_successful_fetch_count(self, loop):
+        successful = ["/a", "/b", "/c"]
+        timeout = ["/1", "/2", "/3"]
+        paths = timeout + successful
+        hammertime = HammerTime(loop=loop, request_engine=FakeHammertimeEngine())
+        hammertime.heuristics.add(RaiseForPaths(timeout, StopRequest()))
+        directory_fetcher = DirectoryFetcher("http://example.com", hammertime)
+
+        await directory_fetcher.fetch_paths(self.to_json_data(paths))
+
+        self.assertEqual(len(successful), database.successful_fetch_count)
+
+    def to_json_data(self, path_list):
+        data = []
+        for path in path_list:
+            desc = path[1:]
+            data.append({"url": path, "description": desc, "timeout_count": 0, "severity": "warning"})
+        return data
 
 
 class FakeHammertimeEngine:
@@ -57,12 +79,13 @@ class FakeHammertimeEngine:
         return entry
 
 
-class RejectInvalidPaths:
+class RaiseForPaths:
 
-    def __init__(self, invalid_paths):
+    def __init__(self, invalid_paths, exception):
         self.invalid_paths = invalid_paths
+        self.exception = exception
 
     async def before_request(self, entry):
         path = urlparse(entry.request.url).path
         if path in self.invalid_paths:
-            raise RejectRequest("Invalid path")
+            raise self.exception

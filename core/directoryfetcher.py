@@ -18,9 +18,9 @@
 
 from urllib.parse import urljoin
 import asyncio
-from hammertime.ruleset import RejectRequest
+from hammertime.ruleset import RejectRequest, StopRequest
 
-from core import database
+from core import database, stats
 
 
 class DirectoryFetcher:
@@ -32,7 +32,7 @@ class DirectoryFetcher:
     async def fetch_paths(self, paths):
         requests = []
         for path in paths:
-            url = urljoin(self.target_host, path)
+            url = urljoin(self.target_host, path["url"])
             requests.append(self.hammertime.request(url, arguments={"path": path}))
         done, pending = await asyncio.wait(requests, loop=self.hammertime.loop, return_when=asyncio.ALL_COMPLETED)
         for future in done:
@@ -41,3 +41,7 @@ class DirectoryFetcher:
                 database.valid_paths.append(entry.arguments["path"])
             except RejectRequest:
                 pass
+            except StopRequest:
+                continue
+            # TODO replace with hammertime.stats when migration is complete.
+            stats.update_processed_items()
