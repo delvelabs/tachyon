@@ -38,7 +38,8 @@ class DirectoryFetcher:
         for future in done:
             try:
                 entry = await future
-                database.valid_paths.append(entry.arguments["path"])
+                if entry.response.code != 401:
+                    database.valid_paths.append(entry.arguments["path"])
             except RejectRequest:
                 pass
             except StopRequest:

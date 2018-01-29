@@ -19,6 +19,7 @@ from unittest import TestCase
 from unittest.mock import MagicMock
 from hammertime.core import HammerTime
 from hammertime.ruleset import RejectRequest, StopRequest
+from hammertime.http import StaticResponse
 from urllib.parse import urlparse
 
 from core import database
@@ -62,6 +63,24 @@ class TestDiscoveryFetcher(TestCase):
 
         self.assertEqual(len(successful), database.successful_fetch_count)
 
+    @async()
+    async def test_fetch_paths_dont_add_path_if_response_code_is_401(self, loop):
+        paths = ["/401"]
+        hammertime = HammerTime(loop=loop, request_engine=FakeHammertimeEngine())
+        directory_fetcher = DirectoryFetcher("http://example.com", hammertime)
+        hammertime.heuristics.add(SetResponseCode(401))
+
+        await directory_fetcher.fetch_paths(self.to_json_data(paths))
+
+        self.assertEqual(len(database.valid_paths), 0)
+
+    @async()
+    async def test_fetch_paths_output_found_directory(self, loop):
+        found = []
+        not_found = []
+        paths = found + not_found
+
+
     def to_json_data(self, path_list):
         data = []
         for path in path_list:
@@ -74,6 +93,7 @@ class FakeHammertimeEngine:
 
     async def perform(self, entry, heuristics):
         await heuristics.before_request(entry)
+        entry.response = StaticResponse(200, headers={})
         await heuristics.after_headers(entry)
         await heuristics.after_response(entry)
         return entry
@@ -89,3 +109,11 @@ class RaiseForPaths:
         path = urlparse(entry.request.url).path
         if path in self.invalid_paths:
             raise self.exception
+
+class SetResponseCode:
+
+    def __init__(self, response_code):
+        self.response_code = response_code
+
+    async def after_headers(self, entry):
+        entry.response.code = self.response_code
