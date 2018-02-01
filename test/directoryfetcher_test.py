@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 from unittest import TestCase
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, call, patch
 from hammertime.core import HammerTime
 from hammertime.ruleset import RejectRequest, StopRequest
 from hammertime.http import StaticResponse
@@ -26,6 +26,7 @@ from core import database
 from core.database import valid_paths
 from core.directoryfetcher import DirectoryFetcher
 from fixtures import async
+from core import textutils
 
 
 class TestDiscoveryFetcher(TestCase):
@@ -76,10 +77,67 @@ class TestDiscoveryFetcher(TestCase):
 
     @async()
     async def test_fetch_paths_output_found_directory(self, loop):
-        found = []
-        not_found = []
+        found = ["/%d" % i for i in range(10)]
+        not_found = ["/1%d" % i for i in range(10)]
         paths = found + not_found
+        hammertime = HammerTime(loop=loop, request_engine=FakeHammertimeEngine())
+        hammertime.heuristics.add(RaiseForPaths(not_found, RejectRequest("404 not found")))
+        base_url = "http://example.com"
+        directory_fetcher = DirectoryFetcher(base_url, hammertime)
 
+        with patch("core.textutils.output_found", MagicMock()):
+
+            await directory_fetcher.fetch_paths(self.to_json_data(paths))
+
+            calls = []
+            for path in self.to_json_data(found):
+                data = {
+                    "description": path["description"],
+                    "url": base_url + path["url"],
+                    "code": 200,
+                    "severity": path['severity']
+                }
+                _call = call(path["description"] + ' at: ' + base_url + path["url"], data)
+                calls.append(_call)
+            textutils.output_found.assert_has_calls(calls, any_order=True)
+
+    @async()
+    async def test_fetch_paths_output_401_directory(self, loop):
+        hammertime = HammerTime(loop=loop, request_engine=FakeHammertimeEngine())
+        hammertime.heuristics.add(SetResponseCode(401))
+        base_url = "http://example.com"
+        directory_fetcher = DirectoryFetcher(base_url, hammertime)
+
+        with patch("core.textutils.output_found", MagicMock()):
+            await directory_fetcher.fetch_paths(self.to_json_data(["/admin"]))
+            desc = "admin"
+            data = {
+                "description": desc,
+                "url": base_url + "/admin",
+                "code": 401,
+                "severity": "warning"
+            }
+            message = "Password Protected - " + desc + " at: " + base_url + "/admin"
+            textutils.output_found.assert_called_once_with(message, data)
+
+    @async()
+    async def test_fetch_paths_output_403_directory(self, loop):
+        hammertime = HammerTime(loop=loop, request_engine=FakeHammertimeEngine())
+        hammertime.heuristics.add(SetResponseCode(403))
+        base_url = "http://example.com"
+        directory_fetcher = DirectoryFetcher(base_url, hammertime)
+
+        with patch("core.textutils.output_found", MagicMock()):
+            await directory_fetcher.fetch_paths(self.to_json_data(["/forbidden"]))
+            desc = "forbidden"
+            data = {
+                "description": desc,
+                "url": base_url + "/forbidden",
+                "code": 403,
+                "severity": "warning"
+            }
+            message = "*Forbidden* " + desc + " at: " + base_url + "/forbidden"
+            textutils.output_found.assert_called_once_with(message, data)
 
     def to_json_data(self, path_list):
         data = []
@@ -109,6 +167,7 @@ class RaiseForPaths:
         path = urlparse(entry.request.url).path
         if path in self.invalid_paths:
             raise self.exception
+
 
 class SetResponseCode:
 

@@ -20,7 +20,7 @@ from urllib.parse import urljoin
 import asyncio
 from hammertime.ruleset import RejectRequest, StopRequest
 
-from core import database, stats
+from core import database, stats, textutils
 
 
 class DirectoryFetcher:
@@ -40,9 +40,22 @@ class DirectoryFetcher:
                 entry = await future
                 if entry.response.code != 401:
                     database.valid_paths.append(entry.arguments["path"])
+                    if entry.response.code == 403:
+                        self.output_found(entry, "*Forbidden* ")
+                    else:
+                        self.output_found(entry)
+                else:
+                    self.output_found(entry, "Password Protected - ")
             except RejectRequest:
                 pass
             except StopRequest:
                 continue
             # TODO replace with hammertime.stats when migration is complete.
             stats.update_processed_items()
+
+    def output_found(self, entry, desc_prefix=""):
+        path = entry.arguments["path"]
+        url = entry.request.url
+        desc = path["description"]
+        data = {"description": desc, "url": url, "code": entry.response.code, "severity": path['severity']}
+        textutils.output_found("{0}{1} at: {2}".format(desc_prefix, desc, url), data)
