@@ -21,7 +21,7 @@ try:
 except ImportError:
     import Queue
 
-from core import conf
+from . import conf
 from datetime import datetime
 
 """ Connection pool, to be adjusted by tachyon after initial host benchmark """

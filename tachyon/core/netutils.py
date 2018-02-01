@@ -16,18 +16,35 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+import re
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
+
 from . import textutils
-import json
 
 
-def load_targets(file):
-    """ Load the list of target paths """
-    loaded = []
-    with open(file) as fp:
-        try:
-            data = json.load(fp)
-            for section in data:
-                loaded.extend(section["data"])
-        except json.JSONDecodeError as e:
-            textutils.output_error("Error when loading file %s: %s" % (file, str(e)))
-    return loaded
+
+def parse_hostname(hostname):
+    ssl = False
+    if not re.search(r'http://', hostname, re.I) and not re.search(r'https://', hostname, re.I):
+        hostname = 'http://' + hostname
+
+    if re.search(r'https://', hostname, re.I):
+        ssl = True
+
+    parsed = urlparse(hostname)
+    parsed_path = parsed.path
+
+    if parsed_path.endswith('/'):
+        parsed_path = parsed_path[0:-1]
+
+    if not parsed.port:
+        parsed_port = 80
+    else:
+        parsed_port = parsed.port
+
+
+    textutils.output_debug("Starting scan on: " + parsed.hostname + " base: " + parsed_path + " ssl: " + str(ssl))
+    return parsed.hostname, parsed_port, parsed_path, ssl
