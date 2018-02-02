@@ -40,16 +40,7 @@ class DirectoryFetcher:
                 entry = await future
                 if entry.response.code != 401:
                     database.valid_paths.append(entry.arguments["path"])
-                    if entry.response.code == 403:
-                        self.output_found(entry, "*Forbidden* ")
-                    elif entry.response.code == 500:
-                        self.output_found(entry, "ISE, ")
-                    elif entry.response.code == 404 and workers.detect_tomcat_fake_404(entry.response.raw):
-                        self.output_found(entry, "Tomcat redirect, ", special="tomcat-redirect")
-                    else:
-                        self.output_found(entry)
-                else:
-                    self.output_found(entry, "Password Protected - ")
+                self.output_found(entry)
             except RejectRequest:
                 pass
             except StopRequest:
@@ -57,7 +48,19 @@ class DirectoryFetcher:
             # TODO replace with hammertime.stats when migration is complete.
             stats.update_processed_items()
 
-    def output_found(self, entry, desc_prefix="", **kwargs):
+    def output_found(self, entry):
+        if entry.response.code == 401:
+            self._format_output(entry, "Password Protected - ")
+        elif entry.response.code == 403:
+            self._format_output(entry, "*Forbidden* ")
+        elif entry.response.code == 404 and workers.detect_tomcat_fake_404(entry.response.raw):
+            self._format_output(entry, "Tomcat redirect, ", special="tomcat-redirect")
+        elif entry.response.code == 500:
+            self._format_output(entry, "ISE, ")
+        else:
+            self._format_output(entry)
+
+    def _format_output(self, entry, desc_prefix="", **kwargs):
         path = entry.arguments["path"]
         url = entry.request.url
         desc = path["description"]
