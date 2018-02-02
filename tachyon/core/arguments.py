@@ -1,5 +1,5 @@
 from optparse import OptionParser, Option, OptionValueError
-from core import conf, textutils
+from . import conf, textutils
 
 class MultipleOption(Option):
     """

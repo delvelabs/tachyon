@@ -17,8 +17,9 @@
 #
 
 import re
-from core import conf, textutils, database
-from core.fetcher import Fetcher
+from ...core import conf, textutils, database
+from ...core.fetcher import Fetcher
+
 try:
     from urlparse import urljoin
 except ImportError:

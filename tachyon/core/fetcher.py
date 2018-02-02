@@ -15,8 +15,8 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from core import database, textutils
-from core import conf
+from . import conf, database, textutils
+
 from urllib3.connection import UnverifiedHTTPSConnection
 from urllib3.util import Timeout
 

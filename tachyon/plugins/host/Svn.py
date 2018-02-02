@@ -18,8 +18,8 @@
 
 import os
 import sqlite3
-from core import conf, textutils, database, dbutils
-from core.fetcher import Fetcher
+from ...core import conf, textutils, database, dbutils
+from ...core.fetcher import Fetcher
 from xml.etree import ElementTree
 
 base_headers = dict()

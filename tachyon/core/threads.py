@@ -20,8 +20,7 @@
 import sys
 
 from time import sleep
-from core import database
-from core import textutils, stats
+from . import database, textutils, stats
 
 
 class ThreadManager(object):

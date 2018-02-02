@@ -32,8 +32,8 @@ try:
 except ImportError:
     from urllib.parse import urlparse
 
-from core import database, conf, stats, textutils
-from core.fetcher import Fetcher
+from . import database, conf, stats, textutils
+from .fetcher import Fetcher
 
 
 def compute_request_time(start_time, end_time):

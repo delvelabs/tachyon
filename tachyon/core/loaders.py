@@ -15,24 +15,30 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
+import json
+import os.path as osp
+import sys
 
-import random
-import socket
-from core import textutils
-from core import database
+from . import textutils
 
-def _get_random_ip_from_cache(cache_info):
-    """ Get a random ip from the caches entries """
-    random_entry = cache_info[random.randint(0, len(cache_info) - 1)]
-    host_port = random_entry[4]
-    return host_port[0]
 
-def get_host_ip(host, port):
-    """ Fetch the resolved ip addresses from the cache and return a random address if load-balanced """
-    resolved = database.dns_cache.get(host)
-    if not resolved:
-        textutils.output_debug("Host entry not found in cache for host:" + str(host) + ", resolving")
-        resolved = socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM)
-        database.dns_cache[host] = resolved
+def _get_data_dir():
+    return osp.join(osp.dirname(sys.modules['tachyon'].__file__), 'data/')
 
-    return _get_random_ip_from_cache(resolved), port
+
+def load_json_resource(name):
+    data_path = osp.join(_get_data_dir(), name + '.json')
+    return load_targets(data_path)
+
+
+def load_targets(file):
+    """ Load the list of target paths """
+    loaded = []
+    with open(file) as fp:
+        try:
+            data = json.load(fp)
+            for section in data:
+                loaded.extend(section["data"])
+        except json.JSONDecodeError as e:
+            textutils.output_error("Error when loading file %s: %s" % (file, str(e)))
+    return loaded

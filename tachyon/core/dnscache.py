@@ -16,35 +16,23 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import re
-try:
-    from urlparse import urlparse
-except ImportError:
-    from urllib.parse import urlparse
+import random
+import socket
 
-from core import textutils
+from .import textutils, database
 
+def _get_random_ip_from_cache(cache_info):
+    """ Get a random ip from the caches entries """
+    random_entry = cache_info[random.randint(0, len(cache_info) - 1)]
+    host_port = random_entry[4]
+    return host_port[0]
 
+def get_host_ip(host, port):
+    """ Fetch the resolved ip addresses from the cache and return a random address if load-balanced """
+    resolved = database.dns_cache.get(host)
+    if not resolved:
+        textutils.output_debug("Host entry not found in cache for host:" + str(host) + ", resolving")
+        resolved = socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM)
+        database.dns_cache[host] = resolved
 
-def parse_hostname(hostname):
-    ssl = False
-    if not re.search(r'http://', hostname, re.I) and not re.search(r'https://', hostname, re.I):
-        hostname = 'http://' + hostname
-
-    if re.search(r'https://', hostname, re.I):
-        ssl = True
-
-    parsed = urlparse(hostname)
-    parsed_path = parsed.path
-
-    if parsed_path.endswith('/'):
-        parsed_path = parsed_path[0:-1]
-
-    if not parsed.port:
-        parsed_port = 80
-    else:
-        parsed_port = parsed.port
-
-
-    textutils.output_debug("Starting scan on: " + parsed.hostname + " base: " + parsed_path + " ssl: " + str(ssl))
-    return parsed.hostname, parsed_port, parsed_path, ssl
+    return _get_random_ip_from_cache(resolved), port

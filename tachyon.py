@@ -25,29 +25,42 @@ if sys.version_info[0] < 3:
     print("Must be using Python 3")
     sys.exit()
 
+
 import uuid
 import urllib3
 import os
-from core import conf, database, dnscache, loaders, textutils, netutils, dbutils
-from core.fetcher import Fetcher
-from core.workers import PrintWorker, PrintResultsWorker, JSONPrintResultWorker, FetchCrafted404Worker, TestPathExistsWorker, TestFileExistsWorker
-from core.threads import ThreadManager
-from plugins import host, file
+import sys
+from pkgutil import get_data
 from socket import gaierror
 from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
 from urllib3.poolmanager import ProxyManager
-
 from datetime import datetime
+
+sys.path.pop(0)
+
+import tachyon.core.conf as conf
+import tachyon.core.database as database
+import tachyon.core.dnscache as dnscache
+import tachyon.core.loaders as loaders
+import tachyon.core.textutils as textutils
+import tachyon.core.netutils as netutils
+import tachyon.core.dbutils as dbutils
+from tachyon.core.fetcher import Fetcher
+from tachyon.core.workers import PrintWorker, PrintResultsWorker, JSONPrintResultWorker, FetchCrafted404Worker, TestPathExistsWorker, TestFileExistsWorker
+from tachyon.core.threads import ThreadManager
+from tachyon.plugins import host, file
+
 
 def load_target_paths(running_path):
     """ Load the target paths in the database """
     textutils.output_info('Loading target paths')
-    database.paths += loaders.load_targets(running_path + '/data/paths.json')
+    database.paths += loaders.load_json_resource('paths')
+
 
 def load_target_files(running_path):
     """ Load the target files in the database """
     textutils.output_info('Loading target files')
-    database.files += loaders.load_targets(running_path + '/data/files.json')
+    database.files += loaders.load_json_resource('files')
 
 def get_session_cookies():
     """ Fetch initial session cookies """
@@ -173,7 +186,7 @@ def load_execute_host_plugins():
     """ Import and run host plugins """
     textutils.output_info('Executing ' + str(len(host.__all__)) + ' host plugins')
     for plugin_name in host.__all__:
-        plugin = __import__ ("plugins.host." + plugin_name, fromlist=[plugin_name])
+        plugin = __import__ ("tachyon.plugins.host." + plugin_name, fromlist=[plugin_name])
         if hasattr(plugin , 'execute'):
              plugin.execute()
 
@@ -182,7 +195,7 @@ def load_execute_file_plugins():
     """ Import and run path plugins """
     textutils.output_info('Executing ' + str(len(file.__all__)) + ' file plugins')
     for plugin_name in file.__all__:
-        plugin = __import__ ("plugins.file." + plugin_name, fromlist=[plugin_name])
+        plugin = __import__ ("tachyon.plugins.file." + plugin_name, fromlist=[plugin_name])
         if hasattr(plugin , 'execute'):
              plugin.execute()
 
@@ -261,7 +274,7 @@ if __name__ == "__main__":
     start_scan_time = datetime.now()
     
     # Parse command line
-    from core.arguments import generate_options, parse_args
+    from tachyon.core.arguments import generate_options, parse_args
     parser = generate_options()
     options, args = parse_args(parser, sys.argv)
 

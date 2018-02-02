@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from core import conf, database, textutils, dbutils
+from ...core import conf, database, textutils, dbutils
 from datetime import date
 
 plugin_settings = conf.plugin_settings["PathGenerator"]
