@@ -29,7 +29,7 @@ from fixtures import async
 from tachyon.core import textutils
 
 
-class TestDiscoveryFetcher(TestCase):
+class TestDirectoryFetcher(TestCase):
 
     def setUp(self):
         valid_paths.clear()
