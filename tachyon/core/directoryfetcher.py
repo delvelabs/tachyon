@@ -20,7 +20,7 @@ from urllib.parse import urljoin
 import asyncio
 from hammertime.ruleset import RejectRequest, StopRequest
 
-from core import database, stats, textutils, workers
+from . import database, stats, textutils, workers
 
 
 class DirectoryFetcher:

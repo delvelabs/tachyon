@@ -22,11 +22,11 @@ from hammertime.ruleset import RejectRequest, StopRequest
 from hammertime.http import StaticResponse
 from urllib.parse import urlparse
 
-from core import database
-from core.database import valid_paths
-from core.directoryfetcher import DirectoryFetcher
+from tachyon.core import database
+from tachyon.core.database import valid_paths
+from tachyon.core.directoryfetcher import DirectoryFetcher
 from fixtures import async
-from core import textutils
+from tachyon.core import textutils
 
 
 class TestDiscoveryFetcher(TestCase):
@@ -85,7 +85,7 @@ class TestDiscoveryFetcher(TestCase):
         base_url = "http://example.com"
         directory_fetcher = DirectoryFetcher(base_url, hammertime)
 
-        with patch("core.textutils.output_found", MagicMock()):
+        with patch("tachyon.core.textutils.output_found", MagicMock()):
 
             await directory_fetcher.fetch_paths(self.to_json_data(paths))
 
@@ -108,7 +108,7 @@ class TestDiscoveryFetcher(TestCase):
         base_url = "http://example.com"
         directory_fetcher = DirectoryFetcher(base_url, hammertime)
 
-        with patch("core.textutils.output_found", MagicMock()):
+        with patch("tachyon.core.textutils.output_found", MagicMock()):
             await directory_fetcher.fetch_paths(self.to_json_data(["/admin"]))
             desc = "admin"
             data = {
@@ -127,7 +127,7 @@ class TestDiscoveryFetcher(TestCase):
         base_url = "http://example.com"
         directory_fetcher = DirectoryFetcher(base_url, hammertime)
 
-        with patch("core.textutils.output_found", MagicMock()):
+        with patch("tachyon.core.textutils.output_found", MagicMock()):
             await directory_fetcher.fetch_paths(self.to_json_data(["/server-error"]))
             desc = "server-error"
             data = {
@@ -146,7 +146,7 @@ class TestDiscoveryFetcher(TestCase):
         base_url = "http://example.com"
         directory_fetcher = DirectoryFetcher(base_url, hammertime)
 
-        with patch("core.textutils.output_found", MagicMock()):
+        with patch("tachyon.core.textutils.output_found", MagicMock()):
             await directory_fetcher.fetch_paths(self.to_json_data(["/forbidden"]))
             desc = "forbidden"
             data = {
@@ -165,8 +165,8 @@ class TestDiscoveryFetcher(TestCase):
         base_url = "http://example.com"
         directory_fetcher = DirectoryFetcher(base_url, hammertime)
 
-        with patch("core.textutils.output_found", MagicMock()), \
-             patch("core.workers.detect_tomcat_fake_404", MagicMock(return_value=True)):
+        with patch("tachyon.core.textutils.output_found", MagicMock()), \
+             patch("tachyon.core.workers.detect_tomcat_fake_404", MagicMock(return_value=True)):
             await directory_fetcher.fetch_paths(self.to_json_data(["/path"]))
             desc = "path"
             data = {
