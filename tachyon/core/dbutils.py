@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from core import database, textutils
+from . import database, textutils
 
 def _get_cached_url_string(url_obj):
     if len(url_obj['url']) == 1 and url_obj['url'] == '/':

@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from core import database, textutils
+from . import database, textutils
 from datetime import datetime, timedelta
 
 def update_stats(url):
