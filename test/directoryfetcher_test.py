@@ -121,6 +121,25 @@ class TestDiscoveryFetcher(TestCase):
             textutils.output_found.assert_called_once_with(message, data)
 
     @async()
+    async def test_fetch_paths_output_500_response(self, loop):
+        hammertime = HammerTime(loop=loop, request_engine=FakeHammertimeEngine())
+        hammertime.heuristics.add(SetResponseCode(500))
+        base_url = "http://example.com"
+        directory_fetcher = DirectoryFetcher(base_url, hammertime)
+
+        with patch("core.textutils.output_found", MagicMock()):
+            await directory_fetcher.fetch_paths(self.to_json_data(["/server-error"]))
+            desc = "server-error"
+            data = {
+                "description": desc,
+                "url": base_url + "/server-error",
+                "code": 500,
+                "severity": "warning"
+            }
+            message = "ISE, " + desc + " at: " + base_url + "/server-error"
+            textutils.output_found.assert_called_once_with(message, data)
+
+    @async()
     async def test_fetch_paths_output_403_directory(self, loop):
         hammertime = HammerTime(loop=loop, request_engine=FakeHammertimeEngine())
         hammertime.heuristics.add(SetResponseCode(403))
@@ -139,6 +158,27 @@ class TestDiscoveryFetcher(TestCase):
             message = "*Forbidden* " + desc + " at: " + base_url + "/forbidden"
             textutils.output_found.assert_called_once_with(message, data)
 
+    @async()
+    async def test_fetch_paths_output_tomcat_fake_404(self, loop):
+        hammertime = HammerTime(loop=loop, request_engine=FakeHammertimeEngine())
+        hammertime.heuristics.add(SetResponseCode(404))
+        base_url = "http://example.com"
+        directory_fetcher = DirectoryFetcher(base_url, hammertime)
+
+        with patch("core.textutils.output_found", MagicMock()), \
+             patch("core.workers.detect_tomcat_fake_404", MagicMock(return_value=True)):
+            await directory_fetcher.fetch_paths(self.to_json_data(["/path"]))
+            desc = "path"
+            data = {
+                "description": desc,
+                "url": base_url + "/path",
+                "code": 404,
+                "severity": "warning",
+                "special": "tomcat-redirect"
+            }
+            message = "Tomcat redirect, " + desc + " at: " + base_url + "/path"
+            textutils.output_found.assert_called_once_with(message, data)
+
     def to_json_data(self, path_list):
         data = []
         for path in path_list:
@@ -153,6 +193,7 @@ class FakeHammertimeEngine:
         await heuristics.before_request(entry)
         entry.response = StaticResponse(200, headers={})
         await heuristics.after_headers(entry)
+        entry.response.set_content(b"data", at_eof=False)
         await heuristics.after_response(entry)
         return entry
 

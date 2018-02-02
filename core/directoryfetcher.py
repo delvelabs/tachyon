@@ -20,7 +20,7 @@ from urllib.parse import urljoin
 import asyncio
 from hammertime.ruleset import RejectRequest, StopRequest
 
-from core import database, stats, textutils
+from core import database, stats, textutils, workers
 
 
 class DirectoryFetcher:
@@ -42,6 +42,10 @@ class DirectoryFetcher:
                     database.valid_paths.append(entry.arguments["path"])
                     if entry.response.code == 403:
                         self.output_found(entry, "*Forbidden* ")
+                    elif entry.response.code == 500:
+                        self.output_found(entry, "ISE, ")
+                    elif entry.response.code == 404 and workers.detect_tomcat_fake_404(entry.response.raw):
+                        self.output_found(entry, "Tomcat redirect, ", special="tomcat-redirect")
                     else:
                         self.output_found(entry)
                 else:
@@ -53,9 +57,10 @@ class DirectoryFetcher:
             # TODO replace with hammertime.stats when migration is complete.
             stats.update_processed_items()
 
-    def output_found(self, entry, desc_prefix=""):
+    def output_found(self, entry, desc_prefix="", **kwargs):
         path = entry.arguments["path"]
         url = entry.request.url
         desc = path["description"]
         data = {"description": desc, "url": url, "code": entry.response.code, "severity": path['severity']}
+        data.update(**kwargs)
         textutils.output_found("{0}{1} at: {2}".format(desc_prefix, desc, url), data)
