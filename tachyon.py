@@ -35,6 +35,8 @@ from socket import gaierror
 from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
 from urllib3.poolmanager import ProxyManager
 from datetime import datetime
+from hammertime import HammerTime
+from hammertime.rules import DetectSoft404, RejectStatusCode
 
 sys.path.pop(0)
 
@@ -46,9 +48,11 @@ import tachyon.core.textutils as textutils
 import tachyon.core.netutils as netutils
 import tachyon.core.dbutils as dbutils
 from tachyon.core.fetcher import Fetcher
-from tachyon.core.workers import PrintWorker, PrintResultsWorker, JSONPrintResultWorker, FetchCrafted404Worker, TestPathExistsWorker, TestFileExistsWorker
+from tachyon.core.workers import PrintWorker, PrintResultsWorker, JSONPrintResultWorker, FetchCrafted404Worker, TestFileExistsWorker
 from tachyon.core.threads import ThreadManager
 from tachyon.plugins import host, file
+from tachyon.core.generator import PathGenerator
+from tachyon.core.directoryfetcher import DirectoryFetcher
 
 
 def load_target_paths(running_path):
@@ -109,56 +113,31 @@ def sample_root_404():
 def test_paths_exists():
     """ 
     Test for path existence using http codes and computed 404
-    Spawn workers and turn off output for now, it would be irrelevant at this point. 
+    Turn off output for now, it would be irrelevant at this point.
     """
-    manager = ThreadManager()
-    
-    # Fill work queue with fetch list
-    for path in database.paths:
-        dbutils.add_path_to_fetch_queue(path)
 
-    # Consider some file target as potential path
-    for file in database.files:
-        if not file.get('no_suffix'):
-            file_as_path = file.copy()
-            file_as_path['url'] = '/' + file_as_path['url']
-            dbutils.add_path_to_fetch_queue(file_as_path)
+    path_generator = PathGenerator()
+    hammertime = HammerTime(retry_count=3)
+    hammertime.heuristics.add_multiple([RejectStatusCode({404}), DetectSoft404()])
+    loop = hammertime.loop
 
-    done_paths = []
-    recursion_depth = 0
-
+    paths_to_fetch = path_generator.generate_paths(use_valid_paths=False)
     textutils.output_debug('Cached: ' + str(database.path_cache))
-    while database.fetch_queue.qsize() > 0:
-        textutils.output_info('Probing ' + str(database.fetch_queue.qsize()) + ' paths')
 
-        # Wait for initial valid path lookup
-        workers = manager.spawn_workers(conf.thread_count, TestPathExistsWorker)
-        manager.wait_for_idle(workers, database.fetch_queue)
+    async def fetch_paths(paths):
+        fetcher = DirectoryFetcher(conf.base_url, hammertime)
+        await fetcher.fetch_paths(paths)
 
-        recursion_depth += 1
-        
-        if not conf.recursive:
-            break
-        
-        if recursion_depth >= conf.recursive_depth_limit:
-            break    
-        
-        for validpath in database.valid_paths:
-            
-            if validpath['url'] == '/' or validpath['url'] in done_paths:
-                continue
-            
-            done_paths.append(validpath['url'])
-            
-            for path in database.paths:
-                if path['url'] in ('/', ''):
-                    continue
-                path = path.copy()
-                path['url'] = validpath['url'] + path['url']
-                dbutils.add_path_to_fetch_queue(path)
+    textutils.output_info('Probing %d paths' % len(paths_to_fetch))
+    loop.run_until_complete(fetch_paths(paths_to_fetch))
 
+    recursion_depth = 0
+    if conf.recursive:
+        while recursion_depth < conf.recursive_depth_limit:
+            recursion_depth += 1
+            paths_to_fetch = path_generator.generate_paths(use_valid_paths=True)
+            loop.run_until_complete(fetch_paths(paths_to_fetch))
     textutils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
-
 
 
 def sample_404_from_found_path():
