@@ -64,6 +64,6 @@ class DirectoryFetcher:
         path = entry.arguments["path"]
         url = entry.request.url
         desc = path["description"]
-        data = {"description": desc, "url": url, "code": entry.response.code, "severity": path['severity']}
+        data = {"description": desc, "url": url, "code": entry.response.code, "severity": path.get('severity', "warning")}
         data.update(**kwargs)
         textutils.output_found("{0}{1} at: {2}".format(desc_prefix, desc, url), data)

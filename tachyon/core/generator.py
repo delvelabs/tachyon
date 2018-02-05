@@ -25,18 +25,26 @@ class PathGenerator:
         generated_paths = []
         if use_valid_paths:
             generated_paths.extend(self._create_new_paths_from_valid_paths())
+            database.path_cache.update(path["url"] for path in generated_paths)
         else:
-            generated_paths.extend(database.paths)
-            generated_paths.extend(self._use_files_as_paths())
-        database.path_cache.update(path["url"] for path in generated_paths)
+            generated_paths.extend([path for path in self._database_paths()])
+            generated_paths.extend([file for file in self._use_files_as_paths()])
         return generated_paths
 
+    def _database_paths(self):
+        for path in database.paths:
+            if path["url"] not in database.path_cache:
+                database.path_cache.add(path["url"])
+                yield path
+
     def _use_files_as_paths(self):
-        files_as_paths = []
         for file in database.files:
-            if not file.get("no_suffix"):
-                files_as_paths.append(file)
-        return files_as_paths
+            path = "/%s" % file["url"]
+            if not file.get("no_suffix") and path not in database.path_cache:
+                file_as_path = file.copy()
+                file_as_path["url"] = path
+                database.path_cache.add(path)
+                yield file_as_path
 
     def _create_new_paths_from_valid_paths(self):
         new_paths = []

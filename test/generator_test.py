@@ -46,11 +46,11 @@ class TestPathGenerator(TestCase):
 
         paths = generator.generate_paths(use_valid_paths=False)
 
-        self.assertTrue(any(path["url"] == "file0" for path in paths))
-        self.assertTrue(any(path["url"] == "file1" for path in paths))
-        self.assertTrue(any(path["url"] == "file2" for path in paths))
-        self.assertTrue(all(path["url"] != "index.html" for path in paths))
-        self.assertTrue(all(path["url"] != "php.info" for path in paths))
+        self.assertTrue(any(path["url"] == "/file0" for path in paths))
+        self.assertTrue(any(path["url"] == "/file1" for path in paths))
+        self.assertTrue(any(path["url"] == "/file2" for path in paths))
+        self.assertTrue(all(path["url"] != "/index.html" for path in paths))
+        self.assertTrue(all(path["url"] != "/php.info" for path in paths))
 
     def test_generate_paths_append_loaded_paths_to_valid_paths_if_depth_is_one(self):
         paths = ["/", "/0", "/1", "/2", "/3", "/4"]
