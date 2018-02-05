@@ -38,6 +38,7 @@ from datetime import datetime
 from hammertime import HammerTime
 from hammertime.rules import DetectSoft404, RejectStatusCode
 
+sys.path.pop(0)
 
 import tachyon.core.conf as conf
 import tachyon.core.database as database
