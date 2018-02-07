@@ -8,7 +8,7 @@ reqs = [str(x.req) for x in parse_requirements('./requirements.txt', session=Fal
 setup(
     name='tachyon',
     version=VERSION,
-    packages=[find_packages()],
+    packages=find_packages(),
     package_data={'tachyon': ['data/*.json']},
     entry_points={
         'console_scripts': [
