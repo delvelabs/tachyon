@@ -19,6 +19,7 @@ import asyncio
 from functools import wraps
 from aiohttp.test_utils import loop_context
 from hammertime.http import StaticResponse
+from urllib.parse import urlparse
 
 from easyinject import Injector
 
@@ -80,3 +81,15 @@ class SetResponseContent:
 
     async def after_response(self, entry):
         entry.response.content = self.content
+
+
+class RaiseForPaths:
+
+    def __init__(self, invalid_paths, exception):
+        self.invalid_paths = invalid_paths
+        self.exception = exception
+
+    async def before_request(self, entry):
+        path = urlparse(entry.request.url).path
+        if path in self.invalid_paths:
+            raise self.exception
