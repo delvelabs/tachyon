@@ -21,10 +21,10 @@
 # Ensure python3 runtime
 import atexit
 import sys
+
 if sys.version_info[0] < 3:
     print("Must be using Python 3")
     sys.exit()
-
 
 import uuid
 import urllib3
@@ -48,7 +48,8 @@ import tachyon.core.textutils as textutils
 import tachyon.core.netutils as netutils
 import tachyon.core.dbutils as dbutils
 from tachyon.core.fetcher import Fetcher
-from tachyon.core.workers import PrintWorker, PrintResultsWorker, JSONPrintResultWorker, FetchCrafted404Worker, TestFileExistsWorker
+from tachyon.core.workers import PrintWorker, PrintResultsWorker, JSONPrintResultWorker, FetchCrafted404Worker, \
+    TestFileExistsWorker
 from tachyon.core.threads import ThreadManager
 from tachyon.plugins import host, file
 from tachyon.core.generator import PathGenerator
@@ -66,6 +67,7 @@ def load_target_files(running_path):
     textutils.output_info('Loading target files')
     database.files += loaders.load_json_resource('files')
 
+
 def get_session_cookies():
     """ Fetch initial session cookies """
     textutils.output_info('Fetching session cookie')
@@ -81,11 +83,12 @@ def get_session_cookies():
         if cookies:
             database.session_cookie = cookies
 
+
 def sample_root_404():
     """ Get the root 404, this has to be done as soon as possible since plugins could use this information. """
     manager = ThreadManager()
     textutils.output_info('Benchmarking root 404')
-    
+
     for ext in conf.crafted_404_extensions:
         random_file = str(uuid.uuid4())
         path = conf.path_template.copy()
@@ -111,7 +114,7 @@ def sample_root_404():
 
 
 def test_paths_exists():
-    """ 
+    """
     Test for path existence using http codes and computed 404
     Turn off output for now, it would be irrelevant at this point.
     """
@@ -143,13 +146,13 @@ def test_paths_exists():
 def sample_404_from_found_path():
     """ For all existing path, compute the 404 CRC so we don't get trapped in a tarpit """
     manager = ThreadManager()
-    
+
     for path in database.valid_paths:
         textutils.output_debug("Path in valid path table: " + str(path))
         for ext in conf.crafted_404_extensions:
             path_clone = path.copy()
             random_file = str(uuid.uuid4())
-            
+
             # We don't benchmark / since we do it first before path discovery
             if path_clone['url'] != '/':
                 path_clone['url'] = path_clone['url'] + '/' + random_file + ext
@@ -160,23 +163,22 @@ def sample_404_from_found_path():
     manager.wait_for_idle(workers, database.fetch_queue)
 
 
-
 def load_execute_host_plugins():
     """ Import and run host plugins """
     textutils.output_info('Executing ' + str(len(host.__all__)) + ' host plugins')
     for plugin_name in host.__all__:
-        plugin = __import__ ("tachyon.plugins.host." + plugin_name, fromlist=[plugin_name])
-        if hasattr(plugin , 'execute'):
-             plugin.execute()
+        plugin = __import__("tachyon.plugins.host." + plugin_name, fromlist=[plugin_name])
+        if hasattr(plugin, 'execute'):
+            plugin.execute()
 
 
 def load_execute_file_plugins():
     """ Import and run path plugins """
     textutils.output_info('Executing ' + str(len(file.__all__)) + ' file plugins')
     for plugin_name in file.__all__:
-        plugin = __import__ ("tachyon.plugins.file." + plugin_name, fromlist=[plugin_name])
-        if hasattr(plugin , 'execute'):
-             plugin.execute()
+        plugin = __import__("tachyon.plugins.file." + plugin_name, fromlist=[plugin_name])
+        if hasattr(plugin, 'execute'):
+            plugin.execute()
 
 
 def add_files_to_paths():
@@ -240,26 +242,25 @@ def test_file_exists():
 def print_program_header():
     """ Print a _cute_ program header """
     print("\n\t Tachyon v" + conf.version + " - Fast Multi-Threaded Web Discovery Tool")
-    print("\t https://github.com/delvelabs/tachyon\n") 
+    print("\t https://github.com/delvelabs/tachyon\n")
 
 
-
-# Entry point / main application logic
-if __name__ == "__main__":
+def main():
     # Get running path
     running_path = os.path.dirname(os.path.realpath(sys.argv[0]))
 
     # Benchmark
     start_scan_time = datetime.now()
-    
+
     # Parse command line
     from tachyon.core.arguments import generate_options, parse_args
+
     parser = generate_options()
     options, args = parse_args(parser, sys.argv)
 
     if not conf.eval_output and not conf.json_output:
         print_program_header()
-        
+
     if len(sys.argv) <= 1:
         parser.print_help()
         print('')
@@ -272,8 +273,9 @@ if __name__ == "__main__":
 
     # Ensure the host is of the right format and set it in config
     parsed_host, parsed_port, parsed_path, is_ssl = netutils.parse_hostname(args[1])
-    textutils.output_debug("Parsed: " + parsed_host + " port: " + str(parsed_port) + " " +  parsed_path + " SSL:" + str(is_ssl))
-    
+    textutils.output_debug(
+        "Parsed: " + parsed_host + " port: " + str(parsed_port) + " " + parsed_path + " SSL:" + str(is_ssl))
+
     # Set conf values
     conf.target_host = parsed_host
     conf.target_base_path = parsed_path
@@ -283,11 +285,12 @@ if __name__ == "__main__":
         conf.target_port = 443
     else:
         conf.target_port = parsed_port
-    
+
     conf.scheme = 'https' if is_ssl else 'http'
-    port = "" if (is_ssl and conf.target_port == 443) or (not is_ssl and conf.target_port == 80) else ":%s" % conf.target_port
+    port = "" if (is_ssl and conf.target_port == 443) or (
+    not is_ssl and conf.target_port == 80) else ":%s" % conf.target_port
     conf.base_url = "%s://%s%s" % (conf.scheme, parsed_host, port)
-    
+
     textutils.output_debug('Version: ' + str(conf.version))
     textutils.output_debug('Max timeouts per url: ' + str(conf.max_timeout_count))
     textutils.output_debug('Worker threads: ' + str(conf.thread_count))
@@ -303,7 +306,7 @@ if __name__ == "__main__":
         textutils.output_debug('Using proxy: ' + str(conf.proxy_url))
 
     textutils.output_info('Starting Discovery on ' + conf.base_url)
-    
+
     if conf.use_tor:
         textutils.output_info('Using Tor, be patient it WILL be slow!')
         textutils.output_info('Max timeout count and url fetch timeout doubled for the occasion ;)')
@@ -322,12 +325,14 @@ if __name__ == "__main__":
 
         # Benchmark target host
         if conf.proxy_url:
-            database.connection_pool = ProxyManager(conf.proxy_url, timeout=conf.fetch_timeout_secs, maxsize=conf.thread_count, block=True, cert_reqs='CERT_NONE')
+            database.connection_pool = ProxyManager(conf.proxy_url, timeout=conf.fetch_timeout_secs,
+                                                    maxsize=conf.thread_count, block=True, cert_reqs='CERT_NONE')
         elif not conf.proxy_url and is_ssl:
-            database.connection_pool = HTTPSConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs, block=True, maxsize=conf.thread_count)
+            database.connection_pool = HTTPSConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs,
+                                                           block=True, maxsize=conf.thread_count)
         else:
-            database.connection_pool = HTTPConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs, block=True, maxsize=conf.thread_count)
-        
+            database.connection_pool = HTTPConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs,
+                                                          block=True, maxsize=conf.thread_count)
 
         # Vhost forgery
         if conf.forge_vhost != '<host>':
@@ -337,6 +342,7 @@ if __name__ == "__main__":
             SelectedPrintWorker = JSONPrintResultWorker
         else:
             SelectedPrintWorker = PrintResultsWorker
+
 
         # Register cleanup functions to be executed at program exit
         def finish_output():
@@ -349,6 +355,7 @@ if __name__ == "__main__":
                     print_results_worker.finalize()
             except KeyboardInterrupt:
                 pass
+
 
         # Register cleanup function
         atexit.register(finish_output)
@@ -391,11 +398,11 @@ if __name__ == "__main__":
             test_paths_exists()
         elif conf.plugins_only:
             get_session_cookies()
-            database.connection_pool = HTTPConnectionPool(resolved, timeout=conf.fetch_timeout_secs, maxsize=1) 
+            database.connection_pool = HTTPConnectionPool(resolved, timeout=conf.fetch_timeout_secs, maxsize=1)
             # Add root to targets
             root_path = conf.path_template.copy()
             root_path['url'] = '/'
-            database.paths.append(root_path) 
+            database.paths.append(root_path)
             load_execute_host_plugins()
         else:
             get_session_cookies()
@@ -439,3 +446,5 @@ if __name__ == "__main__":
     sys.exit(0)
 
 
+if __name__ == "__main__":
+    main()
