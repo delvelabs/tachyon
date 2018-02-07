@@ -47,7 +47,7 @@ def fake_future(result, loop):
 def create_json_data(url_list, **kwargs):
     data_list = []
     for url in url_list:
-        desc = "description of %s" % url
+        desc = "description of %s" % url.strip("/")
         data = {"url": url, "description": desc, "timeout_count": 0, "severity": "warning"}
         data.update(**kwargs)
         data_list.append(data)
