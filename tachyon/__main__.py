@@ -36,7 +36,7 @@ from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
 from urllib3.poolmanager import ProxyManager
 from datetime import datetime
 from hammertime import HammerTime
-from hammertime.rules import DetectSoft404, RejectStatusCode
+from hammertime.rules import DetectSoft404, RejectStatusCode, SetHeader, DynamicTimeout
 
 sys.path.pop(0)
 
@@ -54,6 +54,7 @@ from tachyon.core.threads import ThreadManager
 from tachyon.plugins import host, file
 from tachyon.core.generator import PathGenerator
 from tachyon.core.directoryfetcher import DirectoryFetcher
+from tachyon.core.filefetcher import FileFetcher
 
 
 def load_target_paths(running_path):
@@ -113,15 +114,13 @@ def sample_root_404():
     manager.wait_for_idle(workers, database.fetch_queue)
 
 
-def test_paths_exists():
+def test_paths_exists(hammertime):
     """
     Test for path existence using http codes and computed 404
     Turn off output for now, it would be irrelevant at this point.
     """
 
     path_generator = PathGenerator()
-    hammertime = HammerTime(retry_count=3)
-    hammertime.heuristics.add_multiple([RejectStatusCode({404}), DetectSoft404()])
     loop = hammertime.loop
 
     paths_to_fetch = path_generator.generate_paths(use_valid_paths=False)
@@ -227,22 +226,32 @@ def add_files_to_paths():
     database.valid_paths = work_list
 
 
-def test_file_exists():
+def test_file_exists(hammertime):
     """ Test for file existence using http codes and computed 404 """
-    manager = ThreadManager()
-    # Fill work queue with fetch list
-    for item in database.valid_paths:
-        dbutils.add_file_to_fetch_queue(item)
+    async def fetch():
+        fetcher = FileFetcher(conf.base_url, hammertime)
+        await fetcher.fetch_files(database.valid_paths)
 
-    # Wait for initial valid path lookup
-    workers = manager.spawn_workers(conf.thread_count, TestFileExistsWorker)
-    manager.wait_for_idle(workers, database.fetch_queue)
+    if len(database.valid_paths) > 0:
+        hammertime.loop.run_until_complete(fetch())
 
 
 def print_program_header():
     """ Print a _cute_ program header """
     print("\n\t Tachyon v" + conf.version + " - Fast Multi-Threaded Web Discovery Tool")
     print("\t https://github.com/delvelabs/tachyon\n")
+
+
+def configure_hammertime():
+    hammertime = HammerTime(retry_count=3, proxy=conf.proxy_url)
+    cookies = conf.cookies if conf.cookies else database.session_cookie
+
+    #  Make sure rejecting 404 does not conflict with tomcat fake 404 detection.
+    heuristics = [RejectStatusCode({404}), DetectSoft404(), DynamicTimeout(0.05, 5)]
+    if cookies:
+        heuristics.append(SetHeader(name="Cookie", value=cookies))
+    hammertime.heuristics.add_multiple(heuristics)
+    return hammertime
 
 
 def main():
@@ -361,9 +370,11 @@ def main():
         atexit.register(finish_output)
 
         # Select working modes
+        get_session_cookies()
+        hammertime = configure_hammertime()
         root_path = ''
         if conf.files_only:
-            get_session_cookies()
+
             # 0. Sample /uuid to figure out what is a classic 404 and set value in database
             sample_root_404()
             # Add root to targets
@@ -381,9 +392,8 @@ def main():
             print_results_worker = SelectedPrintWorker()
             print_results_worker.daemon = True
             print_results_worker.start()
-            test_file_exists()
+            test_file_exists(hammertime)
         elif conf.directories_only:
-            get_session_cookies()
             # 0. Sample /uuid to figure out what is a classic 404 and set value in database
             sample_root_404()
             root_path = conf.path_template.copy()
@@ -395,9 +405,8 @@ def main():
             print_results_worker.daemon = True
             print_results_worker.start()
             load_target_paths(running_path)
-            test_paths_exists()
+            test_paths_exists(hammertime)
         elif conf.plugins_only:
-            get_session_cookies()
             database.connection_pool = HTTPConnectionPool(resolved, timeout=conf.fetch_timeout_secs, maxsize=1)
             # Add root to targets
             root_path = conf.path_template.copy()
@@ -405,7 +414,6 @@ def main():
             database.paths.append(root_path)
             load_execute_host_plugins()
         else:
-            get_session_cookies()
             # 0. Sample /uuid to figure out what is a classic 404 and set value in database
             sample_root_404()
             # Add root to targets
@@ -416,7 +424,7 @@ def main():
             load_target_files(running_path)
             # Execute all Host plugins
             load_execute_host_plugins()
-            test_paths_exists()
+            test_paths_exists(hammertime)
             textutils.output_info('Sampling 404 for new paths')
             sample_404_from_found_path()
             textutils.output_info('Generating file targets')
@@ -427,7 +435,7 @@ def main():
             print_results_worker = SelectedPrintWorker()
             print_results_worker.daemon = True
             print_results_worker.start()
-            test_file_exists()
+            test_file_exists(hammertime)
 
         # Benchmark
         end_scan_time = datetime.now()
