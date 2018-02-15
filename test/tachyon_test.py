@@ -106,22 +106,3 @@ class TestTachyon(TestCase):
         tachyon.test_file_exists(hammertime)
 
         fake_file_fetcher.fetch_files.assert_called_once_with(database.valid_paths)
-
-    def test_configure_hammertime_set_headers_heuristic_with_user_supplied_cookies(self):
-        conf.cookies = {"my-cookie": "12345"}
-        database.session_cookie = {"session-cookie": "test123"}
-        with patch("tachyon.__main__.HammerTime"):
-            hammertime = tachyon.configure_hammertime()
-            set_headers = hammertime.heuristics.add_multiple.call_args[0][0][0]
-
-            self.assertEqual(set_headers.name, "Cookie")
-            self.assertEqual(set_headers.value, conf.cookies)
-
-    def test_configure_hammertime_set_headers_heuristic_with_session_cookies_if_no_user_supplied_cookies(self):
-        database.session_cookie = {"my-cookie": "12345"}
-        with patch("tachyon.__main__.HammerTime"):
-            hammertime = tachyon.configure_hammertime()
-            set_headers = hammertime.heuristics.add_multiple.call_args[0][0][0]
-
-            self.assertEqual(set_headers.name, "Cookie")
-            self.assertEqual(set_headers.value, database.session_cookie)

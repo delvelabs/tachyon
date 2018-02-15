@@ -16,9 +16,10 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 import asyncio
 from hammertime.ruleset import StopRequest, RejectRequest
+from hammertime.rules.redirects import valid_redirects
 
 from tachyon.core.textutils import output_found
 from tachyon.core import stats
@@ -41,7 +42,7 @@ class FileFetcher:
                 entry = await future
                 if entry.response.code == 500:
                     self.output_found(entry, message_prefix="ISE, ")
-                else:
+                elif entry.response.code not in valid_redirects:
                     if len(entry.response.content) == 0:
                         self.output_found(entry, message_prefix="Empty ")
                     else:
@@ -58,5 +59,5 @@ class FileFetcher:
         file = entry.arguments["file"]
         message = "{prefix}{desc} at: {url}".format(prefix=message_prefix, desc=file["description"], url=url)
         data = {"url": url, "description": file["description"], "code": entry.response.code,
-                "severity": file["severity"]}
+                "severity": file.get('severity', "warning")}
         output_found(message, data=data)

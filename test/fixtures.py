@@ -20,8 +20,8 @@ from functools import wraps
 from aiohttp.test_utils import loop_context
 from hammertime.http import StaticResponse
 from urllib.parse import urlparse
-
 from easyinject import Injector
+from unittest.mock import MagicMock
 
 
 def async():
@@ -56,13 +56,22 @@ def create_json_data(url_list, **kwargs):
 
 class FakeHammerTimeEngine:
 
+    def __init__(self):
+        self.mock = MagicMock()
+
     async def perform(self, entry, heuristics):
+        self.mock.perform(entry, heuristics)
         await heuristics.before_request(entry)
         entry.response = StaticResponse(200, headers={})
         await heuristics.after_headers(entry)
         entry.response.set_content(b"data", at_eof=False)
         await heuristics.after_response(entry)
         return entry
+
+    def get_requested_urls(self):
+        for args, kwargs in self.mock.perform.call_args_list:
+            entry = args[0]
+            yield entry.request.url
 
 
 class SetResponseCode:
@@ -81,6 +90,17 @@ class SetResponseContent:
 
     async def after_response(self, entry):
         entry.response.content = self.content
+
+
+class FollowRedirect:
+
+    def __init__(self, redirect_to):
+        self.redirect_to = redirect_to
+
+    async def on_request_successful(self, entry):
+        entry.result.redirects.append(entry)
+        entry.result.redirects.append(self.redirect_to)
+        entry.response = self.redirect_to.response
 
 
 class RaiseForPaths:

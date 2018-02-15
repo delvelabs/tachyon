@@ -16,9 +16,10 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 import asyncio
 from hammertime.ruleset import RejectRequest, StopRequest
+from hammertime.rules.redirects import valid_redirects
 
 from . import database, stats, textutils, workers
 
@@ -33,14 +34,23 @@ class DirectoryFetcher:
         requests = []
         for path in paths:
             url = urljoin(self.target_host, path["url"])
+            if not url.endswith("/"):
+                url += "/"
             requests.append(self.hammertime.request(url, arguments={"path": path}))
         done, pending = await asyncio.wait(requests, loop=self.hammertime.loop, return_when=asyncio.ALL_COMPLETED)
         for future in done:
             try:
                 entry = await future
-                if entry.response.code != 401:
-                    database.valid_paths.append(entry.arguments["path"])
-                self.output_found(entry)
+                if entry.response.code not in valid_redirects:
+                    if entry.result.redirects:
+                        path = entry.arguments["path"]
+                        entry = entry.result.redirects[-1]
+                        path["url"] = urlparse(entry.request.url).path
+                        entry.arguments["path"] = path
+                    if entry.response.code != 401:
+                        database.valid_paths.append(entry.arguments["path"])
+                    if entry.arguments["path"]["url"] != "/":
+                        self.output_found(entry)
             except RejectRequest:
                 pass
             except StopRequest:

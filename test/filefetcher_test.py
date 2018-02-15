@@ -33,6 +33,7 @@ class TestFileFetcher(TestCase):
 
     def setUp(self):
         database.successful_fetch_count = 0
+        self.host = "http://www.example.com"
 
     @async()
     async def test_fetch_files(self, output_found, loop):
@@ -110,15 +111,26 @@ class TestFileFetcher(TestCase):
     @async()
     async def test_fetch_files_output_empty_response(self, output_found, loop):
         file_list = ["empty-file"]
-        host = "http://www.example.com"
+
         hammertime = HammerTime(loop=loop, request_engine=FakeHammerTimeEngine())
         hammertime.heuristics.add(SetResponseContent(b""))
-        file_fetcher = FileFetcher(host, hammertime)
+        file_fetcher = FileFetcher(self.host, hammertime)
 
         await file_fetcher.fetch_files(create_json_data(file_list))
 
         file = file_list[0]
-        url = "{host}/{file}".format(host=host, file=file)
+        url = "{host}/{file}".format(host=self.host, file=file)
         desc = "description of {file}".format(file=file)
         data = {"description": desc, "url": url, "code": 200, "severity": "warning"}
         output_found.assert_called_once_with("Empty {desc} at: {url}".format(desc=desc, url=url), data=data)
+
+    @async()
+    async def test_fetch_files_do_not_output_redirects(self, output_found, loop):
+        files = ["/admin/resource", "/admin/file"]
+        hammertime = HammerTime(loop=loop, request_engine=FakeHammerTimeEngine())
+        hammertime.heuristics.add(SetResponseCode(302))
+        file_fetcher = FileFetcher(self.host, hammertime)
+
+        await file_fetcher.fetch_files(create_json_data(files))
+
+        output_found.assert_not_called()

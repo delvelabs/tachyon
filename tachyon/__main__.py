@@ -30,13 +30,12 @@ import uuid
 import urllib3
 import os
 import sys
-from pkgutil import get_data
 from socket import gaierror
 from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
 from urllib3.poolmanager import ProxyManager
 from datetime import datetime
 from hammertime import HammerTime
-from hammertime.rules import DetectSoft404, RejectStatusCode, SetHeader, DynamicTimeout
+from hammertime.rules import DetectSoft404, RejectStatusCode, SetHeader, DynamicTimeout, FollowRedirects
 
 sys.path.pop(0)
 
@@ -46,10 +45,8 @@ import tachyon.core.dnscache as dnscache
 import tachyon.core.loaders as loaders
 import tachyon.core.textutils as textutils
 import tachyon.core.netutils as netutils
-import tachyon.core.dbutils as dbutils
 from tachyon.core.fetcher import Fetcher
-from tachyon.core.workers import PrintWorker, PrintResultsWorker, JSONPrintResultWorker, FetchCrafted404Worker, \
-    TestFileExistsWorker
+from tachyon.core.workers import PrintWorker, PrintResultsWorker, JSONPrintResultWorker, FetchCrafted404Worker
 from tachyon.core.threads import ThreadManager
 from tachyon.plugins import host, file
 from tachyon.core.generator import PathGenerator
@@ -233,6 +230,7 @@ def test_file_exists(hammertime):
         await fetcher.fetch_files(database.valid_paths)
 
     if len(database.valid_paths) > 0:
+        hammertime.heuristics.add(RejectStatusCode({401, 403}))
         hammertime.loop.run_until_complete(fetch())
 
 
@@ -247,7 +245,7 @@ def configure_hammertime():
     cookies = conf.cookies if conf.cookies else database.session_cookie
 
     #  Make sure rejecting 404 does not conflict with tomcat fake 404 detection.
-    heuristics = [RejectStatusCode({404}), DetectSoft404(), DynamicTimeout(0.05, 5)]
+    heuristics = [RejectStatusCode({404}), DetectSoft404(), DynamicTimeout(0.05, 5), FollowRedirects()]
     if cookies:
         heuristics.append(SetHeader(name="Cookie", value=cookies))
     hammertime.heuristics.add_multiple(heuristics)
@@ -415,7 +413,6 @@ def main():
             load_execute_host_plugins()
         else:
             # 0. Sample /uuid to figure out what is a classic 404 and set value in database
-            sample_root_404()
             # Add root to targets
             root_path = conf.path_template.copy()
             root_path['url'] = '/'
@@ -426,7 +423,6 @@ def main():
             load_execute_host_plugins()
             test_paths_exists(hammertime)
             textutils.output_info('Sampling 404 for new paths')
-            sample_404_from_found_path()
             textutils.output_info('Generating file targets')
             add_files_to_paths()
             load_execute_file_plugins()

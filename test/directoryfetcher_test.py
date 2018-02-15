@@ -19,11 +19,12 @@ from unittest import TestCase
 from unittest.mock import MagicMock, call, patch
 from hammertime.core import HammerTime
 from hammertime.ruleset import RejectRequest, StopRequest
+from hammertime.http import Entry, StaticResponse
 
 from tachyon.core import database
 from tachyon.core.database import valid_paths
 from tachyon.core.directoryfetcher import DirectoryFetcher
-from fixtures import async, FakeHammerTimeEngine, RaiseForPaths, SetResponseCode, create_json_data
+from fixtures import async, FakeHammerTimeEngine, RaiseForPaths, SetResponseCode, create_json_data, FollowRedirect
 
 
 @patch("tachyon.core.textutils.output_found")
@@ -39,12 +40,24 @@ class TestDirectoryFetcher(TestCase):
         self.directory_fetcher = DirectoryFetcher(self.host, self.hammertime)
 
     @async()
+    async def test_fetch_paths_append_slash_to_path(self, output_found, loop):
+        paths = ["/a", "/b", "/c", "/1", "/2", "/3"]
+        self.async_setup(loop)
+
+        await self.directory_fetcher.fetch_paths(create_json_data(paths))
+
+        requested = [url for url in self.hammertime.request_engine.request_engine.get_requested_urls()]
+        self.assertEqual(len(paths), len(requested))
+        for url in requested:
+            self.assertEqual(url[-1], "/")
+
+    @async()
     async def test_fetch_paths_add_valid_path_to_database(self, output_found, loop):
         valid = ["/a", "b", "/c", "/1", "/2", "/3"]
         invalid = ["/d", "/e", "/4", "/5"]
         paths = valid + invalid
         self.async_setup(loop)
-        self.hammertime.heuristics.add(RaiseForPaths(invalid, RejectRequest("Invalid path")))
+        self.hammertime.heuristics.add(RaiseForPaths(["%s/" % url for url in invalid], RejectRequest("Invalid path")))
 
         await self.directory_fetcher.fetch_paths(create_json_data(paths))
 
@@ -59,7 +72,7 @@ class TestDirectoryFetcher(TestCase):
         timeout = ["/1", "/2", "/3"]
         paths = timeout + successful
         self.async_setup(loop)
-        self.hammertime.heuristics.add(RaiseForPaths(timeout, StopRequest()))
+        self.hammertime.heuristics.add(RaiseForPaths(["%s/" % url for url in timeout], StopRequest()))
 
         await self.directory_fetcher.fetch_paths(create_json_data(paths))
 
@@ -89,11 +102,11 @@ class TestDirectoryFetcher(TestCase):
         for path in create_json_data(found):
             data = {
                 "description": path["description"],
-                "url": self.host + path["url"],
+                "url": self.host + path["url"] + "/",
                 "code": 200,
                 "severity": path['severity']
             }
-            _call = call(path["description"] + ' at: ' + self.host + path["url"], data)
+            _call = call(path["description"] + ' at: ' + self.host + path["url"] + "/", data)
             calls.append(_call)
         output_found.assert_has_calls(calls, any_order=True)
 
@@ -106,11 +119,11 @@ class TestDirectoryFetcher(TestCase):
         desc = "description of admin"
         data = {
             "description": desc,
-            "url": self.host + "/admin",
+            "url": self.host + "/admin/",
             "code": 401,
             "severity": "warning"
         }
-        message = "Password Protected - " + desc + " at: " + self.host + "/admin"
+        message = "Password Protected - " + desc + " at: " + self.host + "/admin/"
         output_found.assert_called_once_with(message, data)
 
     @async()
@@ -122,11 +135,11 @@ class TestDirectoryFetcher(TestCase):
         desc = "description of server-error"
         data = {
             "description": desc,
-            "url": self.host + "/server-error",
+            "url": self.host + "/server-error/",
             "code": 500,
             "severity": "warning"
         }
-        message = "ISE, " + desc + " at: " + self.host + "/server-error"
+        message = "ISE, " + desc + " at: " + self.host + "/server-error/"
         output_found.assert_called_once_with(message, data)
 
     @async()
@@ -138,11 +151,11 @@ class TestDirectoryFetcher(TestCase):
         desc = "description of forbidden"
         data = {
             "description": desc,
-            "url": self.host + "/forbidden",
+            "url": self.host + "/forbidden/",
             "code": 403,
             "severity": "warning"
         }
-        message = "*Forbidden* " + desc + " at: " + self.host + "/forbidden"
+        message = "*Forbidden* " + desc + " at: " + self.host + "/forbidden/"
         output_found.assert_called_once_with(message, data)
 
     @async()
@@ -155,10 +168,39 @@ class TestDirectoryFetcher(TestCase):
             desc = "description of path"
             data = {
                 "description": desc,
-                "url": self.host + "/path",
+                "url": self.host + "/path/",
                 "code": 404,
                 "severity": "warning",
                 "special": "tomcat-redirect"
             }
-            message = "Tomcat redirect, " + desc + " at: " + self.host + "/path"
+            message = "Tomcat redirect, " + desc + " at: " + self.host + "/path/"
             output_found.assert_called_once_with(message, data)
+
+    @async()
+    async def test_fetch_paths_does_not_output_redirects(self, output_found, loop):
+        self.async_setup(loop)
+        self.hammertime.heuristics.add(SetResponseCode(302))
+
+        await self.directory_fetcher.fetch_paths(create_json_data(["/redirects"]))
+
+        output_found.assert_not_called()
+        self.assertEqual(len(database.valid_paths), 0)
+
+    @async()
+    async def test_fetch_paths_output_last_request_url_of_redirects(self, output_found, loop):
+        self.async_setup(loop)
+        redirect = Entry.create(self.host + "/redirect-to/", response=StaticResponse(200, {}, b"content"))
+        self.hammertime.heuristics.add(FollowRedirect(redirect))
+
+        await self.directory_fetcher.fetch_paths(create_json_data(["/redirects"]))
+
+        desc = "description of redirects"
+        data = {
+            "description": desc,
+            "url": self.host + "/redirect-to/",
+            "code": 200,
+            "severity": "warning",
+        }
+        message = desc + " at: " + self.host + "/redirect-to/"
+        output_found.assert_called_once_with(message, data)
+        self.assertEqual(database.valid_paths[0]["url"], "/redirect-to/")
