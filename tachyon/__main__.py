@@ -49,7 +49,7 @@ from tachyon.core.fetcher import Fetcher
 from tachyon.core.workers import PrintWorker, PrintResultsWorker, JSONPrintResultWorker, FetchCrafted404Worker
 from tachyon.core.threads import ThreadManager
 from tachyon.plugins import host, file
-from tachyon.core.generator import PathGenerator
+from tachyon.core.generator import PathGenerator, FileGenerator
 from tachyon.core.directoryfetcher import DirectoryFetcher
 from tachyon.core.filefetcher import FileFetcher
 
@@ -177,58 +177,14 @@ def load_execute_file_plugins():
             plugin.execute()
 
 
-def add_files_to_paths():
-    """ Combine all path, filenames and suffixes to build the target list """
-    work_list = list()
-    for path in database.valid_paths:
-        # Combine current path with all files and suffixes if enabled
-        for filename in database.files:
-            if filename.get('no_suffix'):
-                new_filename = filename.copy()
-                new_filename['is_file'] = True
-
-                if path['url'] == '/':
-                    new_filename['url'] = ''.join([path['url'], filename['url']])
-                else:
-                    new_filename['url'] = ''.join([path['url'], '/', filename['url']])
-
-                work_list.append(new_filename)
-                textutils.output_debug("No Suffix file added: " + str(new_filename))
-            elif filename.get('executable'):
-                for executable_suffix in conf.executables_suffixes:
-                    new_filename = filename.copy()
-                    new_filename['is_file'] = True
-
-                    if path['url'] == '/':
-                        new_filename['url'] = ''.join([path['url'], filename['url'], executable_suffix])
-                    else:
-                        new_filename['url'] = ''.join([path['url'], '/', filename['url'], executable_suffix])
-
-                    work_list.append(new_filename)
-                    textutils.output_debug("Executable File added: " + str(new_filename))
-            else:
-                for suffix in conf.file_suffixes:
-                    new_filename = filename.copy()
-                    new_filename['is_file'] = True
-
-                    if path['url'] == '/':
-                        new_filename['url'] = ''.join([path['url'], filename['url'], suffix])
-                    else:
-                        new_filename['url'] = ''.join([path['url'], '/', filename['url'], suffix])
-
-                    work_list.append(new_filename)
-                    textutils.output_debug("Regular File added: " + str(new_filename))
-
-    # Since we have already output the found directories, replace the valid path list
-    database.valid_paths = work_list
-
-
 def test_file_exists(hammertime):
     """ Test for file existence using http codes and computed 404 """
     async def fetch():
         fetcher = FileFetcher(conf.base_url, hammertime)
         await fetcher.fetch_files(database.valid_paths)
-
+    generator = FileGenerator()
+    database.valid_paths = generator.generate_files()
+    textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
     if len(database.valid_paths) > 0:
         hammertime.heuristics.add(RejectStatusCode({401, 403}))
         hammertime.loop.run_until_complete(fetch())
@@ -382,7 +338,6 @@ def main():
             load_target_files(running_path)
             load_execute_host_plugins()
             sample_404_from_found_path()
-            add_files_to_paths()
             load_execute_file_plugins()
             textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
             database.messages_output_queue.join()
@@ -424,9 +379,7 @@ def main():
             test_paths_exists(hammertime)
             textutils.output_info('Sampling 404 for new paths')
             textutils.output_info('Generating file targets')
-            add_files_to_paths()
             load_execute_file_plugins()
-            textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
             database.messages_output_queue.join()
             print_results_worker = SelectedPrintWorker()
             print_results_worker.daemon = True

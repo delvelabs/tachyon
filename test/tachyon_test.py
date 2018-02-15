@@ -95,14 +95,17 @@ class TestTachyon(TestCase):
 
             output_info.assert_any_call("Found %d valid paths" % len(database.valid_paths))
 
-    def test_file_exists_fetch_all_valid_paths(self):
+    def test_file_exists_fetch_all_generate_files(self):
         database.valid_paths = ["/path/file%d" % i for i in range(10)]
         fake_file_fetcher = MagicMock()
         fake_file_fetcher.fetch_files = make_mocked_coro()
         tachyon.FileFetcher = MagicMock(return_value=fake_file_fetcher)
         loop = asyncio.new_event_loop()
         hammertime = MagicMock(loop=loop)
+        fake_file_generator = MagicMock()
+        fake_file_generator.generate_files.return_value = ["list of files"]
 
-        tachyon.test_file_exists(hammertime)
+        with patch("tachyon.__main__.FileGenerator", MagicMock(return_value=fake_file_generator)):
+            tachyon.test_file_exists(hammertime)
 
-        fake_file_fetcher.fetch_files.assert_called_once_with(database.valid_paths)
+        fake_file_fetcher.fetch_files.assert_called_once_with(["list of files"])
