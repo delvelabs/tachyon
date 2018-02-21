@@ -35,7 +35,8 @@ from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
 from urllib3.poolmanager import ProxyManager
 from datetime import datetime
 from hammertime import HammerTime
-from hammertime.rules import DetectSoft404, RejectStatusCode, SetHeader, DynamicTimeout, FollowRedirects
+from hammertime.rules import DetectSoft404, RejectStatusCode, SetHeader, DynamicTimeout, FollowRedirects, \
+    RejectCatchAllRedirect
 
 sys.path.pop(0)
 
@@ -201,7 +202,8 @@ def configure_hammertime():
     cookies = conf.cookies if conf.cookies else database.session_cookie
 
     #  Make sure rejecting 404 does not conflict with tomcat fake 404 detection.
-    heuristics = [RejectStatusCode({404}), DetectSoft404(), DynamicTimeout(0.05, 5), FollowRedirects()]
+    heuristics = [RejectStatusCode({404, 502}), DetectSoft404(distance_threshold=6), DynamicTimeout(0.5, 5),
+                  FollowRedirects(), RejectCatchAllRedirect()]
     if cookies:
         heuristics.append(SetHeader(name="Cookie", value=cookies))
     hammertime.heuristics.add_multiple(heuristics)

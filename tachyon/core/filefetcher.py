@@ -43,7 +43,7 @@ class FileFetcher:
                 if entry.response.code == 500:
                     self.output_found(entry, message_prefix="ISE, ")
                 elif entry.response.code not in valid_redirects:
-                    if len(entry.response.content) == 0:
+                    if len(entry.response.raw) == 0:
                         self.output_found(entry, message_prefix="Empty ")
                     else:
                         self.output_found(entry)

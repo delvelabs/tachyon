@@ -41,16 +41,10 @@ class DirectoryFetcher:
         for future in done:
             try:
                 entry = await future
-                if entry.response.code not in valid_redirects:
-                    if entry.result.redirects:
-                        path = entry.arguments["path"]
-                        entry = entry.result.redirects[-1]
-                        path["url"] = urlparse(entry.request.url).path
-                        entry.arguments["path"] = path
-                    if entry.response.code != 401:
-                        database.valid_paths.append(entry.arguments["path"])
-                    if entry.arguments["path"]["url"] != "/":
-                        self.output_found(entry)
+                if entry.response.code != 401:
+                    database.valid_paths.append(entry.arguments["path"])
+                if entry.arguments["path"]["url"] != "/":
+                    self.output_found(entry)
             except RejectRequest:
                 pass
             except StopRequest:

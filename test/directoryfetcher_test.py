@@ -177,30 +177,20 @@ class TestDirectoryFetcher(TestCase):
             output_found.assert_called_once_with(message, data)
 
     @async()
-    async def test_fetch_paths_does_not_output_redirects(self, output_found, loop):
+    async def test_fetch_paths_output_first_request_url_of_valid_redirects(self, output_found, loop):
         self.async_setup(loop)
-        self.hammertime.heuristics.add(SetResponseCode(302))
-
-        await self.directory_fetcher.fetch_paths(create_json_data(["/redirects"]))
-
-        output_found.assert_not_called()
-        self.assertEqual(len(database.valid_paths), 0)
-
-    @async()
-    async def test_fetch_paths_output_last_request_url_of_redirects(self, output_found, loop):
-        self.async_setup(loop)
-        redirect = Entry.create(self.host + "/redirect-to/", response=StaticResponse(200, {}, b"content"))
+        redirect = Entry.create(self.host + "/redirect-to/", response=StaticResponse(302, {}, b"content"))
         self.hammertime.heuristics.add(FollowRedirect(redirect))
 
-        await self.directory_fetcher.fetch_paths(create_json_data(["/redirects"]))
+        await self.directory_fetcher.fetch_paths(create_json_data(["/will-be-redirected/"]))
 
-        desc = "description of redirects"
+        desc = "description of will-be-redirected"
         data = {
             "description": desc,
-            "url": self.host + "/redirect-to/",
-            "code": 200,
+            "url": self.host + "/will-be-redirected/",
+            "code": 302,
             "severity": "warning",
         }
-        message = desc + " at: " + self.host + "/redirect-to/"
+        message = desc + " at: " + self.host + "/will-be-redirected/"
         output_found.assert_called_once_with(message, data)
-        self.assertEqual(database.valid_paths[0]["url"], "/redirect-to/")
+        self.assertEqual(database.valid_paths[0]["url"], "/will-be-redirected/")

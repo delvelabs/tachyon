@@ -44,7 +44,7 @@ class TestFileFetcher(TestCase):
         file_list = create_json_data(files)
         entries = []
         for file in file_list:
-            entry = Entry.create("%s/%s" % (host, file["url"]), response=StaticResponse(200, {}, b"content"),
+            entry = Entry.create("%s/%s" % (host, file["url"]), response=StaticResponse(200, {}, "content"),
                                  arguments={"file": file})
             entries.append(fake_future(entry, loop=loop))
         hammertime.request.side_effect = entries
@@ -113,7 +113,7 @@ class TestFileFetcher(TestCase):
         file_list = ["empty-file"]
 
         hammertime = HammerTime(loop=loop, request_engine=FakeHammerTimeEngine())
-        hammertime.heuristics.add(SetResponseContent(b""))
+        hammertime.heuristics.add(SetResponseContent(""))
         file_fetcher = FileFetcher(self.host, hammertime)
 
         await file_fetcher.fetch_files(create_json_data(file_list))
