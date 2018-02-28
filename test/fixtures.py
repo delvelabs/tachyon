@@ -18,8 +18,10 @@
 import asyncio
 from functools import wraps
 from aiohttp.test_utils import loop_context
-
+from hammertime.http import StaticResponse
+from urllib.parse import urlparse
 from easyinject import Injector
+from unittest.mock import MagicMock
 
 
 def async():
@@ -40,3 +42,74 @@ def fake_future(result, loop):
     f = asyncio.Future(loop=loop)
     f.set_result(result)
     return f
+
+
+def create_json_data(url_list, **kwargs):
+    data_list = []
+    for url in url_list:
+        desc = "description of %s" % url.strip("/")
+        data = {"url": url, "description": desc, "timeout_count": 0, "severity": "warning"}
+        data.update(**kwargs)
+        data_list.append(data)
+    return data_list
+
+
+class FakeHammerTimeEngine:
+
+    def __init__(self):
+        self.mock = MagicMock()
+
+    async def perform(self, entry, heuristics):
+        self.mock.perform(entry, heuristics)
+        await heuristics.before_request(entry)
+        entry.response = StaticResponse(200, headers={})
+        await heuristics.after_headers(entry)
+        entry.response.set_content(b"data", at_eof=False)
+        await heuristics.after_response(entry)
+        return entry
+
+    def get_requested_urls(self):
+        for args, kwargs in self.mock.perform.call_args_list:
+            entry = args[0]
+            yield entry.request.url
+
+
+class SetResponseCode:
+
+    def __init__(self, response_code):
+        self.response_code = response_code
+
+    async def after_headers(self, entry):
+        entry.response.code = self.response_code
+
+
+class SetResponseContent:
+
+    def __init__(self, raw):
+        self.content = raw
+
+    async def after_response(self, entry):
+        entry.response.content = self.content
+
+
+class FollowRedirect:
+
+    def __init__(self, redirect_to):
+        self.redirect_to = redirect_to
+
+    async def on_request_successful(self, entry):
+        entry.result.redirects.append(entry)
+        entry.result.redirects.append(self.redirect_to)
+        entry.response = self.redirect_to.response
+
+
+class RaiseForPaths:
+
+    def __init__(self, invalid_paths, exception):
+        self.invalid_paths = invalid_paths
+        self.exception = exception
+
+    async def before_request(self, entry):
+        path = urlparse(entry.request.url).path
+        if path in self.invalid_paths:
+            raise self.exception
