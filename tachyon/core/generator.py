@@ -17,6 +17,7 @@
 
 
 import tachyon.core.database as database
+import tachyon.core.conf as conf
 
 
 class PathGenerator:
@@ -61,3 +62,37 @@ class PathGenerator:
             new_path["url"] = leading_path["url"] + trailing_path["url"]
             return new_path
         return None
+
+
+class FileGenerator:
+
+    def generate_files(self):
+        files = list()
+        for path in database.valid_paths:
+            # Combine current path with all files and suffixes if enabled
+            for filename in database.files:
+                if filename.get('no_suffix'):
+                    url = self._join_path(path["url"], filename["url"])
+                    new_filename = self._create_file(filename.copy(), url=url, is_file=True, no_suffix=True)
+                    files.append(new_filename)
+                elif filename.get('executable'):
+                    for executable_suffix in conf.executables_suffixes:
+                        url = self._join_path(path["url"], filename["url"] + executable_suffix)
+                        new_filename = self._create_file(filename.copy(), url=url, is_file=True, executable=True)
+                        files.append(new_filename)
+                else:
+                    for suffix in conf.file_suffixes:
+                        url = self._join_path(path["url"], filename["url"] + suffix)
+                        new_filename = self._create_file(filename.copy(), url=url, is_file=True)
+                        files.append(new_filename)
+        return files
+
+    def _create_file(self, base_file, **kwargs):
+        base_file.update(**kwargs)
+        return base_file
+
+    def _join_path(self, base_path, file_path):
+        if base_path == "/":
+            return"/{file}".format(file=file_path.strip("/"))
+        else:
+            return "/{path}/{file}".format(path=base_path.strip("/"), file=file_path.strip("/"))
