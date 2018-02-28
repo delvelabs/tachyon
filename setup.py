@@ -10,6 +10,10 @@ setup(
     version=VERSION,
     packages=find_packages(),
     package_data={'tachyon': ['data/*.json']},
-    scripts=['./tachyon.py'],
+    entry_points={
+        'console_scripts': [
+            'tachyon = tachyon.__main__:main'
+        ]
+    },
     install_requires=reqs,
 )

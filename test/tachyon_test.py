@@ -19,14 +19,11 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, patch, call
 from aiohttp.test_utils import make_mocked_coro
-import importlib.util
 import asyncio
 from hammertime.rules import RejectStatusCode
 
 from tachyon.core import conf, database
-spec = importlib.util.spec_from_file_location("tachyon", "/home/nicolas/tachyon/tachyon.py")
-tachyon = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(tachyon)
+from tachyon import __main__ as tachyon
 
 
 class TestTachyon(TestCase):
