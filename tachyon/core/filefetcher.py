@@ -16,9 +16,13 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-from tachyon.core.textutils import output_found
 from urllib.parse import urljoin
 import asyncio
+from hammertime.ruleset import StopRequest, RejectRequest
+from hammertime.rules.redirects import valid_redirects
+
+from tachyon.core.textutils import output_found
+from tachyon.core import stats
 
 
 class FileFetcher:
@@ -34,21 +38,26 @@ class FileFetcher:
             requests.append(self.hammertime.request(url, arguments={"file": file}))
         done, pending = await asyncio.wait(requests, loop=self.hammertime.loop, return_when=asyncio.ALL_COMPLETED)
         for future in done:
-            entry = await future
-            if entry.response.code == 500:
-                self.output_found(entry, message_prefix="ISE, ")
-            else:
-                if len(entry.response.content) == 0:
-                    self.output_found(entry, message_prefix="Empty ")
-                else:
-                    self.output_found(entry)
+            try:
+                entry = await future
+                if entry.response.code == 500:
+                    self.output_found(entry, message_prefix="ISE, ")
+                elif entry.response.code not in valid_redirects:
+                    if len(entry.response.raw) == 0:
+                        self.output_found(entry, message_prefix="Empty ")
+                    else:
+                        self.output_found(entry)
+            except RejectRequest:
+                pass
+            except StopRequest:
+                continue
             # TODO replace with hammertime.stats when migration is complete.
-            # stats.update_processed_items()
+            stats.update_processed_items()
 
     def output_found(self, entry, message_prefix=""):
         url = entry.request.url
         file = entry.arguments["file"]
         message = "{prefix}{desc} at: {url}".format(prefix=message_prefix, desc=file["description"], url=url)
         data = {"url": url, "description": file["description"], "code": entry.response.code,
-                "severity": file["severity"]}
+                "severity": file.get('severity', "warning")}
         output_found(message, data=data)
