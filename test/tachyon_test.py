@@ -31,6 +31,7 @@ class TestTachyon(TestCase):
     def setUp(self):
         conf.recursive = False
         tachyon.DetectSoft404 = RejectStatusCode  # Else adding heuristic using kb more than once would raise exception.
+        self.hammertime = MagicMock(loop=asyncio.new_event_loop())
 
     def test_paths_exists_fetch_generated_paths(self):
         path_generator = MagicMock()
@@ -41,7 +42,7 @@ class TestTachyon(TestCase):
         tachyon.DirectoryFetcher = MagicMock(return_value=fake_directory_fetcher)
         asyncio.set_event_loop(asyncio.new_event_loop())
 
-        tachyon.test_paths_exists()
+        tachyon.test_paths_exists(self.hammertime)
 
         fake_directory_fetcher.fetch_paths.assert_called_once_with(path_generator.generate_paths.return_value)
 
@@ -56,7 +57,7 @@ class TestTachyon(TestCase):
         asyncio.set_event_loop(asyncio.new_event_loop())
 
         with patch("tachyon.core.textutils.output_info") as output_info:
-            tachyon.test_paths_exists()
+            tachyon.test_paths_exists(self.hammertime)
 
             output_info.assert_any_call("Probing %d paths" % len(paths))
 
@@ -71,7 +72,7 @@ class TestTachyon(TestCase):
         tachyon.DirectoryFetcher = MagicMock(return_value=fake_directory_fetcher)
         asyncio.set_event_loop(asyncio.new_event_loop())
 
-        tachyon.test_paths_exists()
+        tachyon.test_paths_exists(self.hammertime)
 
         path_generator.generate_paths.assert_has_calls([call(use_valid_paths=False), call(use_valid_paths=True),
                                                         call(use_valid_paths=True)], any_order=False)
@@ -90,6 +91,21 @@ class TestTachyon(TestCase):
         database.valid_paths = paths
 
         with patch("tachyon.core.textutils.output_info") as output_info:
-            tachyon.test_paths_exists()
+            tachyon.test_paths_exists(self.hammertime)
 
             output_info.assert_any_call("Found %d valid paths" % len(database.valid_paths))
+
+    def test_file_exists_fetch_all_generate_files(self):
+        database.valid_paths = ["/path/file%d" % i for i in range(10)]
+        fake_file_fetcher = MagicMock()
+        fake_file_fetcher.fetch_files = make_mocked_coro()
+        tachyon.FileFetcher = MagicMock(return_value=fake_file_fetcher)
+        loop = asyncio.new_event_loop()
+        hammertime = MagicMock(loop=loop)
+        fake_file_generator = MagicMock()
+        fake_file_generator.generate_files.return_value = ["list of files"]
+
+        with patch("tachyon.__main__.FileGenerator", MagicMock(return_value=fake_file_generator)):
+            tachyon.test_file_exists(hammertime)
+
+        fake_file_fetcher.fetch_files.assert_called_once_with(["list of files"])
