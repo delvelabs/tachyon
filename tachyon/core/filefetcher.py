@@ -36,8 +36,7 @@ class FileFetcher:
         for file in file_list:
             url = urljoin(self.host, file["url"])
             requests.append(self.hammertime.request(url, arguments={"file": file}))
-        done, pending = await asyncio.wait(requests, loop=self.hammertime.loop, return_when=asyncio.ALL_COMPLETED)
-        for future in done:
+        for future in asyncio.as_completed(requests):
             try:
                 entry = await future
                 if entry.response.code == 500:
