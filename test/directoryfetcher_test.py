@@ -33,6 +33,11 @@ class TestDirectoryFetcher(TestCase):
         valid_paths.clear()
         database.successful_fetch_count = 0
         self.host = "http://example.com"
+        self.fake_output = patch("tachyon.core.textutils.output_found")
+        self.fake_output.start()
+
+    def tearDown(self):
+        self.fake_output.stop()
 
     def async_setup(self, loop):
         self.hammertime = HammerTime(loop=loop, request_engine=FakeHammerTimeEngine())
@@ -83,62 +88,56 @@ class TestDirectoryFetcher(TestCase):
         self.async_setup(loop)
         self.hammertime.heuristics.add(RaiseForPaths(not_found, RejectRequest("404 not found")))
 
-        with patch("tachyon.core.textutils.output_found", MagicMock()):
+        await self.directory_fetcher.fetch_paths(create_json_data(paths))
 
-            await self.directory_fetcher.fetch_paths(create_json_data(paths))
-
-            calls = []
-            for path in create_json_data(found):
-                message, data = self.expected_output(path)
-                calls.append(call(message, data))
-            textutils.output_found.assert_has_calls(calls, any_order=True)
+        calls = []
+        for path in create_json_data(found):
+            message, data = self.expected_output(path)
+            calls.append(call(message, data))
+        textutils.output_found.assert_has_calls(calls, any_order=True)
 
     @async()
     async def test_fetch_paths_output_401_directory(self, loop):
         self.async_setup(loop)
         self.hammertime.heuristics.add(SetResponseCode(401))
 
-        with patch("tachyon.core.textutils.output_found", MagicMock()):
-            path_list = create_json_data(["/admin"])
+        path_list = create_json_data(["/admin"])
 
-            await self.directory_fetcher.fetch_paths(path_list)
+        await self.directory_fetcher.fetch_paths(path_list)
 
-            message, data = self.expected_output(path_list[0], code=401, message_prefix="Password Protected - ")
-            textutils.output_found.assert_called_once_with(message, data)
+        message, data = self.expected_output(path_list[0], code=401, message_prefix="Password Protected - ")
+        textutils.output_found.assert_called_once_with(message, data)
 
     @async()
     async def test_fetch_paths_output_500_response(self, loop):
         self.async_setup(loop)
         self.hammertime.heuristics.add(SetResponseCode(500))
 
-        with patch("tachyon.core.textutils.output_found", MagicMock()):
-            path_list = create_json_data(["/server-error"])
+        path_list = create_json_data(["/server-error"])
 
-            await self.directory_fetcher.fetch_paths(path_list)
+        await self.directory_fetcher.fetch_paths(path_list)
 
-            message, data = self.expected_output(path_list[0], message_prefix="ISE, ", code=500)
-            textutils.output_found.assert_called_once_with(message, data)
+        message, data = self.expected_output(path_list[0], message_prefix="ISE, ", code=500)
+        textutils.output_found.assert_called_once_with(message, data)
 
     @async()
     async def test_fetch_paths_output_403_directory(self, loop):
         self.async_setup(loop)
         self.hammertime.heuristics.add(SetResponseCode(403))
 
-        with patch("tachyon.core.textutils.output_found", MagicMock()):
-            path_list = create_json_data(["/forbidden"])
+        path_list = create_json_data(["/forbidden"])
 
-            await self.directory_fetcher.fetch_paths(path_list)
+        await self.directory_fetcher.fetch_paths(path_list)
 
-            message, data = self.expected_output(path_list[0], message_prefix="*Forbidden* ", code=403)
-            textutils.output_found.assert_called_once_with(message, data)
+        message, data = self.expected_output(path_list[0], message_prefix="*Forbidden* ", code=403)
+        textutils.output_found.assert_called_once_with(message, data)
 
     @async()
     async def test_fetch_paths_output_tomcat_fake_404(self, loop):
         self.async_setup(loop)
         self.hammertime.heuristics.add(SetResponseCode(404))
 
-        with patch("tachyon.core.textutils.output_found", MagicMock()), \
-             patch("tachyon.core.workers.detect_tomcat_fake_404", MagicMock(return_value=True)):
+        with patch("tachyon.core.workers.detect_tomcat_fake_404", MagicMock(return_value=True)):
             path_list = create_json_data(["/path"])
 
             await self.directory_fetcher.fetch_paths(path_list)
