@@ -97,6 +97,16 @@ class TestDirectoryFetcher(TestCase):
         textutils.output_found.assert_has_calls(calls, any_order=True)
 
     @async()
+    async def test_fetch_paths_does_not_output_root_path(self, loop):
+        paths = create_json_data(["/"])
+        self.async_setup(loop)
+
+        await self.directory_fetcher.fetch_paths(paths)
+
+        self.assertEqual(database.valid_paths, paths)
+        textutils.output_found.assert_not_called()
+
+    @async()
     async def test_fetch_paths_output_401_directory(self, loop):
         self.async_setup(loop)
         self.hammertime.heuristics.add(SetResponseCode(401))
@@ -142,8 +152,26 @@ class TestDirectoryFetcher(TestCase):
             data["special"] = "tomcat-redirect"
             textutils.output_found.assert_called_once_with(message, data)
 
+    @async()
+    async def test_fetch_paths_append_slash_to_path(self, loop):
+        paths = ["/a", "/b", "/c", "/1", "/2", "/3"]
+        self.async_setup(loop)
+        await self.directory_fetcher.fetch_paths(create_json_data(paths))
+        requested = [url for url in self.hammertime.request_engine.request_engine.get_requested_urls()]
+        self.assertEqual(len(paths), len(requested))
+        for url, path in zip(requested, paths):
+            self.assertEqual(url, "{}{}/".format(self.host, path))
+
+    @async()
+    async def test_fetch_paths_does_not_append_slash_to_root_path(self, loop):
+        paths = ["/"]
+        self.async_setup(loop)
+        await self.directory_fetcher.fetch_paths(create_json_data(paths))
+        requested = list(self.hammertime.request_engine.request_engine.get_requested_urls())[0]
+        self.assertEqual(requested, self.host + "/")
+
     def expected_output(self, path, *, code=200, message_prefix=""):
-        url = "{}{}".format(self.host, path["url"])
+        url = "{}{}/".format(self.host, path["url"])
         data = {"description": path["description"], "url": url, "severity": path["severity"], "code": code}
         message = "{prefix}{desc} at: {url}".format(prefix=message_prefix, desc=data["description"], url=url)
         return message, data

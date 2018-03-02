@@ -111,5 +111,5 @@ class RaiseForPaths:
 
     async def before_request(self, entry):
         path = urlparse(entry.request.url).path
-        if path in self.invalid_paths:
+        if path.strip("/") in [path.strip("/") for path in self.invalid_paths]:
             raise self.exception

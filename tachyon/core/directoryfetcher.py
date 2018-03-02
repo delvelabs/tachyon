@@ -33,6 +33,8 @@ class DirectoryFetcher:
         requests = []
         for path in paths:
             url = urljoin(self.target_host, path["url"])
+            if url[-1] != "/":
+                url += "/"
             requests.append(self.hammertime.request(url, arguments={"path": path}))
         done, pending = await asyncio.wait(requests, loop=self.hammertime.loop, return_when=asyncio.ALL_COMPLETED)
         for future in done:
@@ -40,7 +42,8 @@ class DirectoryFetcher:
                 entry = await future
                 if entry.response.code != 401:
                     database.valid_paths.append(entry.arguments["path"])
-                self.output_found(entry)
+                if entry.arguments["path"]["url"] != "/":
+                    self.output_found(entry)
             except RejectRequest:
                 pass
             except StopRequest:
