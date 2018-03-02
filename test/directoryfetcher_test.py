@@ -100,7 +100,6 @@ class TestDirectoryFetcher(TestCase):
     async def test_fetch_paths_output_401_directory(self, loop):
         self.async_setup(loop)
         self.hammertime.heuristics.add(SetResponseCode(401))
-
         path_list = create_json_data(["/admin"])
 
         await self.directory_fetcher.fetch_paths(path_list)
@@ -112,7 +111,6 @@ class TestDirectoryFetcher(TestCase):
     async def test_fetch_paths_output_500_response(self, loop):
         self.async_setup(loop)
         self.hammertime.heuristics.add(SetResponseCode(500))
-
         path_list = create_json_data(["/server-error"])
 
         await self.directory_fetcher.fetch_paths(path_list)
@@ -124,7 +122,6 @@ class TestDirectoryFetcher(TestCase):
     async def test_fetch_paths_output_403_directory(self, loop):
         self.async_setup(loop)
         self.hammertime.heuristics.add(SetResponseCode(403))
-
         path_list = create_json_data(["/forbidden"])
 
         await self.directory_fetcher.fetch_paths(path_list)
@@ -136,10 +133,9 @@ class TestDirectoryFetcher(TestCase):
     async def test_fetch_paths_output_tomcat_fake_404(self, loop):
         self.async_setup(loop)
         self.hammertime.heuristics.add(SetResponseCode(404))
+        path_list = create_json_data(["/path"])
 
         with patch("tachyon.core.workers.detect_tomcat_fake_404", MagicMock(return_value=True)):
-            path_list = create_json_data(["/path"])
-
             await self.directory_fetcher.fetch_paths(path_list)
 
             message, data = self.expected_output(path_list[0], message_prefix="Tomcat redirect, ", code=404)
