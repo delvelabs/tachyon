@@ -33,6 +33,8 @@ class DirectoryFetcher:
         requests = []
         for path in paths:
             url = urljoin(self.target_host, path["url"])
+            if url[-1] != "/":
+                url += "/"
             requests.append(self.hammertime.request(url, arguments={"path": path}))
         done, pending = await asyncio.wait(requests, loop=self.hammertime.loop, return_when=asyncio.ALL_COMPLETED)
         for future in done:
