@@ -97,6 +97,16 @@ class TestDirectoryFetcher(TestCase):
         textutils.output_found.assert_has_calls(calls, any_order=True)
 
     @async()
+    async def test_fetch_paths_does_not_output_root_path(self, loop):
+        paths = create_json_data(["/"])
+        self.async_setup(loop)
+
+        await self.directory_fetcher.fetch_paths(paths)
+
+        self.assertEqual(database.valid_paths, paths)
+        textutils.output_found.assert_not_called()
+
+    @async()
     async def test_fetch_paths_output_401_directory(self, loop):
         self.async_setup(loop)
         self.hammertime.heuristics.add(SetResponseCode(401))
