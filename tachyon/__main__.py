@@ -36,7 +36,7 @@ from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
 from urllib3.poolmanager import ProxyManager
 from datetime import datetime
 from hammertime import HammerTime
-from hammertime.rules import DetectSoft404, RejectStatusCode
+from hammertime.rules import DetectSoft404, RejectStatusCode, DynamicTimeout, RejectCatchAllRedirect, FollowRedirects
 
 sys.path.pop(0)
 
@@ -52,8 +52,9 @@ from tachyon.core.workers import PrintWorker, PrintResultsWorker, JSONPrintResul
     TestFileExistsWorker
 from tachyon.core.threads import ThreadManager
 from tachyon.plugins import host, file
-from tachyon.core.generator import PathGenerator
+from tachyon.core.generator import PathGenerator, FileGenerator
 from tachyon.core.directoryfetcher import DirectoryFetcher
+from tachyon.core.filefetcher import FileFetcher
 
 
 def load_target_paths(running_path):
@@ -113,15 +114,13 @@ def sample_root_404():
     manager.wait_for_idle(workers, database.fetch_queue)
 
 
-def test_paths_exists():
+def test_paths_exists(hammertime):
     """
     Test for path existence using http codes and computed 404
     Turn off output for now, it would be irrelevant at this point.
     """
 
     path_generator = PathGenerator()
-    hammertime = HammerTime(retry_count=3)
-    hammertime.heuristics.add_multiple([RejectStatusCode({404}), DetectSoft404()])
     loop = hammertime.loop
 
     paths_to_fetch = path_generator.generate_paths(use_valid_paths=False)
@@ -227,22 +226,34 @@ def add_files_to_paths():
     database.valid_paths = work_list
 
 
-def test_file_exists():
+def test_file_exists(hammertime):
     """ Test for file existence using http codes and computed 404 """
-    manager = ThreadManager()
-    # Fill work queue with fetch list
-    for item in database.valid_paths:
-        dbutils.add_file_to_fetch_queue(item)
+    async def fetch():
+        fetcher = FileFetcher(conf.base_url, hammertime)
+        await fetcher.fetch_files(database.valid_paths)
 
-    # Wait for initial valid path lookup
-    workers = manager.spawn_workers(conf.thread_count, TestFileExistsWorker)
-    manager.wait_for_idle(workers, database.fetch_queue)
+    generator = FileGenerator()
+    database.valid_paths = generator.generate_files()
+    textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
+    if len(database.valid_paths) > 0:
+        hammertime.heuristics.add(RejectStatusCode({401, 403}))
+        hammertime.loop.run_until_complete(fetch())
 
 
 def print_program_header():
     """ Print a _cute_ program header """
     print("\n\t Tachyon v" + conf.version + " - Fast Multi-Threaded Web Discovery Tool")
     print("\t https://github.com/delvelabs/tachyon\n")
+
+
+def configure_hammertime():
+    hammertime = HammerTime(retry_count=3, proxy=conf.proxy_url)
+
+    #  TODO Make sure rejecting 404 does not conflict with tomcat fake 404 detection.
+    heuristics = [RejectStatusCode({404, 502}), DetectSoft404(distance_threshold=6), DynamicTimeout(0.5, 5),
+                  FollowRedirects(), RejectCatchAllRedirect()]
+    hammertime.heuristics.add_multiple(heuristics)
+    return hammertime
 
 
 def main():
@@ -361,6 +372,7 @@ def main():
         atexit.register(finish_output)
 
         # Select working modes
+        hammertime = configure_hammertime()
         root_path = ''
         if conf.files_only:
             get_session_cookies()
@@ -373,7 +385,6 @@ def main():
             load_target_files(running_path)
             load_execute_host_plugins()
             sample_404_from_found_path()
-            add_files_to_paths()
             load_execute_file_plugins()
             textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
             database.messages_output_queue.join()
@@ -381,7 +392,7 @@ def main():
             print_results_worker = SelectedPrintWorker()
             print_results_worker.daemon = True
             print_results_worker.start()
-            test_file_exists()
+            test_file_exists(hammertime)
         elif conf.directories_only:
             get_session_cookies()
             # 0. Sample /uuid to figure out what is a classic 404 and set value in database
@@ -395,7 +406,7 @@ def main():
             print_results_worker.daemon = True
             print_results_worker.start()
             load_target_paths(running_path)
-            test_paths_exists()
+            test_paths_exists(hammertime)
         elif conf.plugins_only:
             get_session_cookies()
             database.connection_pool = HTTPConnectionPool(resolved, timeout=conf.fetch_timeout_secs, maxsize=1)
@@ -416,18 +427,16 @@ def main():
             load_target_files(running_path)
             # Execute all Host plugins
             load_execute_host_plugins()
-            test_paths_exists()
+            test_paths_exists(hammertime)
             textutils.output_info('Sampling 404 for new paths')
             sample_404_from_found_path()
             textutils.output_info('Generating file targets')
-            add_files_to_paths()
             load_execute_file_plugins()
-            textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
             database.messages_output_queue.join()
             print_results_worker = SelectedPrintWorker()
             print_results_worker.daemon = True
             print_results_worker.start()
-            test_file_exists()
+            test_file_exists(hammertime)
 
         # Benchmark
         end_scan_time = datetime.now()
