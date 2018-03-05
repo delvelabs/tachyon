@@ -57,7 +57,6 @@ class FilterQueries:
         except KeyError:
             random_query = "{scheme}://{netloc}{path}?{query}"\
                 .format(scheme=parsed_url.scheme, netloc=parsed_url.netloc, path=parsed_url.path, query=str(uuid4()))
-            print("getting %s for %s" % (random_query, sample_key))
             sample = await self.engine.perform_high_priority(Entry.create(random_query), self.child_heuristics)
             self.samples[sample_key] = self._hash_response(sample.response)
             return self.samples[sample_key]
