@@ -20,13 +20,16 @@ from uuid import uuid4
 from urllib.parse import urlparse
 from hammertime.http import Entry
 from hammertime.ruleset import RejectRequest
+from hammertime.rules.simhash import Simhash
+import hashlib
 
 
 class FilterQueries:
 
-    def __init__(self):
+    def __init__(self, match_treshold=5):
         self.engine = None
         self.samples = {}
+        self.match_threshold = match_treshold
 
     def set_engine(self, engine):
         self.engine = engine
@@ -43,8 +46,8 @@ class FilterQueries:
     async def after_response(self, entry):
         url = urlparse(entry.request.url)
         if len(url.query) > 0:
-            sample = await self._get_sample(url)
-            if entry.response == sample:
+            sample_simhash = await self._get_sample(url)
+            if self._match(entry.response, sample_simhash):
                 raise RejectRequest("Junk query response")
 
     async def _get_sample(self, parsed_url):
@@ -54,6 +57,32 @@ class FilterQueries:
         except KeyError:
             random_query = "{scheme}://{netloc}{path}?{query}"\
                 .format(scheme=parsed_url.scheme, netloc=parsed_url.netloc, path=parsed_url.path, query=str(uuid4()))
+            print("getting %s for %s" % (random_query, sample_key))
             sample = await self.engine.perform_high_priority(Entry.create(random_query), self.child_heuristics)
-            self.samples[sample_key] = sample.response
-            return sample.response
+            self.samples[sample_key] = self._hash_response(sample.response)
+            return self.samples[sample_key]
+
+    def _match(self, response, sample_simhash):
+        if "md5" in sample_simhash:
+            if self._is_text(response.raw):
+                return False
+            else:
+                return hashlib.md5(response.raw).digest() == sample_simhash["md5"]
+        elif "simhash" in sample_simhash:
+            if self._is_text(response.raw):
+                return Simhash(response.content).distance(Simhash(sample_simhash["simhash"])) <= self.match_threshold
+            else:
+                return False
+
+    def _hash_response(self, response):
+        try:
+            return {"simhash": Simhash(response.content).value}
+        except UnicodeDecodeError:
+            return {"md5": hashlib.md5(response.raw).digest()}
+
+    def _is_text(self, response_content):
+        try:
+            response_content.decode("utf8")
+            return True
+        except UnicodeDecodeError:
+            return False
