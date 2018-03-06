@@ -339,6 +339,13 @@
                 "no_suffix": true
             },
             {
+                "severity": "critical",
+                "url": ".ssh/authorized_keys",
+                "description": "SSH authorized keys",
+                "timeout_count": 0,
+                "no_suffix": true
+            },
+            {
                 "url": "import",
                 "description": "database backup",
                 "timeout_count": 0,
