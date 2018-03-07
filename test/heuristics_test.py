@@ -25,15 +25,15 @@ from hammertime.rules.simhash import Simhash
 from hammertime.engine.aiohttp import Response
 import hashlib
 
-from tachyon.core.heuristics import FilterQueries
+from tachyon.core.heuristics import RejectIgnoredQueries
 from fixtures import async, FakeHammerTimeEngine
 
 
-class TestFilterQueries(TestCase):
+class TestRejectIgnoredQueries(TestCase):
 
     def setUp(self):
         self.engine = FakeHammerTimeEngine()
-        self.filter = FilterQueries()
+        self.filter = RejectIgnoredQueries()
         self.filter.set_child_heuristics(None)
         self.filter.set_engine(self.engine)
         self.kb = KnowledgeBase()

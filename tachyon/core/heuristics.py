@@ -24,7 +24,7 @@ from hammertime.rules.simhash import Simhash
 import hashlib
 
 
-class FilterQueries:
+class RejectIgnoredQueries:
 
     def __init__(self, match_treshold=5):
         self.engine = None
@@ -68,9 +68,9 @@ class FilterQueries:
             else:
                 return hashlib.md5(response.raw).digest() == sample_simhash["md5"]
         elif "simhash" in sample_simhash:
-            if self._is_text(response.raw):
+            try:
                 return Simhash(response.content).distance(Simhash(sample_simhash["simhash"])) <= self.match_threshold
-            else:
+            except UnicodeDecodeError:
                 return False
 
     def _hash_response(self, response):
@@ -79,9 +79,9 @@ class FilterQueries:
         except UnicodeDecodeError:
             return {"md5": hashlib.md5(response.raw).digest()}
 
-    def _is_text(self, response_content):
+    def _is_text(self, raw_response):
         try:
-            response_content.decode("utf8")
+            raw_response.decode("utf8")
             return True
         except UnicodeDecodeError:
             return False
