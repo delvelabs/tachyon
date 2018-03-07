@@ -24,7 +24,7 @@ from hammertime.rules.simhash import Simhash, DEFAULT_FILTER
 import hashlib
 
 
-class RejectIgnoredQueries:
+class RejectIgnoredQuery:
 
     def __init__(self, match_treshold=5, match_filter=DEFAULT_FILTER, token_size=4):
         self.engine = None
