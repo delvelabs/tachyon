@@ -20,16 +20,18 @@ from uuid import uuid4
 from urllib.parse import urlparse
 from hammertime.http import Entry
 from hammertime.ruleset import RejectRequest
-from hammertime.rules.simhash import Simhash
+from hammertime.rules.simhash import Simhash, DEFAULT_FILTER
 import hashlib
 
 
 class RejectIgnoredQueries:
 
-    def __init__(self, match_treshold=5):
+    def __init__(self, match_treshold=5, match_filter=DEFAULT_FILTER, token_size=4):
         self.engine = None
         self.samples = {}
         self.match_threshold = match_treshold
+        self.match_filter = match_filter
+        self.token_size = token_size
 
     def set_engine(self, engine):
         self.engine = engine
@@ -69,13 +71,14 @@ class RejectIgnoredQueries:
                 return hashlib.md5(response.raw).digest() == sample_simhash["md5"]
         elif "simhash" in sample_simhash:
             try:
-                return Simhash(response.content).distance(Simhash(sample_simhash["simhash"])) <= self.match_threshold
+                response_simhash = self._create_simhash(response.content)
+                return self._simhash_equal(response_simhash, self._create_simhash(sample_simhash["simhash"]))
             except UnicodeDecodeError:
                 return False
 
     def _hash_response(self, response):
         try:
-            return {"simhash": Simhash(response.content).value}
+            return {"simhash": self._create_simhash(response.content).value}
         except UnicodeDecodeError:
             return {"md5": hashlib.md5(response.raw).digest()}
 
@@ -85,3 +88,9 @@ class RejectIgnoredQueries:
             return True
         except UnicodeDecodeError:
             return False
+
+    def _create_simhash(self, content_response):
+        return Simhash(content_response, self.match_filter, self.token_size)
+
+    def _simhash_equal(self, simhash, other_simhash):
+        return simhash.distance(other_simhash) <= self.match_threshold
