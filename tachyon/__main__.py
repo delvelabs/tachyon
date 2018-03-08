@@ -55,6 +55,7 @@ from tachyon.plugins import host, file
 from tachyon.core.generator import PathGenerator, FileGenerator
 from tachyon.core.directoryfetcher import DirectoryFetcher
 from tachyon.core.filefetcher import FileFetcher
+from tachyon.core.heuristics import RejectIgnoredQuery
 
 
 def load_target_paths(running_path):
@@ -251,7 +252,7 @@ def configure_hammertime():
 
     #  TODO Make sure rejecting 404 does not conflict with tomcat fake 404 detection.
     heuristics = [RejectStatusCode({404, 502}), DetectSoft404(distance_threshold=6), DynamicTimeout(0.5, 5),
-                  FollowRedirects(), RejectCatchAllRedirect()]
+                  FollowRedirects(), RejectCatchAllRedirect(), RejectIgnoredQuery()]
     hammertime.heuristics.add_multiple(heuristics)
     return hammertime
 

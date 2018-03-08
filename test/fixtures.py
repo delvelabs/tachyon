@@ -68,6 +68,10 @@ class FakeHammerTimeEngine:
         await heuristics.after_response(entry)
         return entry
 
+    async def perform_high_priority(self, entry, heuristics):
+        entry.response = self.mock.perform_high_priority(entry, heuristics)
+        return entry
+
     def get_requested_urls(self):
         for args, kwargs in self.mock.perform.call_args_list:
             entry = args[0]
