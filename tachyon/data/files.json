@@ -1431,5 +1431,45 @@
                 "no_suffix": true
             }
         ]
+    },
+    {
+        "description": "Common FTP/SFTP config files",
+        "data": [
+            {
+                "severity": "medium",
+                "url": "sftp-config.json",
+                "description": "Config file for Multiple SFTP clients, e.g. Sublime SFTP",
+                "timeout_count": 0,
+                "no_suffix": true
+            },
+            {
+                "severity": "medium",
+                "url": "recentservers.xml",
+                "description": "FileZilla",
+                "timeout_count": 0,
+                "no_suffix": true
+            },
+            {
+                "severity": "medium",
+                "url": "sitemanager.xml",
+                "description": "FileZilla",
+                "timeout_count": 0,
+                "no_suffix": true
+            },
+            {
+                "severity": "medium",
+                "url": ".ftpconfig",
+                "description": "Remote FTP for Atom.io",
+                "timeout_count": 0,
+                "no_suffix": true
+            },
+            {
+                "severity": "medium",
+                "url": "ftpsync.settings",
+                "description": "FTPSync for Sublime Text",
+                "timeout_count": 0,
+                "no_suffix": true
+            }
+        ]
     }
 ]
