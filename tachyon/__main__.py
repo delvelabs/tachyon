@@ -59,6 +59,9 @@ from tachyon.core.filefetcher import FileFetcher
 from tachyon.core.heuristics import RejectIgnoredQuery
 
 
+heuristics_with_child = []
+
+
 def load_target_paths(running_path):
     """ Load the target paths in the database """
     textutils.output_info('Loading target paths')
@@ -243,25 +246,36 @@ def configure_hammertime():
     hammertime = HammerTime(retry_count=3, proxy=conf.proxy_url)
 
     #  TODO Make sure rejecting 404 does not conflict with tomcat fake 404 detection.
-    heuristics = [RejectStatusCode({404, 502}), DetectSoft404(distance_threshold=6), DynamicTimeout(0.5, 5),
-                  FollowRedirects(), RejectCatchAllRedirect(), RejectIgnoredQuery()]
+    global heuristics_with_child
+    heuristics_with_child = [DetectSoft404(distance_threshold=6), FollowRedirects(), RejectCatchAllRedirect(),
+                             RejectIgnoredQuery()]
+    heuristics = [RejectStatusCode({404, 502}), DynamicTimeout(0.5, 5)]
+    heuristics.extend(heuristics_with_child)
     hammertime.heuristics.add_multiple(heuristics)
     return hammertime
+
+
+def set_cookies(hammertime, cookies):
+    set_cookie = SetHeader("Cookie", cookies)
+    hammertime.heuristics.add(set_cookie)
+    for heuristic in heuristics_with_child:
+        heuristic.child_heuristics.add(set_cookie)
 
 
 async def scan(hammertime):
 
     if conf.cookies is not None:
-        hammertime.heuristics.add(SetHeader("Cookie", conf.cookies))
+        set_cookies(hammertime, conf.cookies)
     else:
         await get_session_cookies(hammertime)
         if database.session_cookie is not None:
-            hammertime.heuristics.add(SetHeader("Cookie", database.session_cookie))
+            set_cookies(hammertime, database.session_cookie)
 
     await test_paths_exists(hammertime)
     textutils.output_info('Generating file targets')
     load_execute_file_plugins()
     database.messages_output_queue.join()
+    return
     await test_file_exists(hammertime)
 
 
