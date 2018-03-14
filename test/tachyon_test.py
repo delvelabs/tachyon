@@ -17,8 +17,8 @@
 
 
 from unittest import TestCase
-from unittest.mock import MagicMock, patch, call
-from aiohttp.test_utils import make_mocked_coro, loop_context
+from unittest.mock import MagicMock, patch, call, ANY
+from aiohttp.test_utils import make_mocked_coro
 import asyncio
 from hammertime.rules import RejectStatusCode, RejectCatchAllRedirect, FollowRedirects
 from hammertime.core import HammerTime
@@ -33,7 +33,6 @@ class TestTachyon(TestCase):
 
     def setUp(self):
         conf.recursive = False
-        tachyon.DetectSoft404 = RejectStatusCode  # Else adding heuristic using kb more than once would raise exception.
         tachyon.load_execute_file_plugins = MagicMock()
         database.messages_output_queue = MagicMock()
 
@@ -114,6 +113,25 @@ class TestTachyon(TestCase):
 
         fake_file_fetcher.fetch_files.assert_called_once_with(["list of files"])
 
+    @async()
+    async def test_add_http_headers(self, loop):
+        hammertime = HammerTime(loop=loop)
+        tachyon.heuristics_with_child = [RejectCatchAllRedirect(), FollowRedirects()]
+        hammertime.heuristics.add_multiple(tachyon.heuristics_with_child)
+        hammertime.heuristics.add = MagicMock()
+        for heuristic in tachyon.heuristics_with_child:
+            heuristic.child_heuristics.add = MagicMock()
+
+        tachyon.add_http_header(hammertime, "header", "value")
+
+        set_header = hammertime.heuristics.add.call_args[0][0]
+        self.assertEqual(set_header.name, "header")
+        self.assertEqual(set_header.value, "value")
+        for heuristic_with_child in tachyon.heuristics_with_child:
+            set_header = heuristic_with_child.child_heuristics.add.call_args[0][0]
+            self.assertEqual(set_header.name, "header")
+            self.assertEqual(set_header.value, "value")
+
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
     @async()
     async def test_fetch_session_cookies_on_scan_start(self):
@@ -155,22 +173,12 @@ class TestTachyon(TestCase):
     @async()
     async def test_hammertime_uses_session_cookies(self, loop):
         hammertime = HammerTime(loop=loop)
+        tachyon.add_http_header = MagicMock()
         database.session_cookie = "my-cookies=123"
-        tachyon.heuristics_with_child = [RejectCatchAllRedirect(), FollowRedirects()]
-        hammertime.heuristics.add_multiple(tachyon.heuristics_with_child)
-        hammertime.heuristics.add = MagicMock()
-        for heuristic in tachyon.heuristics_with_child:
-            heuristic.child_heuristics.add = MagicMock()
 
         await tachyon.scan(hammertime)
 
-        set_header = hammertime.heuristics.add.call_args[0][0]
-        self.assertEqual(set_header.name, "Cookie")
-        self.assertEqual(set_header.value, database.session_cookie)
-        for heuristic_with_child in tachyon.heuristics_with_child:
-            set_header = heuristic_with_child.child_heuristics.add.call_args[0][0]
-            self.assertEqual(set_header.name, "Cookie")
-            self.assertEqual(set_header.value, database.session_cookie)
+        tachyon.add_http_header.assert_called_once_with(ANY, "Cookie", "my-cookies=123")
 
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
     @async()
@@ -186,20 +194,19 @@ class TestTachyon(TestCase):
     @async()
     async def test_use_user_supplied_cookies_if_available(self, loop):
         hammertime = HammerTime(loop=loop)
+        tachyon.add_http_header = MagicMock()
         database.session_cookie = "my-cookies=123"
         conf.cookies = "test-cookie=true"
-        tachyon.heuristics_with_child = [RejectCatchAllRedirect(), FollowRedirects()]
-        hammertime.heuristics.add_multiple(tachyon.heuristics_with_child)
-        hammertime.heuristics.add = MagicMock()
-        for heuristic in tachyon.heuristics_with_child:
-            heuristic.child_heuristics.add = MagicMock()
 
         await tachyon.scan(hammertime)
 
-        set_header = hammertime.heuristics.add.call_args[0][0]
-        self.assertEqual(set_header.name, "Cookie")
-        self.assertEqual(set_header.value, conf.cookies)
-        for heuristic_with_child in tachyon.heuristics_with_child:
-            set_header = heuristic_with_child.child_heuristics.add.call_args[0][0]
-            self.assertEqual(set_header.name, "Cookie")
-            self.assertEqual(set_header.value, conf.cookies)
+        tachyon.add_http_header.assert_called_once_with(ANY, "Cookie", "test-cookie=true")
+
+    @async()
+    async def test_configure_hammertime_add_user_agent_to_request_header(self):
+        conf.user_agent = "My-user-agent"
+        tachyon.add_http_header = MagicMock()
+
+        tachyon.configure_hammertime()
+
+        tachyon.add_http_header.assert_called_once_with(ANY, "User-Agent", conf.user_agent)

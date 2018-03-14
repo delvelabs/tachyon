@@ -250,16 +250,21 @@ def configure_hammertime():
     heuristics_with_child = [DetectSoft404(distance_threshold=6), FollowRedirects(), RejectCatchAllRedirect(),
                              RejectIgnoredQuery()]
     heuristics = [RejectStatusCode({404, 502}), DynamicTimeout(0.5, 5)]
-    heuristics.extend(heuristics_with_child)
     hammertime.heuristics.add_multiple(heuristics)
+    hammertime.heuristics.add_multiple(heuristics_with_child)
+    add_http_header(hammertime, "User-Agent", conf.user_agent)
     return hammertime
 
 
-def set_cookies(hammertime, cookies):
-    set_cookie = SetHeader("Cookie", cookies)
-    hammertime.heuristics.add(set_cookie)
+def add_http_header(hammertime, header_name, header_value):
+    set_header = SetHeader(header_name, header_value)
+    hammertime.heuristics.add(set_header)
     for heuristic in heuristics_with_child:
-        heuristic.child_heuristics.add(set_cookie)
+        heuristic.child_heuristics.add(set_header)
+
+
+def set_cookies(hammertime, cookies):
+    add_http_header(hammertime, "Cookie", cookies)
 
 
 async def scan(hammertime):
@@ -275,7 +280,6 @@ async def scan(hammertime):
     textutils.output_info('Generating file targets')
     load_execute_file_plugins()
     database.messages_output_queue.join()
-    return
     await test_file_exists(hammertime)
 
 

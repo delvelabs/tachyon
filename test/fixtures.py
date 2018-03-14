@@ -64,9 +64,11 @@ def patch_coroutines(path, *args):
                 _patch = patch(path + obj_to_patch, new_callable=make_mocked_coro)
                 _patch.start()
                 patches.append(_patch)
-            test_function(self)
-            for _patch in patches:
-                _patch.stop()
+            try:
+                test_function(self)
+            finally:
+                for _patch in patches:
+                    _patch.stop()
         return wrapped
     return wrapper
 
