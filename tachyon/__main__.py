@@ -253,6 +253,8 @@ def configure_hammertime():
     hammertime.heuristics.add_multiple(heuristics)
     hammertime.heuristics.add_multiple(heuristics_with_child)
     add_http_header(hammertime, "User-Agent", conf.user_agent)
+    add_http_header(hammertime, "Connection", "Keep-Alive")
+    add_http_header(hammertime, "Host", conf.target_host)
     return hammertime
 
 
