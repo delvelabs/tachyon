@@ -1,7 +1,6 @@
-#!/usr/bin/python3
-#
 # Tachyon - Fast Multi-Threaded Web Discovery Tool
 # Copyright (c) 2011 Gabriel Tremblay - initnull hat gmail.com
+# Copyright (C) 2018-  Delve Labs inc.
 #
 # GNU General Public Licence (GPL)
 #
@@ -16,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
-#
+
 
 # Ensure python3 runtime
 import atexit

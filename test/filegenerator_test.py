@@ -1,5 +1,6 @@
 # Tachyon - Fast Multi-Threaded Web Discovery Tool
 # Copyright (c) 2011 Gabriel Tremblay - initnull hat gmail.com
+# Copyright (C) 2018-  Delve Labs inc.
 #
 # GNU General Public Licence (GPL)
 #
