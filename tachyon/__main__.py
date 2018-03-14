@@ -114,31 +114,27 @@ def sample_root_404():
     manager.wait_for_idle(workers, database.fetch_queue)
 
 
-def test_paths_exists(hammertime):
+async def test_paths_exists(hammertime):
     """
     Test for path existence using http codes and computed 404
     Turn off output for now, it would be irrelevant at this point.
     """
 
     path_generator = PathGenerator()
-    loop = hammertime.loop
+    fetcher = DirectoryFetcher(conf.base_url, hammertime)
 
     paths_to_fetch = path_generator.generate_paths(use_valid_paths=False)
     textutils.output_debug('Cached: ' + str(database.path_cache))
 
-    async def fetch_paths(paths):
-        fetcher = DirectoryFetcher(conf.base_url, hammertime)
-        await fetcher.fetch_paths(paths)
-
     textutils.output_info('Probing %d paths' % len(paths_to_fetch))
-    loop.run_until_complete(fetch_paths(paths_to_fetch))
+    await fetcher.fetch_paths(paths_to_fetch)
 
-    recursion_depth = 0
     if conf.recursive:
+        recursion_depth = 0
         while recursion_depth < conf.recursive_depth_limit:
             recursion_depth += 1
             paths_to_fetch = path_generator.generate_paths(use_valid_paths=True)
-            loop.run_until_complete(fetch_paths(paths_to_fetch))
+            await fetcher.fetch_paths(paths_to_fetch)
     textutils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
 
 
@@ -226,18 +222,15 @@ def add_files_to_paths():
     database.valid_paths = work_list
 
 
-def test_file_exists(hammertime):
+async def test_file_exists(hammertime):
     """ Test for file existence using http codes and computed 404 """
-    async def fetch():
-        fetcher = FileFetcher(conf.base_url, hammertime)
-        await fetcher.fetch_files(database.valid_paths)
-
+    fetcher = FileFetcher(conf.base_url, hammertime)
     generator = FileGenerator()
     database.valid_paths = generator.generate_files()
     textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
     if len(database.valid_paths) > 0:
         hammertime.heuristics.add(RejectStatusCode({401, 403}))
-        hammertime.loop.run_until_complete(fetch())
+        await fetcher.fetch_files(database.valid_paths)
 
 
 def print_program_header():
@@ -256,17 +249,17 @@ def configure_hammertime():
     return hammertime
 
 
-def scan():
-    hammertime = configure_hammertime()
-    hammertime.loop.run_until_complete(get_session_cookies(hammertime))
+async def scan(hammertime):
+
+    await get_session_cookies(hammertime)
     if database.session_cookie is not None:
         hammertime.heuristics.add(SetHeader("Cookie", database.session_cookie))
 
-    test_paths_exists(hammertime)
+    await test_paths_exists(hammertime)
     textutils.output_info('Generating file targets')
     load_execute_file_plugins()
     database.messages_output_queue.join()
-    test_file_exists(hammertime)
+    await test_file_exists(hammertime)
 
 
 def main():
@@ -384,10 +377,10 @@ def main():
         # Register cleanup function
         atexit.register(finish_output)
 
+        hammertime = configure_hammertime()
         # Select working modes
         root_path = ''
         if conf.files_only:
-            hammertime = configure_hammertime()
             get_session_cookies(hammertime)
             # 0. Sample /uuid to figure out what is a classic 404 and set value in database
             sample_root_404()
@@ -407,7 +400,6 @@ def main():
             print_results_worker.start()
             test_file_exists(hammertime)
         elif conf.directories_only:
-            hammertime = configure_hammertime()
             get_session_cookies(hammertime)
             # 0. Sample /uuid to figure out what is a classic 404 and set value in database
             sample_root_404()
@@ -422,7 +414,6 @@ def main():
             load_target_paths(running_path)
             test_paths_exists(hammertime)
         elif conf.plugins_only:
-            hammertime = configure_hammertime()
             get_session_cookies(hammertime)
             database.connection_pool = HTTPConnectionPool(resolved, timeout=conf.fetch_timeout_secs, maxsize=1)
             # Add root to targets
@@ -446,7 +437,7 @@ def main():
             print_results_worker = SelectedPrintWorker()
             print_results_worker.daemon = True
             print_results_worker.start()
-            scan()
+            hammertime.loop.run_until_complete(scan(hammertime))
 
         # Benchmark
         end_scan_time = datetime.now()
