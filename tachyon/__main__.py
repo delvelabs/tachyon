@@ -251,9 +251,12 @@ def configure_hammertime():
 
 async def scan(hammertime):
 
-    await get_session_cookies(hammertime)
-    if database.session_cookie is not None:
-        hammertime.heuristics.add(SetHeader("Cookie", database.session_cookie))
+    if conf.cookies is not None:
+        hammertime.heuristics.add(SetHeader("Cookie", conf.cookies))
+    else:
+        await get_session_cookies(hammertime)
+        if database.session_cookie is not None:
+            hammertime.heuristics.add(SetHeader("Cookie", database.session_cookie))
 
     await test_paths_exists(hammertime)
     textutils.output_info('Generating file targets')

@@ -172,3 +172,16 @@ class TestTachyon(TestCase):
         await tachyon.scan(hammertime)
 
         hammertime.heuristics.add.assert_not_called()
+
+    @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
+    @async()
+    async def test_use_user_supplied_cookies_if_available(self):
+        hammertime = MagicMock()
+        database.session_cookie = "my-cookies=123"
+        conf.cookies = "test-cookie=true"
+
+        await tachyon.scan(hammertime)
+
+        set_header = hammertime.heuristics.add.call_args[0][0]
+        self.assertEqual(set_header.name, "Cookie")
+        self.assertEqual(set_header.value, conf.cookies)
