@@ -18,12 +18,22 @@
 
 from unittest import TestCase
 from unittest.mock import MagicMock, patch, call
-from aiohttp.test_utils import make_mocked_coro
+from aiohttp.test_utils import make_mocked_coro, loop_context
 import asyncio
 from hammertime.rules import RejectStatusCode
+from hammertime.core import HammerTime
+from hammertime.http import Entry, StaticResponse
 
 from tachyon.core import conf, database
 from tachyon import __main__ as tachyon
+from fixtures import fake_future
+
+
+def patch_stuff(func):
+    def wrapper(self):
+        with patch("tachyon.__main__.test_file_exists"), patch("tachyon.__main__test_paths_exists"):
+            func(self)
+    return wrapper
 
 
 class TestTachyon(TestCase):
@@ -32,6 +42,8 @@ class TestTachyon(TestCase):
         conf.recursive = False
         tachyon.DetectSoft404 = RejectStatusCode  # Else adding heuristic using kb more than once would raise exception.
         self.hammertime = MagicMock(loop=asyncio.new_event_loop())
+        tachyon.load_execute_file_plugins = MagicMock()
+        database.messages_output_queue = MagicMock()
 
     def test_paths_exists_fetch_generated_paths(self):
         path_generator = MagicMock()
@@ -109,3 +121,59 @@ class TestTachyon(TestCase):
             tachyon.test_file_exists(hammertime)
 
         fake_file_fetcher.fetch_files.assert_called_once_with(["list of files"])
+
+    @patch_stuff
+    def test_fetch_session_cookies_on_scan_start(self):
+        tachyon.configure_hammertime = MagicMock(return_value=self.hammertime)
+        with patch("tachyon.__main__.get_session_cookies", make_mocked_coro()) as get_session_cookies:
+            tachyon.scan()
+
+            get_session_cookies.assert_called_once_with(self.hammertime)
+
+    def test_get_session_cookies(self):
+        conf.base_url = "http://example.com"
+        database.session_cookie = None
+        with loop_context() as loop:
+            hammertime = HammerTime(loop=loop)
+            response = StaticResponse(200, {"Set-Cookie": "my-cookie=true; test-cookie=123"})
+            entry = Entry.create("http://example.com/", response=response)
+            hammertime.request = MagicMock(return_value=fake_future(result=entry, loop=loop))
+
+            loop.run_until_complete(tachyon.get_session_cookies(hammertime))
+
+            hammertime.request.assert_called_once_with("http://example.com/")
+            self.assertEqual(database.session_cookie, "my-cookie=true; test-cookie=123")
+
+    def test_get_session_cookies_skip_if_no_cookies_in_response(self):
+        conf.base_url = "http://example.com"
+        database.session_cookie = None
+        with loop_context() as loop:
+            hammertime = HammerTime(loop=loop)
+            response = StaticResponse(200, {"No-Set-Cookie": "lorem ipsum"})
+            entry = Entry.create("http://example.com/", response=response)
+            hammertime.request = MagicMock(return_value=fake_future(result=entry, loop=loop))
+
+            loop.run_until_complete(tachyon.get_session_cookies(hammertime))
+
+            hammertime.request.assert_called_once_with("http://example.com/")
+            self.assertIsNone(database.session_cookie)
+
+    @patch_stuff
+    def test_hammertime_uses_session_cookies(self):
+        tachyon.configure_hammertime = MagicMock(return_value=self.hammertime)
+        database.session_cookie = "my-cookies=123"
+        with patch("tachyon.__main__.get_session_cookies", make_mocked_coro()):
+            tachyon.scan()
+
+        set_header = self.hammertime.heuristics.add.call_args[0][0]
+        self.assertEqual(set_header.name, "Cookie")
+        self.assertEqual(set_header.value, database.session_cookie)
+
+    @patch_stuff
+    def test_dont_set_cookies_if_database_session_cookies_is_none(self):
+        tachyon.configure_hammertime = MagicMock(return_value=self.hammertime)
+        database.session_cookie = None
+        with patch("tachyon.__main__.get_session_cookies", make_mocked_coro()):
+            tachyon.scan()
+
+        self.hammertime.heuristics.add.assert_not_called()
