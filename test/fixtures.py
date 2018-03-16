@@ -19,11 +19,11 @@
 
 import asyncio
 from functools import wraps
-from aiohttp.test_utils import loop_context
+from aiohttp.test_utils import loop_context, make_mocked_coro
 from hammertime.http import StaticResponse
 from urllib.parse import urlparse
 from easyinject import Injector
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 
 def async():
@@ -54,6 +54,25 @@ def create_json_data(url_list, **kwargs):
         data.update(**kwargs)
         data_list.append(data)
     return data_list
+
+
+def patch_coroutines(path, *args):
+
+    def wrapper(test_function):
+        @wraps(test_function)
+        def wrapped(self):
+            patches = []
+            for obj_to_patch in args:
+                _patch = patch(path + obj_to_patch, new_callable=make_mocked_coro)
+                _patch.start()
+                patches.append(_patch)
+            try:
+                test_function(self)
+            finally:
+                for _patch in patches:
+                    _patch.stop()
+        return wrapped
+    return wrapper
 
 
 class FakeHammerTimeEngine:

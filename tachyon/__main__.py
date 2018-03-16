@@ -35,7 +35,12 @@ from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
 from urllib3.poolmanager import ProxyManager
 from datetime import datetime
 from hammertime import HammerTime
-from hammertime.rules import DetectSoft404, RejectStatusCode, DynamicTimeout, RejectCatchAllRedirect, FollowRedirects
+from hammertime.rules import DetectSoft404, RejectStatusCode, DynamicTimeout, RejectCatchAllRedirect, FollowRedirects, \
+    SetHeader
+from aiohttp import ClientSession, TCPConnector
+from aiohttp.helpers import DummyCookieJar
+from hammertime.engine import AioHttpEngine
+from hammertime.config import custom_event_loop
 
 sys.path.pop(0)
 
@@ -57,6 +62,9 @@ from tachyon.core.filefetcher import FileFetcher
 from tachyon.core.heuristics import RejectIgnoredQuery
 
 
+heuristics_with_child = []
+
+
 def load_target_paths(running_path):
     """ Load the target paths in the database """
     textutils.output_info('Loading target paths')
@@ -69,20 +77,12 @@ def load_target_files(running_path):
     database.files += loaders.load_json_resource('files')
 
 
-def get_session_cookies():
-    """ Fetch initial session cookies """
+async def get_session_cookies(hammertime):
+    """ Fetch the root path in a single request so aiohttp will use the returned cookies in all future requests. """
     textutils.output_info('Fetching session cookie')
-    path = conf.path_template.copy()
-    path['url'] = '/'
+    path = '/'
 
-    # Were not using the fetch cache for session cookie sampling
-    fetcher = Fetcher()
-
-    code, content, headers = fetcher.fetch_url('/', conf.user_agent, 10)
-    if code is 200:
-        cookies = headers.get('Set-Cookie')
-        if cookies:
-            database.session_cookie = cookies
+    entry = await hammertime.request(conf.base_url + path)
 
 
 def sample_root_404():
@@ -114,31 +114,27 @@ def sample_root_404():
     manager.wait_for_idle(workers, database.fetch_queue)
 
 
-def test_paths_exists(hammertime):
+async def test_paths_exists(hammertime):
     """
     Test for path existence using http codes and computed 404
     Turn off output for now, it would be irrelevant at this point.
     """
 
     path_generator = PathGenerator()
-    loop = hammertime.loop
+    fetcher = DirectoryFetcher(conf.base_url, hammertime)
 
     paths_to_fetch = path_generator.generate_paths(use_valid_paths=False)
     textutils.output_debug('Cached: ' + str(database.path_cache))
 
-    async def fetch_paths(paths):
-        fetcher = DirectoryFetcher(conf.base_url, hammertime)
-        await fetcher.fetch_paths(paths)
-
     textutils.output_info('Probing %d paths' % len(paths_to_fetch))
-    loop.run_until_complete(fetch_paths(paths_to_fetch))
+    await fetcher.fetch_paths(paths_to_fetch)
 
-    recursion_depth = 0
     if conf.recursive:
+        recursion_depth = 0
         while recursion_depth < conf.recursive_depth_limit:
             recursion_depth += 1
             paths_to_fetch = path_generator.generate_paths(use_valid_paths=True)
-            loop.run_until_complete(fetch_paths(paths_to_fetch))
+            await fetcher.fetch_paths(paths_to_fetch)
     textutils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
 
 
@@ -226,18 +222,15 @@ def add_files_to_paths():
     database.valid_paths = work_list
 
 
-def test_file_exists(hammertime):
+async def test_file_exists(hammertime):
     """ Test for file existence using http codes and computed 404 """
-    async def fetch():
-        fetcher = FileFetcher(conf.base_url, hammertime)
-        await fetcher.fetch_files(database.valid_paths)
-
+    fetcher = FileFetcher(conf.base_url, hammertime)
     generator = FileGenerator()
     database.valid_paths = generator.generate_files()
     textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
     if len(database.valid_paths) > 0:
         hammertime.heuristics.add(RejectStatusCode({401, 403}))
-        hammertime.loop.run_until_complete(fetch())
+        await fetcher.fetch_files(database.valid_paths)
 
 
 def print_program_header():
@@ -247,13 +240,48 @@ def print_program_header():
 
 
 def configure_hammertime():
-    hammertime = HammerTime(retry_count=3, proxy=conf.proxy_url)
+    loop = custom_event_loop()
+    engine = AioHttpEngine(loop=loop, verify_ssl=False, proxy=conf.proxy_url)
+    if conf.cookies is not None:
+        engine.session.close()
+        connector = TCPConnector(loop=loop, verify_ssl=False)
+        engine.session = ClientSession(loop=loop, connector=connector, cookie_jar=DummyCookieJar(loop=loop))
+    hammertime = HammerTime(loop=loop, request_engine=engine, retry_count=3, proxy=conf.proxy_url)
 
     #  TODO Make sure rejecting 404 does not conflict with tomcat fake 404 detection.
-    heuristics = [RejectStatusCode({404, 502}), DetectSoft404(distance_threshold=6), DynamicTimeout(0.5, 5),
-                  FollowRedirects(), RejectCatchAllRedirect(), RejectIgnoredQuery()]
+    global heuristics_with_child
+    heuristics_with_child = [DetectSoft404(distance_threshold=6), FollowRedirects(), RejectCatchAllRedirect(),
+                             RejectIgnoredQuery()]
+    heuristics = [RejectStatusCode({404, 502}), DynamicTimeout(0.5, 5)]
     hammertime.heuristics.add_multiple(heuristics)
+    hammertime.heuristics.add_multiple(heuristics_with_child)
+    add_http_header(hammertime, "User-Agent", conf.user_agent)
+    add_http_header(hammertime, "Host", conf.target_host)
     return hammertime
+
+
+def add_http_header(hammertime, header_name, header_value):
+    set_header = SetHeader(header_name, header_value)
+    hammertime.heuristics.add(set_header)
+    for heuristic in heuristics_with_child:
+        heuristic.child_heuristics.add(set_header)
+
+
+def set_cookies(hammertime, cookies):
+    add_http_header(hammertime, "Cookie", cookies)
+
+
+async def scan(hammertime):
+    if conf.cookies is not None:
+        set_cookies(hammertime, conf.cookies)
+    else:
+        await get_session_cookies(hammertime)
+
+    await test_paths_exists(hammertime)
+    textutils.output_info('Generating file targets')
+    load_execute_file_plugins()
+    database.messages_output_queue.join()
+    await test_file_exists(hammertime)
 
 
 def main():
@@ -371,11 +399,11 @@ def main():
         # Register cleanup function
         atexit.register(finish_output)
 
-        # Select working modes
         hammertime = configure_hammertime()
+        # Select working modes
         root_path = ''
         if conf.files_only:
-            get_session_cookies()
+            get_session_cookies(hammertime)
             # 0. Sample /uuid to figure out what is a classic 404 and set value in database
             sample_root_404()
             # Add root to targets
@@ -394,7 +422,7 @@ def main():
             print_results_worker.start()
             test_file_exists(hammertime)
         elif conf.directories_only:
-            get_session_cookies()
+            get_session_cookies(hammertime)
             # 0. Sample /uuid to figure out what is a classic 404 and set value in database
             sample_root_404()
             root_path = conf.path_template.copy()
@@ -408,7 +436,7 @@ def main():
             load_target_paths(running_path)
             test_paths_exists(hammertime)
         elif conf.plugins_only:
-            get_session_cookies()
+            get_session_cookies(hammertime)
             database.connection_pool = HTTPConnectionPool(resolved, timeout=conf.fetch_timeout_secs, maxsize=1)
             # Add root to targets
             root_path = conf.path_template.copy()
@@ -416,27 +444,22 @@ def main():
             database.paths.append(root_path)
             load_execute_host_plugins()
         else:
-            get_session_cookies()
-            # 0. Sample /uuid to figure out what is a classic 404 and set value in database
-            sample_root_404()
-            # Add root to targets
             root_path = conf.path_template.copy()
             root_path['url'] = '/'
             database.paths.append(root_path)
-            load_target_paths(running_path)
-            load_target_files(running_path)
+            load_target_paths("")
+            load_target_files("")
             # Execute all Host plugins
             load_execute_host_plugins()
-            test_paths_exists(hammertime)
-            textutils.output_info('Sampling 404 for new paths')
-            sample_404_from_found_path()
-            textutils.output_info('Generating file targets')
-            load_execute_file_plugins()
-            database.messages_output_queue.join()
+            if conf.json_output:
+                SelectedPrintWorker = JSONPrintResultWorker
+            else:
+                SelectedPrintWorker = PrintResultsWorker
+
             print_results_worker = SelectedPrintWorker()
             print_results_worker.daemon = True
             print_results_worker.start()
-            test_file_exists(hammertime)
+            hammertime.loop.run_until_complete(scan(hammertime))
 
         # Benchmark
         end_scan_time = datetime.now()

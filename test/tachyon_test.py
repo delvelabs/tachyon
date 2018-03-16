@@ -18,36 +18,41 @@
 
 
 from unittest import TestCase
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch, call, ANY
 from aiohttp.test_utils import make_mocked_coro
+from aiohttp.helpers import DummyCookieJar
 import asyncio
-from hammertime.rules import RejectStatusCode
+from hammertime.rules import RejectCatchAllRedirect, FollowRedirects
+from hammertime.core import HammerTime
+from hammertime.http import Entry, StaticResponse
 
 from tachyon.core import conf, database
 from tachyon import __main__ as tachyon
+from fixtures import fake_future, async, patch_coroutines
 
 
 class TestTachyon(TestCase):
 
     def setUp(self):
         conf.recursive = False
-        tachyon.DetectSoft404 = RejectStatusCode  # Else adding heuristic using kb more than once would raise exception.
-        self.hammertime = MagicMock(loop=asyncio.new_event_loop())
+        tachyon.load_execute_file_plugins = MagicMock()
+        database.messages_output_queue = MagicMock()
 
-    def test_paths_exists_fetch_generated_paths(self):
+    @async()
+    async def test_paths_exists_fetch_generated_paths(self, loop):
         path_generator = MagicMock()
         path_generator.generate_paths.return_value = ["/", "/test", "/path"]
         fake_directory_fetcher = MagicMock()
         fake_directory_fetcher.fetch_paths = make_mocked_coro()
         tachyon.PathGenerator = MagicMock(return_value=path_generator)
         tachyon.DirectoryFetcher = MagicMock(return_value=fake_directory_fetcher)
-        asyncio.set_event_loop(asyncio.new_event_loop())
 
-        tachyon.test_paths_exists(self.hammertime)
+        await tachyon.test_paths_exists(HammerTime(loop=loop))
 
         fake_directory_fetcher.fetch_paths.assert_called_once_with(path_generator.generate_paths.return_value)
 
-    def test_paths_exists_output_fetch_paths_count(self):
+    @async()
+    async def test_paths_exists_output_fetch_paths_count(self, loop):
         path_generator = MagicMock()
         paths = ["/", "/test", "/path"]
         path_generator.generate_paths.return_value = paths
@@ -55,14 +60,14 @@ class TestTachyon(TestCase):
         fake_directory_fetcher.fetch_paths = make_mocked_coro()
         tachyon.PathGenerator = MagicMock(return_value=path_generator)
         tachyon.DirectoryFetcher = MagicMock(return_value=fake_directory_fetcher)
-        asyncio.set_event_loop(asyncio.new_event_loop())
 
         with patch("tachyon.core.textutils.output_info") as output_info:
-            tachyon.test_paths_exists(self.hammertime)
+            await tachyon.test_paths_exists(HammerTime(loop=loop))
 
             output_info.assert_any_call("Probing %d paths" % len(paths))
 
-    def test_paths_exists_do_recursive_path_search_if_recursive_is_true(self):
+    @async()
+    async def test_paths_exists_do_recursive_path_search_if_recursive_is_true(self, loop):
         conf.recursive = True
         path_generator = MagicMock()
         paths = ["/", "/test", "/path"]
@@ -71,16 +76,16 @@ class TestTachyon(TestCase):
         fake_directory_fetcher.fetch_paths = make_mocked_coro()
         tachyon.PathGenerator = MagicMock(return_value=path_generator)
         tachyon.DirectoryFetcher = MagicMock(return_value=fake_directory_fetcher)
-        asyncio.set_event_loop(asyncio.new_event_loop())
 
-        tachyon.test_paths_exists(self.hammertime)
+        await tachyon.test_paths_exists(HammerTime(loop=loop))
 
         path_generator.generate_paths.assert_has_calls([call(use_valid_paths=False), call(use_valid_paths=True),
                                                         call(use_valid_paths=True)], any_order=False)
 
         fake_directory_fetcher.fetch_paths.assert_has_calls([call(paths)]*3)
 
-    def test_paths_exists_output_paths_found_count(self):
+    @async()
+    async def test_paths_exists_output_paths_found_count(self, loop):
         path_generator = MagicMock()
         paths = ["/", "/test", "/path"]
         path_generator.generate_paths.return_value = paths
@@ -92,21 +97,113 @@ class TestTachyon(TestCase):
         database.valid_paths = paths
 
         with patch("tachyon.core.textutils.output_info") as output_info:
-            tachyon.test_paths_exists(self.hammertime)
+            await tachyon.test_paths_exists(HammerTime(loop=loop))
 
             output_info.assert_any_call("Found %d valid paths" % len(database.valid_paths))
 
-    def test_file_exists_fetch_all_generate_files(self):
+    @async()
+    async def test_file_exists_fetch_all_generate_files(self, loop):
         database.valid_paths = ["/path/file%d" % i for i in range(10)]
         fake_file_fetcher = MagicMock()
         fake_file_fetcher.fetch_files = make_mocked_coro()
         tachyon.FileFetcher = MagicMock(return_value=fake_file_fetcher)
-        loop = asyncio.new_event_loop()
-        hammertime = MagicMock(loop=loop)
         fake_file_generator = MagicMock()
         fake_file_generator.generate_files.return_value = ["list of files"]
 
         with patch("tachyon.__main__.FileGenerator", MagicMock(return_value=fake_file_generator)):
-            tachyon.test_file_exists(hammertime)
+            await tachyon.test_file_exists(HammerTime(loop=loop))
 
         fake_file_fetcher.fetch_files.assert_called_once_with(["list of files"])
+
+    @async()
+    async def test_add_http_headers(self, loop):
+        hammertime = HammerTime(loop=loop)
+        tachyon.heuristics_with_child = [RejectCatchAllRedirect(), FollowRedirects()]
+        hammertime.heuristics.add_multiple(tachyon.heuristics_with_child)
+        hammertime.heuristics.add = MagicMock()
+        for heuristic in tachyon.heuristics_with_child:
+            heuristic.child_heuristics.add = MagicMock()
+
+        tachyon.add_http_header(hammertime, "header", "value")
+
+        set_header = hammertime.heuristics.add.call_args[0][0]
+        self.assertEqual(set_header.name, "header")
+        self.assertEqual(set_header.value, "value")
+        for heuristic_with_child in tachyon.heuristics_with_child:
+            set_header = heuristic_with_child.child_heuristics.add.call_args[0][0]
+            self.assertEqual(set_header.name, "header")
+            self.assertEqual(set_header.value, "value")
+
+    @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
+    @async()
+    async def test_fetch_session_cookies_on_scan_start_if_no_user_supplied_cookies(self):
+        hammertime = MagicMock()
+        conf.cookies = None
+
+        await tachyon.scan(hammertime)
+
+        tachyon.get_session_cookies.assert_called_once_with(hammertime)
+
+    @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
+    @async()
+    async def test_dont_fetch_session_cookies_on_scan_start_if_user_supplied_cookies(self):
+        hammertime = MagicMock()
+        conf.cookies = "not none"
+
+        await tachyon.scan(hammertime)
+
+        tachyon.get_session_cookies.assert_not_called()
+
+    @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
+    @async()
+    async def test_use_user_supplied_cookies_if_available(self, loop):
+        hammertime = HammerTime(loop=loop)
+        tachyon.add_http_header = MagicMock()
+        database.session_cookie = "my-cookies=123"
+        conf.cookies = "test-cookie=true"
+
+        await tachyon.scan(hammertime)
+
+        tachyon.add_http_header.assert_called_once_with(ANY, "Cookie", "test-cookie=true")
+
+    @async()
+    async def test_configure_hammertime_add_user_agent_to_request_header(self):
+        conf.user_agent = "My-user-agent"
+        tachyon.add_http_header = MagicMock()
+
+        tachyon.configure_hammertime()
+
+        tachyon.add_http_header.assert_any_call(ANY, "User-Agent", conf.user_agent)
+
+    @async()
+    async def test_configure_hammertime_add_host_header_to_request_header(self):
+        conf.target_host = "example.com"
+        tachyon.add_http_header = MagicMock()
+
+        with patch("tachyon.__main__.HammerTime"):
+            tachyon.configure_hammertime()
+
+            tachyon.add_http_header.assert_any_call(ANY, "Host", conf.target_host)
+
+    @async()
+    async def test_configure_hammertime_create_aiohttp_engine_for_hammertime(self, loop):
+        engine = MagicMock()
+        conf.proxy_url = "my-proxy"
+        EngineFactory = MagicMock(return_value=engine)
+        with patch("tachyon.__main__.HammerTime") as HammerTimeFactory, \
+                patch("tachyon.__main__.AioHttpEngine", EngineFactory):
+            tachyon.configure_hammertime()
+
+            HammerTimeFactory.assert_called_once_with(loop=loop, request_engine=engine, retry_count=3,
+                                                      proxy="my-proxy")
+            EngineFactory.assert_called_once_with(loop=loop, verify_ssl=False, proxy="my-proxy")
+
+    @async()
+    async def test_configure_hammertime_create_client_session_with_dummy_cookie_jar_if_user_supply_cookies(self):
+        conf.proxy_url = "my-proxy"
+        conf.cookies = "not none"
+        with patch("tachyon.__main__.ClientSession") as SessionFactory:
+            tachyon.configure_hammertime()
+
+            _, kwargs = SessionFactory.call_args
+            self.assertTrue(isinstance(kwargs["cookie_jar"], DummyCookieJar))
