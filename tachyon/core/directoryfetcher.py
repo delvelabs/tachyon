@@ -20,6 +20,7 @@
 from urllib.parse import urljoin
 import asyncio
 from hammertime.ruleset import RejectRequest, StopRequest
+from hammertime.rules.deadhostdetection import OfflineHostException
 
 from . import database, stats, textutils, workers
 
@@ -45,6 +46,8 @@ class DirectoryFetcher:
                     database.valid_paths.append(entry.arguments["path"])
                 if entry.arguments["path"]["url"] != "/":
                     self.output_found(entry)
+            except OfflineHostException:
+                raise
             except RejectRequest:
                 pass
             except StopRequest:

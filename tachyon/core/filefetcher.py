@@ -21,6 +21,7 @@ from urllib.parse import urljoin
 import asyncio
 from hammertime.ruleset import StopRequest, RejectRequest
 from hammertime.rules.redirects import valid_redirects
+from hammertime.rules.deadhostdetection import OfflineHostException
 
 from tachyon.core.textutils import output_found
 from tachyon.core import stats
@@ -47,6 +48,8 @@ class FileFetcher:
                         self.output_found(entry, message_prefix="Empty ")
                     else:
                         self.output_found(entry)
+            except OfflineHostException:
+                raise
             except RejectRequest:
                 pass
             except StopRequest:
