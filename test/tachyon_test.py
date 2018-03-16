@@ -19,6 +19,7 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, patch, call, ANY
 from aiohttp.test_utils import make_mocked_coro
+from aiohttp.helpers import DummyCookieJar
 import asyncio
 from hammertime.rules import RejectCatchAllRedirect, FollowRedirects
 from hammertime.core import HammerTime
@@ -134,61 +135,23 @@ class TestTachyon(TestCase):
 
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
     @async()
-    async def test_fetch_session_cookies_on_scan_start(self):
+    async def test_fetch_session_cookies_on_scan_start_if_no_user_supplied_cookies(self):
         hammertime = MagicMock()
+        conf.cookies = None
 
         await tachyon.scan(hammertime)
 
         tachyon.get_session_cookies.assert_called_once_with(hammertime)
 
-    @async()
-    async def test_get_session_cookies(self, loop):
-        conf.base_url = "http://example.com"
-        database.session_cookie = None
-        hammertime = HammerTime(loop=loop)
-        response = StaticResponse(200, {"Set-Cookie": "my-cookie=true; test-cookie=123"})
-        entry = Entry.create("http://example.com/", response=response)
-        hammertime.request = MagicMock(return_value=fake_future(result=entry, loop=loop))
-
-        await tachyon.get_session_cookies(hammertime)
-
-        hammertime.request.assert_called_once_with("http://example.com/")
-        self.assertEqual(database.session_cookie, "my-cookie=true; test-cookie=123")
-
-    @async()
-    async def test_get_session_cookies_leave_session_cookies_to_none_if_no_cookies_in_response(self, loop):
-        conf.base_url = "http://example.com"
-        database.session_cookie = None
-        hammertime = HammerTime(loop=loop)
-        response = StaticResponse(200, {"No-Set-Cookie": "lorem ipsum"})
-        entry = Entry.create("http://example.com/", response=response)
-        hammertime.request = MagicMock(return_value=fake_future(result=entry, loop=loop))
-
-        await tachyon.get_session_cookies(hammertime)
-
-        hammertime.request.assert_called_once_with("http://example.com/")
-        self.assertIsNone(database.session_cookie)
-
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
     @async()
-    async def test_hammertime_uses_session_cookies(self, loop):
-        hammertime = HammerTime(loop=loop)
-        tachyon.add_http_header = MagicMock()
-        database.session_cookie = "my-cookies=123"
-
-        await tachyon.scan(hammertime)
-
-        tachyon.add_http_header.assert_called_once_with(ANY, "Cookie", "my-cookies=123")
-
-    @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
-    @async()
-    async def test_dont_set_cookies_if_database_session_cookies_is_none(self):
+    async def test_dont_fetch_session_cookies_on_scan_start_if_user_supplied_cookies(self):
         hammertime = MagicMock()
-        database.session_cookie = None
+        conf.cookies = "not none"
 
         await tachyon.scan(hammertime)
 
-        hammertime.heuristics.add.assert_not_called()
+        tachyon.get_session_cookies.assert_not_called()
 
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
     @async()
@@ -220,3 +183,26 @@ class TestTachyon(TestCase):
             tachyon.configure_hammertime()
 
             tachyon.add_http_header.assert_any_call(ANY, "Host", conf.target_host)
+
+    @async()
+    async def test_configure_hammertime_create_aiohttp_engine_for_hammertime(self, loop):
+        engine = MagicMock()
+        conf.proxy_url = "my-proxy"
+        EngineFactory = MagicMock(return_value=engine)
+        with patch("tachyon.__main__.HammerTime") as HammerTimeFactory, \
+                patch("tachyon.__main__.AioHttpEngine", EngineFactory):
+            tachyon.configure_hammertime()
+
+            HammerTimeFactory.assert_called_once_with(loop=loop, request_engine=engine, retry_count=3,
+                                                      proxy="my-proxy")
+            EngineFactory.assert_called_once_with(loop=loop, verify_ssl=False, proxy="my-proxy")
+
+    @async()
+    async def test_configure_hammertime_create_client_session_with_dummy_cookie_jar_if_user_supply_cookies(self):
+        conf.proxy_url = "my-proxy"
+        conf.cookies = "not none"
+        with patch("tachyon.__main__.ClientSession") as SessionFactory:
+            tachyon.configure_hammertime()
+
+            _, kwargs = SessionFactory.call_args
+            self.assertTrue(isinstance(kwargs["cookie_jar"], DummyCookieJar))

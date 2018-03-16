@@ -38,6 +38,10 @@ from datetime import datetime
 from hammertime import HammerTime
 from hammertime.rules import DetectSoft404, RejectStatusCode, DynamicTimeout, RejectCatchAllRedirect, FollowRedirects, \
     SetHeader
+from aiohttp import ClientSession, TCPConnector
+from aiohttp.helpers import DummyCookieJar
+from hammertime.engine import AioHttpEngine
+from hammertime.config import custom_event_loop
 
 sys.path.pop(0)
 
@@ -75,17 +79,11 @@ def load_target_files(running_path):
 
 
 async def get_session_cookies(hammertime):
-    """ Fetch initial session cookies """
+    """ Fetch the root path in a single request so aiohttp will use the returned cookies in all future requests. """
     textutils.output_info('Fetching session cookie')
     path = '/'
 
     entry = await hammertime.request(conf.base_url + path)
-
-    response = entry.response
-    if response.code is 200:
-        cookies = response.headers.get('Set-Cookie')
-        if cookies:
-            database.session_cookie = cookies
 
 
 def sample_root_404():
@@ -243,7 +241,13 @@ def print_program_header():
 
 
 def configure_hammertime():
-    hammertime = HammerTime(retry_count=3, proxy=conf.proxy_url)
+    loop = custom_event_loop()
+    engine = AioHttpEngine(loop=loop, verify_ssl=False, proxy=conf.proxy_url)
+    if conf.cookies is not None:
+        engine.session.close()
+        connector = TCPConnector(loop=loop, verify_ssl=False)
+        engine.session = ClientSession(loop=loop, connector=connector, cookie_jar=DummyCookieJar(loop=loop))
+    hammertime = HammerTime(loop=loop, request_engine=engine, retry_count=3, proxy=conf.proxy_url)
 
     #  TODO Make sure rejecting 404 does not conflict with tomcat fake 404 detection.
     global heuristics_with_child
@@ -269,13 +273,10 @@ def set_cookies(hammertime, cookies):
 
 
 async def scan(hammertime):
-
     if conf.cookies is not None:
         set_cookies(hammertime, conf.cookies)
     else:
         await get_session_cookies(hammertime)
-        if database.session_cookie is not None:
-            set_cookies(hammertime, database.session_cookie)
 
     await test_paths_exists(hammertime)
     textutils.output_info('Generating file targets')
