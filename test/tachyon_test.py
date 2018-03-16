@@ -212,15 +212,6 @@ class TestTachyon(TestCase):
         tachyon.add_http_header.assert_any_call(ANY, "User-Agent", conf.user_agent)
 
     @async()
-    async def test_configure_hammertime_add_connection_header_to_request_header(self):
-        tachyon.add_http_header = MagicMock()
-
-        with patch("tachyon.__main__.HammerTime"):
-            tachyon.configure_hammertime()
-
-            tachyon.add_http_header.assert_any_call(ANY, "Connection", "Keep-Alive")
-
-    @async()
     async def test_configure_hammertime_add_host_header_to_request_header(self):
         conf.target_host = "example.com"
         tachyon.add_http_header = MagicMock()
