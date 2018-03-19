@@ -180,23 +180,20 @@ class TestTachyon(TestCase):
         conf.target_host = "example.com"
         tachyon.add_http_header = MagicMock()
 
-        with patch("tachyon.__main__.HammerTime"):
-            tachyon.configure_hammertime()
+        tachyon.configure_hammertime()
 
-            tachyon.add_http_header.assert_any_call(ANY, "Host", conf.target_host)
+        tachyon.add_http_header.assert_any_call(ANY, "Host", conf.target_host)
 
     @async()
     async def test_configure_hammertime_create_aiohttp_engine_for_hammertime(self, loop):
         engine = MagicMock()
         conf.proxy_url = "my-proxy"
         EngineFactory = MagicMock(return_value=engine)
-        with patch("tachyon.__main__.HammerTime") as HammerTimeFactory, \
-                patch("tachyon.__main__.AioHttpEngine", EngineFactory):
-            tachyon.configure_hammertime()
+        with patch("tachyon.__main__.AioHttpEngine", EngineFactory):
+            hammertime = tachyon.configure_hammertime()
 
-            HammerTimeFactory.assert_called_once_with(loop=loop, request_engine=engine, retry_count=3,
-                                                      proxy="my-proxy")
             EngineFactory.assert_called_once_with(loop=loop, verify_ssl=False, proxy="my-proxy")
+            self.assertEqual(hammertime.request_engine.request_engine, engine)
 
     @async()
     async def test_configure_hammertime_create_client_session_with_dummy_cookie_jar_if_user_supply_cookies(self):
