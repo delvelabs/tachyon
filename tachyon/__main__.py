@@ -36,7 +36,7 @@ from urllib3.poolmanager import ProxyManager
 from datetime import datetime
 from hammertime import HammerTime
 from hammertime.rules import DetectSoft404, RejectStatusCode, DynamicTimeout, RejectCatchAllRedirect, FollowRedirects, \
-    SetHeader, DeadHostDetection, FilterRequestFromURL, DetectBehaviorChange, RejectErrorBehavior
+    SetHeader, DeadHostDetection, FilterRequestFromURL, DetectBehaviorChange, RejectErrorBehavior, IgnoreLargeBody
 from hammertime.rules.deadhostdetection import OfflineHostException
 from aiohttp import ClientSession, TCPConnector
 from aiohttp.helpers import DummyCookieJar
@@ -253,7 +253,8 @@ def configure_hammertime():
     heuristics_with_child = [DetectSoft404(distance_threshold=6), FollowRedirects(), RejectCatchAllRedirect(),
                              RejectIgnoredQuery()]
     global_heuristics = [DeadHostDetection(), DynamicTimeout(0.5, 5), DetectBehaviorChange(), LogBehaviorChange(),
-                         RejectErrorBehavior(), FilterRequestFromURL(allowed_urls=conf.target_host)]
+                         RejectErrorBehavior(), FilterRequestFromURL(allowed_urls=conf.target_host),
+                         IgnoreLargeBody(initial_limit=conf.file_sample_len)]
     heuristics = [RejectStatusCode({404, 502})]
     hammertime.heuristics.add_multiple(heuristics)
     hammertime.heuristics.add_multiple(heuristics_with_child)
