@@ -149,3 +149,12 @@ class SetFlagInResult:
 
     async def after_response(self, entry):
         setattr(entry.result, self.flag, self.value)
+
+
+class FakeSimhash:
+
+    def __init__(self, data, *args, **kwargs):
+        self.value = "simhash of %s" % data
+
+    def distance(self, *args):
+        return 999

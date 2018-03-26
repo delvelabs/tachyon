@@ -23,9 +23,6 @@ from hammertime.http import Entry
 from hammertime.ruleset import RejectRequest
 from hammertime.rules.simhash import Simhash, DEFAULT_FILTER
 import hashlib
-import binascii
-
-from .textutils import output_info
 
 
 class RejectIgnoredQuery:
@@ -98,38 +95,3 @@ class RejectIgnoredQuery:
 
     def _simhash_equal(self, simhash, other_simhash):
         return simhash.distance(other_simhash) <= self.match_threshold
-
-
-class LogBehaviorChange:
-
-    def __init__(self):
-        self.is_behavior_normal = True
-
-    async def after_response(self, entry):
-        if self._has_behavior_changed(entry):
-            if self._is_normal_behavior_restored(entry):
-                output_info("Normal behavior seems to be restored.")
-            else:
-                output_info("Behavior change detected! Results may be incomplete or tachyon may never exit.")
-        self.is_behavior_normal = not entry.result.error_behavior
-
-    def _has_behavior_changed(self, entry):
-        return self.is_behavior_normal == entry.result.error_behavior
-
-    def _is_normal_behavior_restored(self, entry):
-        return not self.is_behavior_normal and not entry.result.error_behavior
-
-
-class MatchString:
-
-    async def after_response(self, entry):
-        if "file" in entry.arguments:
-            if "match_string" in entry.arguments["file"]:
-                string = entry.arguments["file"]["match_string"]
-                entry.result.string_match = string in entry.response.content
-            elif "match_bytes" in entry.arguments["file"]:
-                raw_data = entry.response.raw
-                raw_string = entry.arguments["file"]["match_bytes"].encode("utf-8")
-                entry.result.string_match = raw_string in binascii.hexlify(raw_data)
-            else:
-                entry.result.string_match = False

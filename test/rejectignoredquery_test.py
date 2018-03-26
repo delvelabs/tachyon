@@ -18,16 +18,15 @@
 
 
 from unittest import TestCase
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import patch, MagicMock
 from hammertime.http import Entry, StaticResponse
 from hammertime.kb import KnowledgeBase
 from hammertime.ruleset import RejectRequest
 from hammertime.rules.simhash import Simhash
 from hammertime.engine.aiohttp import Response
 import hashlib
-import binascii
 
-from tachyon.core.heuristics import RejectIgnoredQuery, LogBehaviorChange, MatchString
+from tachyon.core.heuristics import RejectIgnoredQuery
 from fixtures import async, FakeHammerTimeEngine, create_json_data
 
 
@@ -47,7 +46,7 @@ class TestRejectIgnoredQuery(TestCase):
         entry = Entry.create("http://example.com/?wsdl", response=StaticResponse(200, {}, "not same content"))
         self.engine.mock.perform_high_priority.return_value = response
 
-        with patch("tachyon.core.heuristics.uuid4", MagicMock(return_value="random-uuid-abc123")):
+        with patch("tachyon.core.heuristics.rejectignoredquery.uuid4", MagicMock(return_value="random-uuid-abc123")):
             await self.filter.after_response(entry)
 
             self.engine.mock.perform_high_priority.assert_called_once_with(
@@ -74,7 +73,7 @@ class TestRejectIgnoredQuery(TestCase):
         self.engine.mock.perform_high_priority.side_effect = [root_path_response, admin_path_response,
                                                               images_path_response, login_file_response]
 
-        with patch("tachyon.core.heuristics.Simhash", FakeSimhash):
+        with patch("tachyon.core.heuristics.rejectignoredquery.Simhash", FakeSimhash):
             await self.filter.after_response(root_path)
             await self.filter.after_response(admin_path)
             await self.filter.after_response(images_path)
@@ -128,7 +127,7 @@ class TestRejectIgnoredQuery(TestCase):
         hash = self.filter._hash_response(StaticResponse(200, {}, "content"))
         self.kb.query_samples["example.com/"] = {"simhash": hash}
 
-        with patch("tachyon.core.heuristics.Simhash") as Simhash:
+        with patch("tachyon.core.heuristics.rejectignoredquery.Simhash") as Simhash:
             await self.filter.after_response(Entry.create("http://example.com/?wsdl", response=response))
 
             Simhash.assert_not_called()
@@ -138,141 +137,13 @@ class TestRejectIgnoredQuery(TestCase):
         self.kb.query_samples["example.com/"] = {"md5": "12345"}
         response = StaticResponse(200, {}, "content")
 
-        with patch("tachyon.core.heuristics.hashlib") as hashlib:
+        with patch("tachyon.core.heuristics.rejectignoredquery.hashlib") as hashlib:
             await self.filter.after_response(Entry.create("http://example.com/?wsdl", response=response))
 
             hashlib.md5.assert_not_called()
 
     def hash(self, response):
         return {"simhash": FakeSimhash(response.content).value}
-
-
-class TestLogBehaviorChange(TestCase):
-
-    @async()
-    async def test_update_current_behavior_state(self):
-        log_behavior_change = LogBehaviorChange()
-        log_behavior_change.is_behavior_normal = True
-        entry = Entry.create("http://example.com/")
-
-        entry.result.error_behavior = True
-        await log_behavior_change.after_response(entry)
-        self.assertFalse(log_behavior_change.is_behavior_normal)
-
-        entry.result.error_behavior = False
-        await log_behavior_change.after_response(entry)
-        self.assertTrue(log_behavior_change.is_behavior_normal)
-
-    @async()
-    async def test_log_message_if_behavior_was_normal_and_entry_is_flagged_has_error_behavior(self):
-        log_behavior_change = LogBehaviorChange()
-        entry = Entry.create("http://example.com/")
-        entry.result.error_behavior = True
-
-        with patch("tachyon.core.heuristics.output_info") as output_info:
-            await log_behavior_change.after_response(entry)
-
-            output_info.assert_called_once_with("Behavior change detected! Results may be incomplete or tachyon may "
-                                                "never exit.")
-
-    @async()
-    async def test_log_message_if_behavior_is_restored_to_normal(self):
-        log_behavior_change = LogBehaviorChange()
-        log_behavior_change.is_behavior_normal = False
-        entry = Entry.create("http://example.com/")
-        entry.result.error_behavior = False
-
-        with patch("tachyon.core.heuristics.output_info") as output_info:
-            await log_behavior_change.after_response(entry)
-
-            output_info.assert_called_once_with("Normal behavior seems to be restored.")
-
-    @async()
-    async def test_messages_are_only_logged_once(self):
-        log_behavior_change = LogBehaviorChange()
-        entry = Entry.create("http://example.com/")
-        entry.result.error_behavior = True
-
-        with patch("tachyon.core.heuristics.output_info") as output_info:
-            await log_behavior_change.after_response(entry)
-            await log_behavior_change.after_response(entry)
-            entry.result.error_behavior = False
-            await log_behavior_change.after_response(entry)
-            await log_behavior_change.after_response(entry)
-
-            output_info.assert_has_calls([call("Behavior change detected! Results may be incomplete or tachyon may "
-                                               "never exit."), call("Normal behavior seems to be restored.")])
-
-
-class TestMatchString(TestCase):
-
-    @async()
-    async def test_set_string_match_flag_in_entry_result_to_true_if_string_to_match_found_in_response_content(self):
-        file_to_fetch = create_json_data(["file"], match_string="abc123")[0]
-        match_string = MatchString()
-        response = StaticResponse(200, {}, content="test abc123 test")
-        entry = Entry.create("http://example.com/file", arguments={"file": file_to_fetch}, response=response)
-
-        await match_string.after_response(entry)
-
-        self.assertTrue(entry.result.string_match)
-
-    @async()
-    async def test_set_string_match_flag_in_entry_result_to_false_if_string_to_match_found_in_response_content(self):
-        file_to_fetch = create_json_data(["file"], match_string="abc123")[0]
-        match_string = MatchString()
-        response = StaticResponse(200, {}, content="Content is not matching")
-        entry = Entry.create("http://example.com/file", arguments={"file": file_to_fetch}, response=response)
-
-        await match_string.after_response(entry)
-
-        self.assertFalse(entry.result.string_match)
-
-    @async()
-    async def test_set_string_match_to_false_if_no_match_string_in_file(self):
-        file_to_fetch = create_json_data(["file"])[0]
-        match_string = MatchString()
-        response = StaticResponse(200, {}, content="content")
-        entry = Entry.create("http://example.com/file", arguments={"file": file_to_fetch}, response=response)
-
-        await match_string.after_response(entry)
-
-        self.assertFalse(entry.result.string_match)
-
-    @async()
-    async def test_only_add_string_match_flag_for_file(self):
-        path = create_json_data(["/path/"])[0]
-        match_string = MatchString()
-        response = StaticResponse(200, {}, content="")
-        entry = Entry.create("http://example.com/file", arguments={"path": path}, response=response)
-
-        await match_string.after_response(entry)
-
-        self.assertFalse(hasattr(entry.result, "string_match"))
-
-    @async()
-    async def test_match_bytes_with_string(self):
-        bytes_as_string = binascii.hexlify(b"abc123").decode("utf-8")
-        file_to_fetch = create_json_data(["file"], match_bytes=bytes_as_string)[0]
-        match_string = MatchString()
-        response = StaticResponse(200, {}, content="abc123")
-        entry = Entry.create("http://example.com/file", arguments={"file": file_to_fetch}, response=response)
-
-        await match_string.after_response(entry)
-
-        self.assertTrue(entry.result.string_match)
-
-    @async()
-    async def test_match_bytes_with_binary_response(self):
-        file_to_fetch = create_json_data(["file"], match_bytes="0102030405060708090a0b0c0d0e0f10")[0]
-        match_string = MatchString()
-        response = StaticResponse(200, {})
-        response.raw = b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15'
-        entry = Entry.create("http://example.com/file", arguments={"file": file_to_fetch}, response=response)
-
-        await match_string.after_response(entry)
-
-        self.assertTrue(entry.result.string_match)
 
 
 class FakeSimhash:
