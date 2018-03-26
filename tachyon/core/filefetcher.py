@@ -41,6 +41,8 @@ class FileFetcher:
         for future in asyncio.as_completed(requests):
             try:
                 entry = await future
+                if self._is_entry_invalid(entry):
+                    raise RejectRequest("Response is a soft404")
                 if entry.response.code == 500:
                     self.output_found(entry, message_prefix="ISE, ")
                 elif entry.response.code not in valid_redirects:
@@ -64,3 +66,8 @@ class FileFetcher:
         data = {"url": url, "description": file["description"], "code": entry.response.code,
                 "severity": file.get('severity', "warning")}
         output_found(message, data=data)
+
+    def _is_entry_invalid(self, entry):
+        if entry.result.string_match:
+            return False
+        return entry.result.soft404 or entry.result.error_behavior

@@ -138,3 +138,14 @@ class RaiseForPaths:
         path = urlparse(entry.request.url).path
         if path.strip("/") in [path.strip("/") for path in self.invalid_paths]:
             raise self.exception
+
+
+class SetFlagInResult:
+
+    def __init__(self, flag, value):
+        self.flag = flag
+        self.value = value
+        self.child_heuristics = MagicMock()
+
+    async def after_response(self, entry):
+        setattr(entry.result, self.flag, self.value)
