@@ -23,6 +23,7 @@ from hammertime.http import Entry
 from hammertime.ruleset import RejectRequest
 from hammertime.rules.simhash import Simhash, DEFAULT_FILTER
 import hashlib
+import binascii
 
 from .textutils import output_info
 
@@ -117,3 +118,18 @@ class LogBehaviorChange:
 
     def _is_normal_behavior_restored(self, entry):
         return not self.is_behavior_normal and not entry.result.error_behavior
+
+
+class MatchString:
+
+    async def after_response(self, entry):
+        if "file" in entry.arguments:
+            if "match_string" in entry.arguments["file"]:
+                string = entry.arguments["file"]["match_string"]
+                entry.result.string_match = string in entry.response.content
+            elif "match_bytes" in entry.arguments["file"]:
+                raw_data = entry.response.raw
+                raw_string = entry.arguments["file"]["match_bytes"].encode("utf-8")
+                entry.result.string_match = raw_string in binascii.hexlify(raw_data)
+            else:
+                entry.result.string_match = False
