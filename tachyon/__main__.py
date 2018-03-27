@@ -25,6 +25,7 @@ if sys.version_info[0] < 3:
     print("Must be using Python 3")
     sys.exit()
 
+import asyncio
 import uuid
 import urllib3
 import os
@@ -243,6 +244,20 @@ async def scan(hammertime):
     await test_file_exists(hammertime)
 
 
+def finish_output(print_worker):
+    textutils.output_raw_message('')
+    textutils.output_error('Keyboard Interrupt Received')
+    # flush all the output queues.
+    try:
+        database.results_output_queue.join()
+        database.messages_output_queue.join()
+
+        if print_worker and 'finalize' in dir(print_worker):
+            print_worker.finalize()
+    except KeyboardInterrupt:
+        pass
+
+
 def main():
     # Get running path
     running_path = os.path.dirname(os.path.realpath(sys.argv[0]))
@@ -337,23 +352,6 @@ def main():
         else:
             SelectedPrintWorker = PrintResultsWorker
 
-
-        # Register cleanup functions to be executed at program exit
-        def finish_output():
-            # Close program and flush all the output queues.
-            try:
-                database.results_output_queue.join()
-                database.messages_output_queue.join()
-
-                if print_results_worker and 'finalize' in dir(print_results_worker):
-                    print_results_worker.finalize()
-            except KeyboardInterrupt:
-                pass
-
-
-        # Register cleanup function
-        atexit.register(finish_output)
-
         hammertime = configure_hammertime()
         # Select working modes
         root_path = ''
@@ -424,9 +422,8 @@ def main():
         database.results_output_queue.join()
         database.messages_output_queue.join()
 
-    except KeyboardInterrupt:
-        textutils.output_raw_message('')
-        textutils.output_error('Keyboard Interrupt Received')
+    except (KeyboardInterrupt, asyncio.CancelledError):
+        finish_output(print_results_worker)
     except gaierror:
         textutils.output_error('Error resolving host')
     except OfflineHostException:

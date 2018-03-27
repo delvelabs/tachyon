@@ -23,9 +23,10 @@ from aiohttp.test_utils import make_mocked_coro
 import asyncio
 from hammertime.core import HammerTime
 
-from tachyon.core import conf, database
+from tachyon.core import conf, database, textutils
 from tachyon import __main__ as tachyon
 from fixtures import fake_future, async, patch_coroutines
+from tachyon.core.workers import PrintResultsWorker
 
 
 class TestTachyon(TestCase):
@@ -142,3 +143,15 @@ class TestTachyon(TestCase):
             await tachyon.scan(hammertime)
 
             add_http_header.assert_any_call(ANY, "Cookie", "test-cookie=true")
+
+    def test_finish_output_flush_output(self):
+        print_worker = PrintResultsWorker()
+        print_worker.daemon = True
+        textutils.output_message("message")
+        textutils.output_found("found", {"data": "data"})
+        print_worker.start()
+        with patch("sys.stdout") as stdout:
+            tachyon.finish_output(print_worker)
+
+            self.assertEqual(2, stdout.write.call_count)
+            stdout.flush.assert_called_once_with()
