@@ -34,14 +34,8 @@ from socket import gaierror
 from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
 from urllib3.poolmanager import ProxyManager
 from datetime import datetime
-from hammertime import HammerTime
-from hammertime.rules import DetectSoft404, RejectStatusCode, DynamicTimeout, RejectCatchAllRedirect, FollowRedirects, \
-    SetHeader, DeadHostDetection, FilterRequestFromURL, DetectBehaviorChange, IgnoreLargeBody
+from hammertime.rules import RejectStatusCode
 from hammertime.rules.deadhostdetection import OfflineHostException
-from aiohttp import ClientSession, TCPConnector
-from aiohttp.helpers import DummyCookieJar
-from hammertime.engine import AioHttpEngine
-from hammertime.config import custom_event_loop
 
 sys.path.pop(0)
 
@@ -60,10 +54,7 @@ from tachyon.plugins import host, file
 from tachyon.core.generator import PathGenerator, FileGenerator
 from tachyon.core.directoryfetcher import DirectoryFetcher
 from tachyon.core.filefetcher import FileFetcher
-from tachyon.core.heuristics import RejectIgnoredQuery, LogBehaviorChange, MatchString
-
-
-heuristics_with_child = []
+from tachyon.core.config import configure_hammertime, set_cookies
 
 
 def load_target_paths(running_path):
@@ -237,47 +228,6 @@ def print_program_header():
     """ Print a _cute_ program header """
     print("\n\t Tachyon v" + conf.version + " - Fast Multi-Threaded Web Discovery Tool")
     print("\t https://github.com/delvelabs/tachyon\n")
-
-
-def configure_hammertime():
-    loop = custom_event_loop()
-    engine = AioHttpEngine(loop=loop, verify_ssl=False, proxy=conf.proxy_url)
-    if conf.cookies is not None:
-        engine.session.close()
-        connector = TCPConnector(loop=loop, verify_ssl=False)
-        engine.session = ClientSession(loop=loop, connector=connector, cookie_jar=DummyCookieJar(loop=loop))
-    hammertime = HammerTime(loop=loop, request_engine=engine, retry_count=3, proxy=conf.proxy_url)
-    setup_hammertime_heuristics(hammertime)
-    return hammertime
-
-
-def setup_hammertime_heuristics(hammertime):
-    #  TODO Make sure rejecting 404 does not conflict with tomcat fake 404 detection.
-    global heuristics_with_child
-    heuristics_with_child = [DetectSoft404(distance_threshold=6), FollowRedirects(), RejectCatchAllRedirect(),
-                             RejectIgnoredQuery()]
-    global_heuristics = [DeadHostDetection(), DynamicTimeout(0.5, 5), DetectBehaviorChange(), LogBehaviorChange(),
-                         FilterRequestFromURL(allowed_urls=conf.target_host),
-                         IgnoreLargeBody(initial_limit=conf.file_sample_len)]
-    heuristics = [RejectStatusCode({404, 502}), MatchString()]
-    hammertime.heuristics.add_multiple(heuristics)
-    hammertime.heuristics.add_multiple(heuristics_with_child)
-    hammertime.heuristics.add_multiple(global_heuristics)
-    for heuristic in heuristics_with_child:
-        heuristic.child_heuristics.add_multiple(global_heuristics)
-    add_http_header(hammertime, "User-Agent", conf.user_agent)
-    add_http_header(hammertime, "Host", conf.target_host)
-
-
-def add_http_header(hammertime, header_name, header_value):
-    set_header = SetHeader(header_name, header_value)
-    hammertime.heuristics.add(set_header)
-    for heuristic in heuristics_with_child:
-        heuristic.child_heuristics.add(set_header)
-
-
-def set_cookies(hammertime, cookies):
-    add_http_header(hammertime, "Cookie", cookies)
 
 
 async def scan(hammertime):
