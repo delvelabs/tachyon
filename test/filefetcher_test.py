@@ -22,11 +22,13 @@ from unittest.mock import patch, MagicMock, call
 from hammertime import HammerTime
 from hammertime.http import Entry, StaticResponse
 from hammertime.ruleset import StopRequest, RejectRequest
+from hammertime.kb import KnowledgeBase
 
 from tachyon.core.filefetcher import FileFetcher
 from fixtures import async, create_json_data, FakeHammerTimeEngine, SetResponseCode, fake_future, SetResponseContent,\
-    RaiseForPaths
-from tachyon.core import database
+    RaiseForPaths, SetFlagInResult
+from tachyon.core import database, conf
+from tachyon.core.config import setup_hammertime_heuristics
 
 
 @patch("tachyon.core.filefetcher.output_found")
@@ -38,13 +40,23 @@ class TestFileFetcher(TestCase):
         self.files = create_json_data(["config", ".htaccess", "data", "files"])
 
     def setUpFetcher(self, loop):
-        self.hammertime = HammerTime(loop=loop, request_engine=FakeHammerTimeEngine())
+        self.hammertime = HammerTime(loop=loop, request_engine=FakeHammerTimeEngine(), kb=KnowledgeBase())
+        conf.target_host = self.host
         self.file_fetcher = FileFetcher(self.host, self.hammertime)
+
+    def setup_hammertime_heuristics(self, add_before_defaults=None, add_after_defaults=None):
+        if add_before_defaults is not None:
+            self.hammertime.heuristics.add_multiple(add_before_defaults)
+        with patch("tachyon.core.config.DetectSoft404", new=MagicMock(return_value=SetFlagInResult("soft404", False))):
+            setup_hammertime_heuristics(self.hammertime)
+        if add_after_defaults is not None:
+            self.hammertime.heuristics.add_multiple(add_after_defaults)
 
     @async()
     async def test_fetch_files_makes_hammertime_requests_for_files(self, output_found, loop):
         hammertime = MagicMock(loop=loop)
         file_fetcher = FileFetcher(self.host, hammertime)
+        file_fetcher._is_entry_invalid = MagicMock(return_value=False)
         entries = []
         for file in self.files:
             entry = Entry.create("%s/%s" % (self.host, file["url"]), response=StaticResponse(200, {}, "content"),
@@ -65,8 +77,8 @@ class TestFileFetcher(TestCase):
         rejected = create_json_data(["rejected"])
         timeout_files = create_json_data(["test"])
         self.setUpFetcher(loop)
-        self.hammertime.heuristics.add_multiple([RaiseForPaths(["/test"], StopRequest()),
-                                            RaiseForPaths(["/rejected"], RejectRequest())])
+        self.setup_hammertime_heuristics(add_before_defaults=[RaiseForPaths(["/test"], StopRequest()),
+                                                              RaiseForPaths(["/rejected"], RejectRequest())])
         file_list = self.files + timeout_files + rejected
 
         await self.file_fetcher.fetch_files(file_list)
@@ -76,6 +88,7 @@ class TestFileFetcher(TestCase):
     @async()
     async def test_fetch_files_output_found_files(self, output_found, loop):
         self.setUpFetcher(loop)
+        self.setup_hammertime_heuristics()
 
         await self.file_fetcher.fetch_files(self.files)
 
@@ -88,7 +101,7 @@ class TestFileFetcher(TestCase):
     async def test_fetch_files_output_responses_with_error_code_500(self, output_found, loop):
         file_list = create_json_data(["config", ".htaccess"])
         self.setUpFetcher(loop)
-        self.hammertime.heuristics.add(SetResponseCode(500))
+        self.setup_hammertime_heuristics(add_before_defaults=[SetResponseCode(500)])
 
         await self.file_fetcher.fetch_files(file_list)
 
@@ -101,7 +114,7 @@ class TestFileFetcher(TestCase):
     async def test_fetch_files_output_empty_response(self, output_found, loop):
         file_list = create_json_data(["empty-file"])
         self.setUpFetcher(loop)
-        self.hammertime.heuristics.add(SetResponseContent(""))
+        self.setup_hammertime_heuristics(add_after_defaults=[SetResponseContent("")])
 
         await self.file_fetcher.fetch_files(file_list)
 
@@ -113,9 +126,55 @@ class TestFileFetcher(TestCase):
     async def test_fetch_files_do_not_output_redirects(self, output_found, loop):
         files = ["/admin/resource", "/admin/file"]
         self.setUpFetcher(loop)
-        self.hammertime.heuristics.add(SetResponseCode(302))
+        self.setup_hammertime_heuristics(add_before_defaults=[SetResponseCode(302)])
 
         await self.file_fetcher.fetch_files(create_json_data(files))
+
+        output_found.assert_not_called()
+
+    @async()
+    async def test_fetch_files_reject_soft_404(self, output_found, loop):
+        file = create_json_data(["file"])[0]
+        self.setUpFetcher(loop)
+        self.setup_hammertime_heuristics()
+        self.setup_hammertime_heuristics(add_after_defaults=[SetFlagInResult("soft404", True)])
+
+        await self.file_fetcher.fetch_files([file])
+
+        output_found.assert_not_called()
+
+    @async()
+    async def test_fetch_files_do_not_reject_soft_404_if_string_match_is_true(self, output_found, loop):
+        file = create_json_data(["file"])[0]
+        self.setUpFetcher(loop)
+        self.setup_hammertime_heuristics(add_before_defaults=[SetFlagInResult("soft404", True),
+                                                              SetFlagInResult("string_match", True)])
+
+        await self.file_fetcher.fetch_files([file])
+
+        output_found.assert_has_calls([self.to_output_found_call(file)])
+
+    @async()
+    async def test_fetch_files_do_not_reject_behavior_error_if_string_match_is_true(self, output_found, loop):
+        file = create_json_data(["file"])[0]
+        self.setUpFetcher(loop)
+        set_error_behavior = SetFlagInResult("error_behavior", True)
+        with patch("tachyon.core.config.DetectBehaviorChange", new=MagicMock(return_value=set_error_behavior)):
+            self.setup_hammertime_heuristics(add_after_defaults=[SetFlagInResult("string_match", True)])
+
+        await self.file_fetcher.fetch_files([file])
+
+        output_found.assert_has_calls([self.to_output_found_call(file)])
+
+    @async()
+    async def test_fetch_files_reject_error_behavior(self, output_found, loop):
+        file = create_json_data(["file"])[0]
+        self.setUpFetcher(loop)
+        set_error_behavior = SetFlagInResult("error_behavior", True)
+        with patch("tachyon.core.config.DetectBehaviorChange", new=MagicMock(return_value=set_error_behavior)):
+            self.setup_hammertime_heuristics()
+
+        await self.file_fetcher.fetch_files([file])
 
         output_found.assert_not_called()
 

@@ -20,11 +20,8 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, patch, call, ANY
 from aiohttp.test_utils import make_mocked_coro
-from aiohttp.helpers import DummyCookieJar
 import asyncio
-from hammertime.rules import RejectCatchAllRedirect, FollowRedirects
 from hammertime.core import HammerTime
-from hammertime.http import Entry, StaticResponse
 
 from tachyon.core import conf, database
 from tachyon import __main__ as tachyon
@@ -115,25 +112,6 @@ class TestTachyon(TestCase):
 
         fake_file_fetcher.fetch_files.assert_called_once_with(["list of files"])
 
-    @async()
-    async def test_add_http_headers(self, loop):
-        hammertime = HammerTime(loop=loop)
-        tachyon.heuristics_with_child = [RejectCatchAllRedirect(), FollowRedirects()]
-        hammertime.heuristics.add_multiple(tachyon.heuristics_with_child)
-        hammertime.heuristics.add = MagicMock()
-        for heuristic in tachyon.heuristics_with_child:
-            heuristic.child_heuristics.add = MagicMock()
-
-        tachyon.add_http_header(hammertime, "header", "value")
-
-        set_header = hammertime.heuristics.add.call_args[0][0]
-        self.assertEqual(set_header.name, "header")
-        self.assertEqual(set_header.value, "value")
-        for heuristic_with_child in tachyon.heuristics_with_child:
-            set_header = heuristic_with_child.child_heuristics.add.call_args[0][0]
-            self.assertEqual(set_header.name, "header")
-            self.assertEqual(set_header.value, "value")
-
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
     @async()
     async def test_fetch_session_cookies_on_scan_start_if_no_user_supplied_cookies(self):
@@ -154,53 +132,13 @@ class TestTachyon(TestCase):
 
         tachyon.get_session_cookies.assert_not_called()
 
-    @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
     @async()
     async def test_use_user_supplied_cookies_if_available(self, loop):
-        hammertime = HammerTime(loop=loop)
-        tachyon.add_http_header = MagicMock()
         database.session_cookie = "my-cookies=123"
         conf.cookies = "test-cookie=true"
+        hammertime = MagicMock()
 
-        await tachyon.scan(hammertime)
+        with patch("tachyon.core.config.add_http_header") as add_http_header:
+            await tachyon.scan(hammertime)
 
-        tachyon.add_http_header.assert_called_once_with(ANY, "Cookie", "test-cookie=true")
-
-    @async()
-    async def test_configure_hammertime_add_user_agent_to_request_header(self):
-        conf.user_agent = "My-user-agent"
-        tachyon.add_http_header = MagicMock()
-
-        tachyon.configure_hammertime()
-
-        tachyon.add_http_header.assert_any_call(ANY, "User-Agent", conf.user_agent)
-
-    @async()
-    async def test_configure_hammertime_add_host_header_to_request_header(self):
-        conf.target_host = "example.com"
-        tachyon.add_http_header = MagicMock()
-
-        tachyon.configure_hammertime()
-
-        tachyon.add_http_header.assert_any_call(ANY, "Host", conf.target_host)
-
-    @async()
-    async def test_configure_hammertime_create_aiohttp_engine_for_hammertime(self, loop):
-        engine = MagicMock()
-        conf.proxy_url = "my-proxy"
-        EngineFactory = MagicMock(return_value=engine)
-        with patch("tachyon.__main__.AioHttpEngine", EngineFactory):
-            hammertime = tachyon.configure_hammertime()
-
-            EngineFactory.assert_called_once_with(loop=loop, verify_ssl=False, proxy="my-proxy")
-            self.assertEqual(hammertime.request_engine.request_engine, engine)
-
-    @async()
-    async def test_configure_hammertime_create_client_session_with_dummy_cookie_jar_if_user_supply_cookies(self):
-        conf.proxy_url = "my-proxy"
-        conf.cookies = "not none"
-        with patch("tachyon.__main__.ClientSession") as SessionFactory:
-            tachyon.configure_hammertime()
-
-            _, kwargs = SessionFactory.call_args
-            self.assertTrue(isinstance(kwargs["cookie_jar"], DummyCookieJar))
+            add_http_header.assert_any_call(ANY, "Cookie", "test-cookie=true")
