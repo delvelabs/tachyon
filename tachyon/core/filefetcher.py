@@ -42,7 +42,7 @@ class FileFetcher:
             try:
                 entry = await future
                 if self._is_entry_invalid(entry):
-                    raise RejectRequest("Response is a soft404")
+                    continue
                 if entry.response.code == 500:
                     self.output_found(entry, message_prefix="ISE, ")
                 elif entry.response.code not in valid_redirects:

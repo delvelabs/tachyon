@@ -28,8 +28,8 @@ class MatchString:
                 string = entry.arguments["file"]["match_string"]
                 entry.result.string_match = string in entry.response.content
             elif "match_bytes" in entry.arguments["file"]:
-                raw_data = entry.response.raw
-                raw_string = entry.arguments["file"]["match_bytes"].encode("utf-8")
-                entry.result.string_match = raw_string in binascii.hexlify(raw_data)
+                raw_hex_string = entry.arguments["file"]["match_bytes"].encode("utf-8")
+                raw_string = binascii.unhexlify(raw_hex_string)
+                entry.result.string_match = raw_string in entry.response.raw
             else:
                 entry.result.string_match = False
