@@ -332,10 +332,6 @@ def main():
             database.connection_pool = HTTPConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs,
                                                           block=True, maxsize=conf.thread_count)
 
-        # Vhost forgery
-        if conf.forge_vhost != '<host>':
-            conf.target_host = conf.forge_vhost
-
         if conf.json_output:
             SelectedPrintWorker = JSONPrintResultWorker
         else:

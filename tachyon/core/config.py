@@ -35,10 +35,12 @@ heuristics_with_child = []
 def configure_hammertime():
     loop = custom_event_loop()
     engine = AioHttpEngine(loop=loop, verify_ssl=False, proxy=conf.proxy_url)
+    engine.session.close()
+    connector = TCPConnector(loop=loop, verify_ssl=False, use_dns_cache=True, ttl_dns_cache=None)
     if conf.cookies is not None:
-        engine.session.close()
-        connector = TCPConnector(loop=loop, verify_ssl=False)
         engine.session = ClientSession(loop=loop, connector=connector, cookie_jar=DummyCookieJar(loop=loop))
+    else:
+        engine.session = ClientSession(loop=loop, connector=connector)
     hammertime = HammerTime(loop=loop, request_engine=engine, retry_count=3, proxy=conf.proxy_url)
     setup_hammertime_heuristics(hammertime)
     return hammertime
@@ -49,8 +51,9 @@ def setup_hammertime_heuristics(hammertime):
     global heuristics_with_child
     heuristics_with_child = [DetectSoft404(distance_threshold=6), FollowRedirects(), RejectCatchAllRedirect(),
                              RejectIgnoredQuery()]
+    hosts = (conf.forge_vhost, conf.target_host) if conf.forge_vhost is not None else conf.target_host
     global_heuristics = [DeadHostDetection(), DynamicTimeout(0.5, 5), DetectBehaviorChange(), LogBehaviorChange(),
-                         FilterRequestFromURL(allowed_urls=conf.target_host),
+                         FilterRequestFromURL(allowed_urls=hosts),
                          IgnoreLargeBody(initial_limit=conf.file_sample_len)]
     heuristics = [RejectStatusCode({404, 502}), MatchString()]
     hammertime.heuristics.add_multiple(heuristics)
@@ -59,7 +62,7 @@ def setup_hammertime_heuristics(hammertime):
     for heuristic in heuristics_with_child:
         heuristic.child_heuristics.add_multiple(global_heuristics)
     add_http_header(hammertime, "User-Agent", conf.user_agent)
-    add_http_header(hammertime, "Host", conf.target_host)
+    add_http_header(hammertime, "Host", conf.forge_vhost if conf.forge_vhost is not None else conf.target_host)
 
 
 def add_http_header(hammertime, header_name, header_value):
