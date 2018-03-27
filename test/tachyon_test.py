@@ -142,3 +142,14 @@ class TestTachyon(TestCase):
             await tachyon.scan(hammertime)
 
             add_http_header.assert_any_call(ANY, "Cookie", "test-cookie=true")
+
+    def test_finish_output_flush_all_output_queues_and_finalize_print_worker(self):
+        print_workers = MagicMock()
+        # finish_output check if print worker has a finalize method, this make its check pass.
+        print_workers.finalize.return_value = None
+        with patch("tachyon.__main__.database") as database:
+            tachyon.finish_output(print_workers)
+
+            print_workers.finalize.assert_called_once_with()
+            database.results_output_queue.join.assert_called_once_with()
+            database.messages_output_queue.join.assert_called_once_with()
