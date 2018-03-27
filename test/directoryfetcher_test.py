@@ -25,7 +25,7 @@ from hammertime.ruleset import RejectRequest, StopRequest
 from tachyon.core import database
 from tachyon.core.database import valid_paths
 from tachyon.core.directoryfetcher import DirectoryFetcher
-from fixtures import async, FakeHammerTimeEngine, create_json_data, RaiseForPaths, SetResponseCode
+from fixtures import async, FakeHammerTimeEngine, create_json_data, RaiseForPaths, SetResponseCode, SetFlagInResult
 from tachyon.core import textutils
 
 
@@ -43,6 +43,8 @@ class TestDirectoryFetcher(TestCase):
 
     def async_setup(self, loop):
         self.hammertime = HammerTime(loop=loop, request_engine=FakeHammerTimeEngine())
+        self.hammertime.heuristics.add_multiple([SetFlagInResult("soft404", False),
+                                                 SetFlagInResult("error_behavior", False)])
         self.directory_fetcher = DirectoryFetcher(self.host, self.hammertime)
 
     @async()
@@ -171,6 +173,24 @@ class TestDirectoryFetcher(TestCase):
         await self.directory_fetcher.fetch_paths(create_json_data(paths))
         requested = list(self.hammertime.request_engine.request_engine.get_requested_urls())[0]
         self.assertEqual(requested, self.host + "/")
+
+    @async()
+    async def test_fetch_paths_ignore_soft404(self, loop):
+        self.async_setup(loop)
+        self.hammertime.heuristics.add(SetFlagInResult("soft404", True))
+
+        await self.directory_fetcher.fetch_paths(create_json_data(["path"]))
+
+        textutils.output_found.assert_not_called()
+
+    @async()
+    async def test_fetch_paths_ignore_behavior_error(self, loop):
+        self.async_setup(loop)
+        self.hammertime.heuristics.add(SetFlagInResult("error_behavior", True))
+
+        await self.directory_fetcher.fetch_paths(create_json_data(["path"]))
+
+        textutils.output_found.assert_not_called()
 
     def expected_output(self, path, *, code=200, message_prefix=""):
         url = "{}{}/".format(self.host, path["url"])

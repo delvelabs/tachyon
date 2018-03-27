@@ -42,6 +42,8 @@ class DirectoryFetcher:
         for future in done:
             try:
                 entry = await future
+                if entry.result.soft404 or entry.result.error_behavior:
+                    continue
                 if entry.response.code != 401:
                     database.valid_paths.append(entry.arguments["path"])
                 if entry.arguments["path"]["url"] != "/":
