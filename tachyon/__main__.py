@@ -244,7 +244,7 @@ async def scan(hammertime):
     await test_file_exists(hammertime)
 
 
-def finish_output(print_workers):
+def finish_output(print_worker):
     textutils.output_raw_message('')
     textutils.output_error('Keyboard Interrupt Received')
     # flush all the output queues.
@@ -252,8 +252,8 @@ def finish_output(print_workers):
         database.results_output_queue.join()
         database.messages_output_queue.join()
 
-        if print_workers and 'finalize' in dir(print_workers):
-            print_workers.finalize()
+        if print_worker and 'finalize' in dir(print_worker):
+            print_worker.finalize()
     except KeyboardInterrupt:
         pass
 
