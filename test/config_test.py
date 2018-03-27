@@ -22,7 +22,7 @@ from unittest.mock import MagicMock, patch, ANY
 from aiohttp.helpers import DummyCookieJar
 from aiohttp import TCPConnector
 from hammertime.core import HammerTime
-from hammertime.rules import RejectCatchAllRedirect, FollowRedirects
+from hammertime.rules import RejectCatchAllRedirect, FollowRedirects, FilterRequestFromURL
 
 from tachyon.core import conf
 from tachyon.core import config
@@ -67,6 +67,27 @@ class TestConfig(TestCase):
             config.configure_hammertime()
 
         add_http_header.assert_any_call(ANY, "Host", conf.target_host)
+
+    @async()
+    async def test_configure_hammertime_use_user_supplied_vhost_for_host_header(self):
+        conf.target_host = "example.com"
+        conf.forge_vhost = "vhost.example.com"
+
+        with patch("tachyon.core.config.add_http_header") as add_http_header:
+            config.configure_hammertime()
+
+        add_http_header.assert_any_call(ANY, "Host", conf.forge_vhost)
+
+    @async()
+    async def test_configure_hammertime_allow_requests_to_user_supplied_vhost(self):
+        conf.target_host = "example.com"
+        conf.forge_vhost = "vhost.example.com"
+
+        with patch("tachyon.core.config.FilterRequestFromURL", MagicMock(return_value=FilterRequestFromURL)) as url_filter:
+            config.configure_hammertime()
+
+            _, kwargs = url_filter.call_args
+            self.assertEqual(kwargs["allowed_urls"], ("vhost.example.com", "example.com"))
 
     @async()
     async def test_configure_hammertime_create_aiohttp_engine_for_hammertime(self, loop):

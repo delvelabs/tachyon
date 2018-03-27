@@ -57,7 +57,7 @@ def generate_options():
                     help="Number of worker threads [default: %default]", default=conf.thread_count)
 
     parser.add_option("-v", metavar="VHOST", dest="forge_vhost",
-                    help="forge destination vhost [default: %default]", default='<host>')
+                    help="forge destination vhost [default: %default]", default=None)
 
     parser.add_option("-z", action="store_true",
                     dest="plugins_only", help="Only run plugins then exit [default: %default]", default=False)
