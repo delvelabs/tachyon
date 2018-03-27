@@ -20,6 +20,7 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, patch, ANY
 from aiohttp.helpers import DummyCookieJar
+from aiohttp import TCPConnector
 from hammertime.core import HammerTime
 from hammertime.rules import RejectCatchAllRedirect, FollowRedirects
 
@@ -87,3 +88,13 @@ class TestConfig(TestCase):
 
             _, kwargs = SessionFactory.call_args
             self.assertTrue(isinstance(kwargs["cookie_jar"], DummyCookieJar))
+
+    @async()
+    async def test_configure_hammertime_configure_aiohttp_to_resolve_host_only_once(self, loop):
+        with patch("tachyon.core.config.TCPConnector", MagicMock(return_value=TCPConnector(loop=loop))) as \
+                ConnectorFactory:
+            config.configure_hammertime()
+
+            _, kwargs = ConnectorFactory.call_args
+            self.assertTrue(kwargs["use_dns_cache"])
+            self.assertIsNone(kwargs["ttl_dns_cache"])

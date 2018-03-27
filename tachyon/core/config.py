@@ -35,10 +35,12 @@ heuristics_with_child = []
 def configure_hammertime():
     loop = custom_event_loop()
     engine = AioHttpEngine(loop=loop, verify_ssl=False, proxy=conf.proxy_url)
+    engine.session.close()
+    connector = TCPConnector(loop=loop, verify_ssl=False, use_dns_cache=True, ttl_dns_cache=None)
     if conf.cookies is not None:
-        engine.session.close()
-        connector = TCPConnector(loop=loop, verify_ssl=False)
         engine.session = ClientSession(loop=loop, connector=connector, cookie_jar=DummyCookieJar(loop=loop))
+    else:
+        engine.session = ClientSession(loop=loop, connector=connector)
     hammertime = HammerTime(loop=loop, request_engine=engine, retry_count=3, proxy=conf.proxy_url)
     setup_hammertime_heuristics(hammertime)
     return hammertime
