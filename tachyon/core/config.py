@@ -30,7 +30,7 @@ from tachyon.core import conf
 
 
 heuristics_with_child = []
-
+initial_limit = 5120
 default_user_agent = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) ' \
                      'Chrome/41.0.2228.0 Safari/537.36'
 
@@ -57,7 +57,7 @@ def setup_hammertime_heuristics(hammertime, *, user_agent=default_user_agent, vh
     hosts = (vhost, conf.target_host) if vhost is not None else conf.target_host
     global_heuristics = [DeadHostDetection(), DynamicTimeout(0.5, 5), DetectBehaviorChange(), LogBehaviorChange(),
                          FilterRequestFromURL(allowed_urls=hosts),
-                         IgnoreLargeBody(initial_limit=conf.file_sample_len)]
+                         IgnoreLargeBody(initial_limit=initial_limit)]
     heuristics = [RejectStatusCode({404, 502}), MatchString()]
     hammertime.heuristics.add_multiple(heuristics)
     hammertime.heuristics.add_multiple(heuristics_with_child)

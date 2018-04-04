@@ -67,6 +67,14 @@ class PathGenerator:
 
 class FileGenerator:
 
+    def __init__(self):
+        self.file_suffixes = ['', '.sql', '.bak', '-bak', '.old', '-old', '.dmp', '.dump', '.zip', '.rar', '.7z',
+                              '.tar.gz', '.tar.bz2', '.tar', '.tgz', '~', '.conf.old', '.conf', '.config', '.conf.orig',
+                              '.conf.bak', '.cnf', '.cfg', '.ini', '.inc', '.inc.old', '.inc.orig', '.log', '.txt',
+                              '_log', '.passwd', '.php.bak', '.php.old', '.php.inc', '.php.orig', '.sql.old',
+                              '.sql.bak', '0', '1', '2', '.xml', '.csv', '.wsdl', '.pwd', '.yml']
+        self.executables_suffixes = ['.php', '.asp', '.aspx', '.pl', '.cgi', '.cfm']
+
     def generate_files(self):
         files = list()
         for path in database.valid_paths:
@@ -84,12 +92,12 @@ class FileGenerator:
                 yield from self._create_files_with_suffixe(path, file)
 
     def _create_executable_files(self, path, file):
-        for executable_suffix in conf.executables_suffixes:
+        for executable_suffix in self.executables_suffixes:
             new_filename = self._create_file(file, path, suffix=executable_suffix, is_file=True, executable=True)
             yield new_filename
 
     def _create_files_with_suffixe(self, path, file):
-        for suffix in conf.file_suffixes:
+        for suffix in self.file_suffixes:
             new_filename = self._create_file(file, path, suffix=suffix, is_file=True)
             yield new_filename
 

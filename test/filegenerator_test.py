@@ -21,7 +21,6 @@ from unittest import TestCase
 
 from tachyon.core.generator import FileGenerator
 import tachyon.core.database as database
-import tachyon.core.conf as conf
 
 
 class TestFileGenerator(TestCase):
@@ -44,7 +43,7 @@ class TestFileGenerator(TestCase):
     def test_generate_file_append_executable_suffixes_to_loaded_files_if_file_is_executable(self):
         database.valid_paths = load_paths(["/", "0"])
         database.files = load_files(["/abc", "123"], executable=True)
-        conf.executables_suffixes = [".php", ".aspx"]
+        self.generator.executables_suffixes = [".php", ".aspx"]
 
         files = self.generator.generate_files()
 
@@ -55,7 +54,7 @@ class TestFileGenerator(TestCase):
     def test_generate_file_append_file_suffixes_to_loaded_files_if_no_suffix_is_false(self):
         database.valid_paths = load_paths(["/", "0"])
         database.files = load_files(["/abc", "123"])
-        conf.file_suffixes = [".txt", ".xml"]
+        self.generator.file_suffixes = [".txt", ".xml"]
 
         files = self.generator.generate_files()
 
