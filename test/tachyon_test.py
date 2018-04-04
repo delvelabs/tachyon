@@ -35,6 +35,7 @@ class TestTachyon(TestCase):
         conf.recursive = False
         tachyon.load_execute_file_plugins = MagicMock()
         database.messages_output_queue = MagicMock()
+        tachyon.load_execute_host_plugins = MagicMock()
 
     @async()
     async def test_paths_exists_fetch_generated_paths(self, loop):
@@ -144,14 +145,33 @@ class TestTachyon(TestCase):
 
             add_http_header.assert_any_call(ANY, "Cookie", "test-cookie=true")
 
-    def test_finish_output_flush_output(self):
-        print_worker = PrintResultsWorker()
-        print_worker.daemon = True
-        textutils.output_message("message")
-        textutils.output_found("found", {"data": "data"})
-        print_worker.start()
-        with patch("sys.stdout") as stdout:
-            tachyon.finish_output(print_worker)
+    @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
+    @async()
+    async def test_scan_directory_only(self):
+        hammertime = MagicMock()
 
-            self.assertEqual(2, stdout.write.call_count)
-            stdout.flush.assert_called_once_with()
+        await tachyon.scan(hammertime, directories_only=True)
+
+        tachyon.test_paths_exists.assert_called_once_with(hammertime)
+        tachyon.test_file_exists.assert_not_called()
+
+    @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
+    @async()
+    async def test_scan_file_only(self):
+        hammertime = MagicMock()
+
+        await tachyon.scan(hammertime, files_only=True)
+
+        tachyon.test_file_exists.assert_called_once_with(hammertime)
+        tachyon.test_paths_exists.assert_not_called()
+
+    @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
+    @async()
+    async def test_scan_plugins_only(self):
+        hammertime = MagicMock()
+
+        await tachyon.scan(hammertime, plugins_only=True)
+
+        tachyon.load_execute_host_plugins.assert_called_once_with()
+        tachyon.test_file_exists.assert_not_called()
+        tachyon.test_paths_exists.assert_not_called()

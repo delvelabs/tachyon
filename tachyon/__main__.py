@@ -17,28 +17,13 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-# Ensure python3 runtime
-import atexit
-import sys
-
-if sys.version_info[0] < 3:
-    print("Must be using Python 3")
-    sys.exit()
-
 import asyncio
-import uuid
-import urllib3
-import os
 import sys
-from pkgutil import get_data
 from socket import gaierror
 from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
 from urllib3.poolmanager import ProxyManager
-from datetime import datetime
 from hammertime.rules import RejectStatusCode
 from hammertime.rules.deadhostdetection import OfflineHostException
-
-sys.path.pop(0)
 
 import tachyon.core.conf as conf
 import tachyon.core.database as database
@@ -46,11 +31,7 @@ import tachyon.core.dnscache as dnscache
 import tachyon.core.loaders as loaders
 import tachyon.core.textutils as textutils
 import tachyon.core.netutils as netutils
-import tachyon.core.dbutils as dbutils
-from tachyon.core.fetcher import Fetcher
-from tachyon.core.workers import PrintWorker, PrintResultsWorker, JSONPrintResultWorker, FetchCrafted404Worker, \
-    TestFileExistsWorker
-from tachyon.core.threads import ThreadManager
+from tachyon.core.workers import PrintWorker, PrintResultsWorker, JSONPrintResultWorker
 from tachyon.plugins import host, file
 from tachyon.core.generator import PathGenerator, FileGenerator
 from tachyon.core.directoryfetcher import DirectoryFetcher
@@ -58,13 +39,13 @@ from tachyon.core.filefetcher import FileFetcher
 from tachyon.core.config import configure_hammertime, set_cookies
 
 
-def load_target_paths(running_path):
+def load_target_paths():
     """ Load the target paths in the database """
     textutils.output_info('Loading target paths')
     database.paths += loaders.load_json_resource('paths')
 
 
-def load_target_files(running_path):
+def load_target_files():
     """ Load the target files in the database """
     textutils.output_info('Loading target files')
     database.files += loaders.load_json_resource('files')
@@ -75,35 +56,6 @@ async def get_session_cookies(hammertime):
     textutils.output_info('Fetching session cookie')
     path = '/'
     await hammertime.request(conf.base_url + path)
-
-
-def sample_root_404():
-    """ Get the root 404, this has to be done as soon as possible since plugins could use this information. """
-    manager = ThreadManager()
-    textutils.output_info('Benchmarking root 404')
-
-    for ext in conf.crafted_404_extensions:
-        random_file = str(uuid.uuid4())
-        path = conf.path_template.copy()
-
-        if path['url'] != '/':
-            path['url'] = '/' + random_file + ext
-        else:
-            path['url'] = random_file + ext
-
-        # Were not using the fetch cache for 404 sampling
-        database.fetch_queue.put(path)
-
-    # Forced bogus path check
-    random_file = str(uuid.uuid4())
-    path = conf.path_template.copy()
-    path['url'] = '/' + random_file + '/'
-
-    # Were not using the fetch cache for 404 sampling
-    database.fetch_queue.put(path)
-
-    workers = manager.spawn_workers(len(conf.crafted_404_extensions), FetchCrafted404Worker)
-    manager.wait_for_idle(workers, database.fetch_queue)
 
 
 async def test_paths_exists(hammertime):
@@ -130,26 +82,6 @@ async def test_paths_exists(hammertime):
     textutils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
 
 
-def sample_404_from_found_path():
-    """ For all existing path, compute the 404 CRC so we don't get trapped in a tarpit """
-    manager = ThreadManager()
-
-    for path in database.valid_paths:
-        textutils.output_debug("Path in valid path table: " + str(path))
-        for ext in conf.crafted_404_extensions:
-            path_clone = path.copy()
-            random_file = str(uuid.uuid4())
-
-            # We don't benchmark / since we do it first before path discovery
-            if path_clone['url'] != '/':
-                path_clone['url'] = path_clone['url'] + '/' + random_file + ext
-                # Were not using the fetch cache for 404 sampling
-                database.fetch_queue.put(path_clone)
-
-    workers = manager.spawn_workers(conf.thread_count, FetchCrafted404Worker)
-    manager.wait_for_idle(workers, database.fetch_queue)
-
-
 def load_execute_host_plugins():
     """ Import and run host plugins """
     textutils.output_info('Executing ' + str(len(host.__all__)) + ' host plugins')
@@ -166,52 +98,6 @@ def load_execute_file_plugins():
         plugin = __import__("tachyon.plugins.file." + plugin_name, fromlist=[plugin_name])
         if hasattr(plugin, 'execute'):
             plugin.execute()
-
-
-def add_files_to_paths():
-    """ Combine all path, filenames and suffixes to build the target list """
-    work_list = list()
-    for path in database.valid_paths:
-        # Combine current path with all files and suffixes if enabled
-        for filename in database.files:
-            if filename.get('no_suffix'):
-                new_filename = filename.copy()
-                new_filename['is_file'] = True
-
-                if path['url'] == '/':
-                    new_filename['url'] = ''.join([path['url'], filename['url']])
-                else:
-                    new_filename['url'] = ''.join([path['url'], '/', filename['url']])
-
-                work_list.append(new_filename)
-                textutils.output_debug("No Suffix file added: " + str(new_filename))
-            elif filename.get('executable'):
-                for executable_suffix in conf.executables_suffixes:
-                    new_filename = filename.copy()
-                    new_filename['is_file'] = True
-
-                    if path['url'] == '/':
-                        new_filename['url'] = ''.join([path['url'], filename['url'], executable_suffix])
-                    else:
-                        new_filename['url'] = ''.join([path['url'], '/', filename['url'], executable_suffix])
-
-                    work_list.append(new_filename)
-                    textutils.output_debug("Executable File added: " + str(new_filename))
-            else:
-                for suffix in conf.file_suffixes:
-                    new_filename = filename.copy()
-                    new_filename['is_file'] = True
-
-                    if path['url'] == '/':
-                        new_filename['url'] = ''.join([path['url'], filename['url'], suffix])
-                    else:
-                        new_filename['url'] = ''.join([path['url'], '/', filename['url'], suffix])
-
-                    work_list.append(new_filename)
-                    textutils.output_debug("Regular File added: " + str(new_filename))
-
-    # Since we have already output the found directories, replace the valid path list
-    database.valid_paths = work_list
 
 
 async def test_file_exists(hammertime):
@@ -231,27 +117,28 @@ def print_program_header():
     print("\t https://github.com/delvelabs/tachyon\n")
 
 
-async def scan(hammertime):
+async def scan(hammertime, *, directories_only=False, files_only=False, plugins_only=False):
     if conf.cookies is not None:
         set_cookies(hammertime, conf.cookies)
     else:
         await get_session_cookies(hammertime)
 
-    await test_paths_exists(hammertime)
-    textutils.output_info('Generating file targets')
-    load_execute_file_plugins()
-    database.messages_output_queue.join()
-    await test_file_exists(hammertime)
+    load_execute_host_plugins()
+    if not plugins_only:
+        if not files_only:
+            await test_paths_exists(hammertime)
+        if not directories_only:
+            textutils.output_info('Generating file targets')
+            load_execute_file_plugins()
+            database.messages_output_queue.join()
+            await test_file_exists(hammertime)
 
 
 def finish_output(print_worker):
-    textutils.output_raw_message('')
-    textutils.output_error('Keyboard Interrupt Received')
     # flush all the output queues.
     try:
         database.results_output_queue.join()
         database.messages_output_queue.join()
-
         if print_worker and 'finalize' in dir(print_worker):
             print_worker.finalize()
     except KeyboardInterrupt:
@@ -259,12 +146,6 @@ def finish_output(print_worker):
 
 
 def main():
-    # Get running path
-    running_path = os.path.dirname(os.path.realpath(sys.argv[0]))
-
-    # Benchmark
-    start_scan_time = datetime.now()
-
     # Parse command line
     from tachyon.core.arguments import generate_options, parse_args
 
@@ -277,7 +158,7 @@ def main():
     if len(sys.argv) <= 1:
         parser.print_help()
         print('')
-        sys.exit()
+        return
 
     # Spawn synchronized print output worker
     print_worker = PrintWorker()
@@ -308,7 +189,6 @@ def main():
     textutils.output_debug('Max timeouts per url: ' + str(conf.max_timeout_count))
     textutils.output_debug('Worker threads: ' + str(conf.thread_count))
     textutils.output_debug('Target Host: ' + str(conf.target_host))
-    textutils.output_debug('Using Tor: ' + str(conf.use_tor))
     textutils.output_debug('Eval-able output: ' + str(conf.eval_output))
     textutils.output_debug('JSON output: ' + str(conf.json_output))
     textutils.output_debug('Using User-Agent: ' + str(conf.user_agent))
@@ -320,21 +200,12 @@ def main():
 
     textutils.output_info('Starting Discovery on ' + conf.base_url)
 
-    if conf.use_tor:
-        textutils.output_info('Using Tor, be patient it WILL be slow!')
-        textutils.output_info('Max timeout count and url fetch timeout doubled for the occasion ;)')
-        conf.max_timeout_count *= 2
-        conf.fetch_timeout_secs *= 2
-
     # Handle keyboard exit before multi-thread operations
     print_results_worker = None
     try:
         # Resolve target host to avoid multiple dns lookups
         if not conf.proxy_url:
             resolved, port = dnscache.get_host_ip(conf.target_host, conf.target_port)
-
-        # disable urllib'3 SSL warning (globally)
-        urllib3.disable_warnings()
 
         # Benchmark target host
         if conf.proxy_url:
@@ -347,89 +218,34 @@ def main():
             database.connection_pool = HTTPConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs,
                                                           block=True, maxsize=conf.thread_count)
 
-        if conf.json_output:
-            SelectedPrintWorker = JSONPrintResultWorker
-        else:
-            SelectedPrintWorker = PrintResultsWorker
+        print_results_worker = JSONPrintResultWorker() if conf.json_output else PrintResultsWorker()
+        print_results_worker.daemon = True
+        print_results_worker.start()
+
+        root_path = conf.path_template.copy()
+        root_path['url'] = '/'
+        database.valid_paths.append(root_path)
+        load_target_paths()
+        load_target_files()
 
         hammertime = configure_hammertime()
-        # Select working modes
-        root_path = ''
-        if conf.files_only:
-            get_session_cookies(hammertime)
-            # 0. Sample /uuid to figure out what is a classic 404 and set value in database
-            sample_root_404()
-            # Add root to targets
-            root_path = conf.path_template.copy()
-            root_path['url'] = ''
-            database.valid_paths.append(root_path)
-            load_target_files(running_path)
-            load_execute_host_plugins()
-            sample_404_from_found_path()
-            load_execute_file_plugins()
-            textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
-            database.messages_output_queue.join()
-            # Start print result worker.
-            print_results_worker = SelectedPrintWorker()
-            print_results_worker.daemon = True
-            print_results_worker.start()
-            test_file_exists(hammertime)
-        elif conf.directories_only:
-            get_session_cookies(hammertime)
-            # 0. Sample /uuid to figure out what is a classic 404 and set value in database
-            sample_root_404()
-            root_path = conf.path_template.copy()
-            root_path['url'] = '/'
-            database.paths.append(root_path)
-            database.valid_paths.append(root_path)
-            load_execute_host_plugins()
-            print_results_worker = SelectedPrintWorker()
-            print_results_worker.daemon = True
-            print_results_worker.start()
-            load_target_paths(running_path)
-            test_paths_exists(hammertime)
-        elif conf.plugins_only:
-            get_session_cookies(hammertime)
-            database.connection_pool = HTTPConnectionPool(resolved, timeout=conf.fetch_timeout_secs, maxsize=1)
-            # Add root to targets
-            root_path = conf.path_template.copy()
-            root_path['url'] = '/'
-            database.paths.append(root_path)
-            load_execute_host_plugins()
-        else:
-            root_path = conf.path_template.copy()
-            root_path['url'] = '/'
-            database.paths.append(root_path)
-            load_target_paths("")
-            load_target_files("")
-            # Execute all Host plugins
-            load_execute_host_plugins()
-            if conf.json_output:
-                SelectedPrintWorker = JSONPrintResultWorker
-            else:
-                SelectedPrintWorker = PrintResultsWorker
-
-            print_results_worker = SelectedPrintWorker()
-            print_results_worker.daemon = True
-            print_results_worker.start()
-            hammertime.loop.run_until_complete(scan(hammertime))
-
-        # Benchmark
-        end_scan_time = datetime.now()
-
+        hammertime.loop.run_until_complete(scan(hammertime, directories_only=conf.directories_only,
+                                                files_only=conf.files_only, plugins_only=conf.plugins_only))
         # Print all remaining messages
-        textutils.output_info('Scan completed in: ' + str(end_scan_time - start_scan_time) + '\n')
+        textutils.output_info('Scan completed in: %.3fs\n' % hammertime.stats.duration)
         database.results_output_queue.join()
         database.messages_output_queue.join()
 
     except (KeyboardInterrupt, asyncio.CancelledError):
-        finish_output(print_results_worker)
+        textutils.output_raw_message('')
+        textutils.output_error('Keyboard Interrupt Received')
     except gaierror:
         textutils.output_error('Error resolving host')
     except OfflineHostException:
         textutils.output_error("Target host seems to be offline.")
-
-    sys.exit(0)
+    finally:
+        if print_results_worker is not None:
+            finish_output(print_results_worker)
 
 
 if __name__ == "__main__":
