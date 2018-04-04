@@ -308,7 +308,6 @@ def main():
     textutils.output_debug('Max timeouts per url: ' + str(conf.max_timeout_count))
     textutils.output_debug('Worker threads: ' + str(conf.thread_count))
     textutils.output_debug('Target Host: ' + str(conf.target_host))
-    textutils.output_debug('Using Tor: ' + str(conf.use_tor))
     textutils.output_debug('Eval-able output: ' + str(conf.eval_output))
     textutils.output_debug('JSON output: ' + str(conf.json_output))
     textutils.output_debug('Using User-Agent: ' + str(conf.user_agent))
@@ -319,12 +318,6 @@ def main():
         textutils.output_debug('Using proxy: ' + str(conf.proxy_url))
 
     textutils.output_info('Starting Discovery on ' + conf.base_url)
-
-    if conf.use_tor:
-        textutils.output_info('Using Tor, be patient it WILL be slow!')
-        textutils.output_info('Max timeout count and url fetch timeout doubled for the occasion ;)')
-        conf.max_timeout_count *= 2
-        conf.fetch_timeout_secs *= 2
 
     # Handle keyboard exit before multi-thread operations
     print_results_worker = None
