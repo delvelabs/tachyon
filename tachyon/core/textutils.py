@@ -50,22 +50,39 @@ def output_raw_message(text):
 
 def output_error(text):
     """ Output text to the synchronized output queue """
-    output_result('[ERROR] ' + text)
+    if conf.eval_output:
+        info_dict = {'type':'error', 'text' : text}
+        output_result_eval(info_dict)
+    else:
+        output_result('[ERROR] ' + text)
 
 
 def output_info(text):
     """ Output text to the synchronized output queue """
-    output_message('[INFO] ' + text)
+    if conf.eval_output:
+        info_dict = {'type':'info', 'text' : text}
+        output_message_eval(info_dict)
+    else:
+        output_message('[INFO] ' + text)
 
 
 def output_timeout(text):
     """ Output text to the synchronized output queue """
-    output_result('[TIMEOUT] ' + text)
+    if conf.eval_output:
+        info_dict = {'type':'timeout', 'text' : text}
+        output_result_eval(info_dict)
+    else:
+        output_result('[TIMEOUT] ' + text)
 
 
 def output_found(text, data=None):
     """ Output text to the synchronized output queue """
-    output_result('[FOUND] ' + text)
+    if conf.eval_output:
+        info_dict = {'type':'found', 'text' : text}
+        info_dict.update(data or {})
+        output_result_eval(info_dict)
+    else:
+        output_result('[FOUND] ' + text)
 
 
 def output_debug(text):

@@ -19,16 +19,12 @@
 
 import asyncio
 import click
-import sys
-from socket import gaierror
-from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
-from urllib3.poolmanager import ProxyManager
 from hammertime.rules import RejectStatusCode
 from hammertime.rules.deadhostdetection import OfflineHostException
+from socket import gaierror
 
 import tachyon.core.conf as conf
 import tachyon.core.database as database
-import tachyon.core.dnscache as dnscache
 import tachyon.core.loaders as loaders
 import tachyon.core.textutils as textutils
 import tachyon.core.netutils as netutils
@@ -162,8 +158,11 @@ def finish_output(print_worker):
 def main(target_host, cookie_file, json_output, max_retry_count,
          proxy, user_agent, vhost, **kwargs):
 
-    click.echo(print_program_header())
     # Spawn synchronized print output worker
+    if json_output:
+        conf.eval_output = True
+    else:
+        click.echo(print_program_header())
     print_worker = PrintWorker()
     print_worker.daemon = True
     print_worker.start()
@@ -190,21 +189,6 @@ def main(target_host, cookie_file, json_output, max_retry_count,
     # Handle keyboard exit before multi-thread operations
     print_results_worker = None
     try:
-        # Resolve target host to avoid multiple dns lookups
-        if not proxy:
-            resolved, port = dnscache.get_host_ip(conf.target_host, conf.target_port)
-
-        # Benchmark target host
-        if proxy:
-            database.connection_pool = ProxyManager(proxy, timeout=conf.fetch_timeout_secs,
-                                                    maxsize=conf.thread_count, block=True, cert_reqs='CERT_NONE')
-        elif not proxy and is_ssl:
-            database.connection_pool = HTTPSConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs,
-                                                           block=True, maxsize=conf.thread_count)
-        else:
-            database.connection_pool = HTTPConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs,
-                                                          block=True, maxsize=conf.thread_count)
-
         print_results_worker = JSONPrintResultWorker() if json_output else PrintResultsWorker()
         print_results_worker.daemon = True
         print_results_worker.start()
@@ -221,8 +205,6 @@ def main(target_host, cookie_file, json_output, max_retry_count,
         hammertime.loop.run_until_complete(scan(hammertime, cookies=cookies, **kwargs))
         # Print all remaining messages
         textutils.output_info('Scan completed in: %.3fs\n' % hammertime.stats.duration)
-        database.results_output_queue.join()
-        database.messages_output_queue.join()
 
     except (KeyboardInterrupt, asyncio.CancelledError):
         textutils.output_raw_message('')
