@@ -145,18 +145,6 @@ class TestTachyon(TestCase):
 
             add_http_header.assert_any_call(ANY, "Cookie", "test-cookie=true")
 
-    def test_finish_output_flush_output(self):
-        print_worker = PrintResultsWorker()
-        print_worker.daemon = True
-        textutils.output_message("message")
-        textutils.output_found("found", {"data": "data"})
-        print_worker.start()
-        with patch("sys.stdout") as stdout:
-            tachyon.finish_output(print_worker)
-
-            self.assertEqual(2, stdout.write.call_count)
-            stdout.flush.assert_called_once_with()
-
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
     @async()
     async def test_scan_directory_only(self):

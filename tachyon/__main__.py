@@ -22,7 +22,6 @@ import sys
 from socket import gaierror
 from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
 from urllib3.poolmanager import ProxyManager
-from datetime import datetime
 from hammertime.rules import RejectStatusCode
 from hammertime.rules.deadhostdetection import OfflineHostException
 
@@ -136,13 +135,10 @@ async def scan(hammertime, *, directories_only=False, files_only=False, plugins_
 
 
 def finish_output(print_worker):
-    textutils.output_raw_message('')
-    textutils.output_error('Keyboard Interrupt Received')
     # flush all the output queues.
     try:
         database.results_output_queue.join()
         database.messages_output_queue.join()
-
         if print_worker and 'finalize' in dir(print_worker):
             print_worker.finalize()
     except KeyboardInterrupt:
@@ -150,9 +146,6 @@ def finish_output(print_worker):
 
 
 def main():
-    # Benchmark
-    start_scan_time = datetime.now()
-
     # Parse command line
     from tachyon.core.arguments import generate_options, parse_args
 
@@ -165,7 +158,7 @@ def main():
     if len(sys.argv) <= 1:
         parser.print_help()
         print('')
-        sys.exit()
+        return
 
     # Spawn synchronized print output worker
     print_worker = PrintWorker()
@@ -225,12 +218,7 @@ def main():
             database.connection_pool = HTTPConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs,
                                                           block=True, maxsize=conf.thread_count)
 
-        if conf.json_output:
-            SelectedPrintWorker = JSONPrintResultWorker
-        else:
-            SelectedPrintWorker = PrintResultsWorker
-
-        print_results_worker = SelectedPrintWorker()
+        print_results_worker = JSONPrintResultWorker() if conf.json_output else PrintResultsWorker()
         print_results_worker.daemon = True
         print_results_worker.start()
 
@@ -243,22 +231,21 @@ def main():
         hammertime = configure_hammertime()
         hammertime.loop.run_until_complete(scan(hammertime, directories_only=conf.directories_only,
                                                 files_only=conf.files_only, plugins_only=conf.plugins_only))
-        # Benchmark
-        end_scan_time = datetime.now()
-
         # Print all remaining messages
-        textutils.output_info('Scan completed in: ' + str(end_scan_time - start_scan_time) + '\n')
+        textutils.output_info('Scan completed in: %.3fs\n' % hammertime.stats.duration)
         database.results_output_queue.join()
         database.messages_output_queue.join()
 
     except (KeyboardInterrupt, asyncio.CancelledError):
-        finish_output(print_results_worker)
+        textutils.output_raw_message('')
+        textutils.output_error('Keyboard Interrupt Received')
     except gaierror:
         textutils.output_error('Error resolving host')
     except OfflineHostException:
         textutils.output_error("Target host seems to be offline.")
-
-    sys.exit(0)
+    finally:
+        if print_results_worker is not None:
+            finish_output(print_results_worker)
 
 
 if __name__ == "__main__":
