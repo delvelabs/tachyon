@@ -20,7 +20,6 @@ from collections import defaultdict
 
 # Internal config and consts
 name = "delvelabs/tachyon"
-version = '2.1.3'
 expected_path_responses = [200, 206, 401, 403]
 expected_file_responses = [200, 206]
 timeout_codes = [0, 500, 502, 503, 504]
@@ -49,25 +48,15 @@ target_base_path = ''
 target_port = 80
 base_url = ''
 is_ssl = False
-json_output = False
 scheme = ''
-proxy_url = ''
-forge_vhost=None
-debug = False
 search_files = True
-recursive = False
 fetch_timeout_secs = 2
 max_timeout_secs = 15
-max_timeout_count = 500
 thread_count = 50
 eval_output = False
-user_agent = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36' # maximum compatibility
 files_only = False
 directories_only = False
-recursive_depth_limit=2
 test_plugin = None
-plugins_only = False
-cookies = None
 allow_download = False
 
 # Behavioral tests

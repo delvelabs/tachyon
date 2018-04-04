@@ -1,3 +1,4 @@
 urllib3==1.10.2
 hammertime-http==0.2.2
 easyinject==0.3
+click==6.7

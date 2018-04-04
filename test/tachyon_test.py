@@ -23,16 +23,14 @@ from aiohttp.test_utils import make_mocked_coro
 import asyncio
 from hammertime.core import HammerTime
 
-from tachyon.core import conf, database, textutils
+from tachyon.core import database
 from tachyon import __main__ as tachyon
 from fixtures import fake_future, async, patch_coroutines
-from tachyon.core.workers import PrintResultsWorker
 
 
 class TestTachyon(TestCase):
 
     def setUp(self):
-        conf.recursive = False
         tachyon.load_execute_file_plugins = MagicMock()
         database.messages_output_queue = MagicMock()
         tachyon.load_execute_host_plugins = MagicMock()
@@ -67,7 +65,6 @@ class TestTachyon(TestCase):
 
     @async()
     async def test_paths_exists_do_recursive_path_search_if_recursive_is_true(self, loop):
-        conf.recursive = True
         path_generator = MagicMock()
         paths = ["/", "/test", "/path"]
         path_generator.generate_paths.return_value = paths
@@ -76,7 +73,7 @@ class TestTachyon(TestCase):
         tachyon.PathGenerator = MagicMock(return_value=path_generator)
         tachyon.DirectoryFetcher = MagicMock(return_value=fake_directory_fetcher)
 
-        await tachyon.test_paths_exists(HammerTime(loop=loop))
+        await tachyon.test_paths_exists(HammerTime(loop=loop), recursive=True)
 
         path_generator.generate_paths.assert_has_calls([call(use_valid_paths=False), call(use_valid_paths=True),
                                                         call(use_valid_paths=True)], any_order=False)
@@ -118,9 +115,8 @@ class TestTachyon(TestCase):
     @async()
     async def test_fetch_session_cookies_on_scan_start_if_no_user_supplied_cookies(self):
         hammertime = MagicMock()
-        conf.cookies = None
 
-        await tachyon.scan(hammertime)
+        await tachyon.scan(hammertime, cookies=None)
 
         tachyon.get_session_cookies.assert_called_once_with(hammertime)
 
@@ -128,20 +124,20 @@ class TestTachyon(TestCase):
     @async()
     async def test_dont_fetch_session_cookies_on_scan_start_if_user_supplied_cookies(self):
         hammertime = MagicMock()
-        conf.cookies = "not none"
+        cookies = "not none"
 
-        await tachyon.scan(hammertime)
+        await tachyon.scan(hammertime, cookies=cookies)
 
         tachyon.get_session_cookies.assert_not_called()
 
     @async()
-    async def test_use_user_supplied_cookies_if_available(self, loop):
+    async def test_use_user_supplied_cookies_if_available(self):
         database.session_cookie = "my-cookies=123"
-        conf.cookies = "test-cookie=true"
+        cookies = "test-cookie=true"
         hammertime = MagicMock()
 
         with patch("tachyon.core.config.add_http_header") as add_http_header:
-            await tachyon.scan(hammertime)
+            await tachyon.scan(hammertime, cookies=cookies)
 
             add_http_header.assert_any_call(ANY, "Cookie", "test-cookie=true")
 
