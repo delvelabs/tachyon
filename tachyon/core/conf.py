@@ -36,5 +36,6 @@ fetch_timeout_secs = 2
 max_timeout_secs = 15
 test_plugin = None
 allow_download = False
+eval_output = False
 
 plugin_settings = defaultdict(list)

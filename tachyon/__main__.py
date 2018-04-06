@@ -21,7 +21,6 @@ import asyncio
 import click
 from hammertime.rules import RejectStatusCode
 from hammertime.rules.deadhostdetection import OfflineHostException
-from socket import gaierror
 
 import tachyon.core.conf as conf
 import tachyon.core.database as database
@@ -111,7 +110,7 @@ async def test_file_exists(hammertime):
 def print_program_header():
     """ Print a _cute_ program header """
     return "\n\t Tachyon v" + __version__ + " - Fast Multi-Threaded Web Discovery Tool\n" \
-                                              "\t https://github.com/delvelabs/tachyon\n"
+                                            "\t https://github.com/delvelabs/tachyon\n"
 
 
 async def scan(hammertime, *, cookies=None, directories_only=False, files_only=False, plugins_only=False, **kwargs):
@@ -209,8 +208,6 @@ def main(target_host, cookie_file, json_output, max_retry_count,
     except (KeyboardInterrupt, asyncio.CancelledError):
         textutils.output_raw_message('')
         textutils.output_error('Keyboard Interrupt Received')
-    except gaierror:
-        textutils.output_error('Error resolving host')
     except OfflineHostException:
         textutils.output_error("Target host seems to be offline.")
     finally:
