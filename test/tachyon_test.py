@@ -164,7 +164,6 @@ class TestTachyon(TestCase):
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
     @async()
     async def test_scan_plugins_only(self):
-        self.skipTest("Plugins not supported.")
         hammertime = MagicMock()
 
         await tachyon.scan(hammertime, plugins_only=True)

@@ -20,6 +20,9 @@ from collections import defaultdict
 
 # Internal config and consts
 name = "delvelabs/tachyon"
+version = '2.1.3'
+expected_file_responses = [200, 206]
+file_sample_len = 5120
 
 # Templates, used by plugins
 path_template = {'url': '', 'timeout_count': 0, 'description': ''}
@@ -30,12 +33,20 @@ target_base_path = ''
 target_port = 80
 base_url = ''
 is_ssl = False
+json_output = False
 scheme = ''
+proxy_url = ''
+forge_vhost=None
+debug = False
 search_files = True
+recursive = False
 fetch_timeout_secs = 2
 max_timeout_secs = 15
-test_plugin = None
-allow_download = False
+max_timeout_count = 500
+thread_count = 50
 eval_output = False
+user_agent = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36' # maximum compatibility
+cookies = None
+allow_download = False
 
 plugin_settings = defaultdict(list)

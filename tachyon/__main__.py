@@ -119,7 +119,7 @@ async def scan(hammertime, *, cookies=None, directories_only=False, files_only=F
     else:
         await get_session_cookies(hammertime)
 
-    #load_execute_host_plugins()
+    load_execute_host_plugins()
     if not plugins_only:
         if not files_only:
             await test_paths_exists(hammertime, **kwargs)
@@ -142,20 +142,20 @@ def finish_output(print_worker):
 
 
 @click.command()
-@click.option("--cookie-file", default="")
-@click.option("--depth-limit", default=2)
-@click.option("--directories-only", is_flag=True)
-@click.option("--files-only", is_flag=True)
-@click.option("--json-output", is_flag=True)
-@click.option("--max-retry-count", default=3)
-@click.option("--plugins-only", is_flag=True)
-@click.option("--proxy", default="")
-@click.option("--recursive", is_flag=True)
-@click.option("--user-agent", default=default_user_agent)
-@click.option("--vhost", type=str, default=None)
+@click.option("-c", "--cookie-file", default="")
+@click.option("-l", "--depth-limit", default=2)
+@click.option("-s", "--directories-only", is_flag=True)
+@click.option("-f", "--files-only", is_flag=True)
+@click.option("-j", "--json-output", is_flag=True)
+@click.option("-m", "--max-retry-count", default=3)
+@click.option("-z", "--plugins-only", is_flag=True)
+@click.option("-x", "--plugin-settings", default=[])
+@click.option("-p", "--proxy", default="")
+@click.option("-r", "--recursive", is_flag=True)
+@click.option("-u", "--user-agent", default=default_user_agent)
+@click.option("-v", "--vhost", type=str, default=None)
 @click.argument("target_host")
-def main(target_host, cookie_file, json_output, max_retry_count,
-         proxy, user_agent, vhost, **kwargs):
+def main(target_host, cookie_file, json_output, max_retry_count, plugin_settings, proxy, user_agent, vhost, **kwargs):
 
     # Spawn synchronized print output worker
     if json_output:
@@ -187,6 +187,11 @@ def main(target_host, cookie_file, json_output, max_retry_count,
 
     # Handle keyboard exit before multi-thread operations
     print_results_worker = None
+
+    for option in plugin_settings:
+        plugin, value = option.split(':', 1)
+        conf.plugin_settings[plugin].append(value)
+
     try:
         print_results_worker = JSONPrintResultWorker() if json_output else PrintResultsWorker()
         print_results_worker.daemon = True
@@ -197,11 +202,14 @@ def main(target_host, cookie_file, json_output, max_retry_count,
         database.valid_paths.append(root_path)
         load_target_paths()
         load_target_files()
-        cookies = loaders.load_cookie_file(cookie_file)
+        conf.cookies = loaders.load_cookie_file(cookie_file)
+        conf.user_agent = user_agent
+        conf.proxy_url = proxy
+        conf.forge_vhost = vhost
 
-        hammertime = configure_hammertime(cookies=cookies, proxy=proxy, retry_count=max_retry_count,
-                                          user_agent=user_agent, vhost=vhost)
-        hammertime.loop.run_until_complete(scan(hammertime, cookies=cookies, **kwargs))
+        hammertime = configure_hammertime(cookies=conf.cookies, proxy=conf.proxy_url, retry_count=max_retry_count,
+                                          user_agent=conf.user_agent, vhost=conf.forge_vhost)
+        hammertime.loop.run_until_complete(scan(hammertime, cookies=conf.cookies, **kwargs))
         # Print all remaining messages
         textutils.output_info('Scan completed in: %.3fs\n' % hammertime.stats.duration)
 
