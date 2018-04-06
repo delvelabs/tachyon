@@ -149,13 +149,14 @@ def finish_output(print_worker):
 @click.option("-j", "--json-output", is_flag=True)
 @click.option("-m", "--max-retry-count", default=3)
 @click.option("-z", "--plugins-only", is_flag=True)
-@click.option("-x", "--plugin-settings", default=[])
+@click.option("-x", "--plugin-settings", multiple=True)
 @click.option("-p", "--proxy", default="")
 @click.option("-r", "--recursive", is_flag=True)
 @click.option("-u", "--user-agent", default=default_user_agent)
 @click.option("-v", "--vhost", type=str, default=None)
 @click.argument("target_host")
-def main(target_host, cookie_file, json_output, max_retry_count, plugin_settings, proxy, user_agent, vhost, **kwargs):
+def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_settings, proxy, user_agent, vhost,
+         depth_limit, directories_only, files_only, plugins_only, recursive):
 
     # Spawn synchronized print output worker
     if json_output:
@@ -209,7 +210,9 @@ def main(target_host, cookie_file, json_output, max_retry_count, plugin_settings
 
         hammertime = configure_hammertime(cookies=conf.cookies, proxy=conf.proxy_url, retry_count=max_retry_count,
                                           user_agent=conf.user_agent, vhost=conf.forge_vhost)
-        hammertime.loop.run_until_complete(scan(hammertime, cookies=conf.cookies, **kwargs))
+        hammertime.loop.run_until_complete(scan(hammertime, cookies=conf.cookies, directories_only=directories_only,
+                                                files_only=files_only, plugins_only=plugins_only,
+                                                depth_limit=depth_limit, recursive=recursive))
         # Print all remaining messages
         textutils.output_info('Scan completed in: %.3fs\n' % hammertime.stats.duration)
 

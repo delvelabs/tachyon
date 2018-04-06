@@ -18,9 +18,12 @@
 
 from collections import defaultdict
 
+from .__version__ import __version__
+
+
 # Internal config and consts
 name = "delvelabs/tachyon"
-version = '2.1.3'
+version = __version__
 expected_file_responses = [200, 206]
 file_sample_len = 5120
 
