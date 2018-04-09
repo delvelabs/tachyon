@@ -30,39 +30,42 @@ from tachyon.core import conf
 
 
 heuristics_with_child = []
+initial_limit = 5120
+default_user_agent = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) ' \
+                     'Chrome/41.0.2228.0 Safari/537.36'
 
 
-def configure_hammertime():
+def configure_hammertime(proxy=None, retry_count=3, cookies=None, **kwargs):
     loop = custom_event_loop()
-    engine = AioHttpEngine(loop=loop, verify_ssl=False, proxy=conf.proxy_url)
+    engine = AioHttpEngine(loop=loop, verify_ssl=False, proxy=proxy)
     engine.session.close()
     connector = TCPConnector(loop=loop, verify_ssl=False, use_dns_cache=True, ttl_dns_cache=None)
-    if conf.cookies is not None:
+    if cookies is not None:
         engine.session = ClientSession(loop=loop, connector=connector, cookie_jar=DummyCookieJar(loop=loop))
     else:
         engine.session = ClientSession(loop=loop, connector=connector)
-    hammertime = HammerTime(loop=loop, request_engine=engine, retry_count=3, proxy=conf.proxy_url)
-    setup_hammertime_heuristics(hammertime)
+    hammertime = HammerTime(loop=loop, request_engine=engine, retry_count=retry_count, proxy=proxy)
+    setup_hammertime_heuristics(hammertime, **kwargs)
     return hammertime
 
 
-def setup_hammertime_heuristics(hammertime):
+def setup_hammertime_heuristics(hammertime, *, user_agent=default_user_agent, vhost=None):
     #  TODO Make sure rejecting 404 does not conflict with tomcat fake 404 detection.
     global heuristics_with_child
     heuristics_with_child = [DetectSoft404(distance_threshold=6), FollowRedirects(), RejectCatchAllRedirect(),
                              RejectIgnoredQuery()]
-    hosts = (conf.forge_vhost, conf.target_host) if conf.forge_vhost is not None else conf.target_host
+    hosts = (vhost, conf.target_host) if vhost is not None else conf.target_host
     global_heuristics = [DeadHostDetection(), DynamicTimeout(0.5, 5), DetectBehaviorChange(), LogBehaviorChange(),
                          FilterRequestFromURL(allowed_urls=hosts),
-                         IgnoreLargeBody(initial_limit=conf.file_sample_len)]
+                         IgnoreLargeBody(initial_limit=initial_limit)]
     heuristics = [RejectStatusCode({404, 502}), MatchString()]
     hammertime.heuristics.add_multiple(heuristics)
     hammertime.heuristics.add_multiple(heuristics_with_child)
     hammertime.heuristics.add_multiple(global_heuristics)
     for heuristic in heuristics_with_child:
         heuristic.child_heuristics.add_multiple(global_heuristics)
-    add_http_header(hammertime, "User-Agent", conf.user_agent)
-    add_http_header(hammertime, "Host", conf.forge_vhost if conf.forge_vhost is not None else conf.target_host)
+    add_http_header(hammertime, "User-Agent", user_agent)
+    add_http_header(hammertime, "Host", vhost if vhost is not None else conf.target_host)
 
 
 def add_http_header(hammertime, header_name, header_value):

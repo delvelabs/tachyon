@@ -52,12 +52,12 @@ class TestConfig(TestCase):
 
     @async()
     async def test_configure_hammertime_add_user_agent_to_request_header(self):
-        conf.user_agent = "My-user-agent"
+        user_agent = "My-user-agent"
 
         with patch("tachyon.core.config.add_http_header") as add_http_header:
-            config.configure_hammertime()
+            config.configure_hammertime(user_agent=user_agent)
 
-        add_http_header.assert_any_call(ANY, "User-Agent", conf.user_agent)
+        add_http_header.assert_any_call(ANY, "User-Agent", user_agent)
 
     @async()
     async def test_configure_hammertime_add_host_header_to_request_header(self):
@@ -71,20 +71,20 @@ class TestConfig(TestCase):
     @async()
     async def test_configure_hammertime_use_user_supplied_vhost_for_host_header(self):
         conf.target_host = "example.com"
-        conf.forge_vhost = "vhost.example.com"
+        forge_vhost = "vhost.example.com"
 
         with patch("tachyon.core.config.add_http_header") as add_http_header:
-            config.configure_hammertime()
+            config.configure_hammertime(vhost=forge_vhost)
 
-        add_http_header.assert_any_call(ANY, "Host", conf.forge_vhost)
+        add_http_header.assert_any_call(ANY, "Host", forge_vhost)
 
     @async()
     async def test_configure_hammertime_allow_requests_to_user_supplied_vhost(self):
         conf.target_host = "example.com"
-        conf.forge_vhost = "vhost.example.com"
+        forge_vhost = "vhost.example.com"
 
         with patch("tachyon.core.config.FilterRequestFromURL", MagicMock(return_value=FilterRequestFromURL)) as url_filter:
-            config.configure_hammertime()
+            config.configure_hammertime(vhost=forge_vhost)
 
             _, kwargs = url_filter.call_args
             self.assertEqual(kwargs["allowed_urls"], ("vhost.example.com", "example.com"))
@@ -92,20 +92,18 @@ class TestConfig(TestCase):
     @async()
     async def test_configure_hammertime_create_aiohttp_engine_for_hammertime(self, loop):
         engine = MagicMock()
-        conf.proxy_url = "my-proxy"
         EngineFactory = MagicMock(return_value=engine)
         with patch("tachyon.core.config.AioHttpEngine", EngineFactory):
-            hammertime = config.configure_hammertime()
+            hammertime = config.configure_hammertime(proxy="my-proxy")
 
             EngineFactory.assert_called_once_with(loop=loop, verify_ssl=False, proxy="my-proxy")
             self.assertEqual(hammertime.request_engine.request_engine, engine)
 
     @async()
     async def test_configure_hammertime_create_client_session_with_dummy_cookie_jar_if_user_supply_cookies(self):
-        conf.proxy_url = "my-proxy"
-        conf.cookies = "not none"
+        cookies = "not none"
         with patch("tachyon.core.config.ClientSession") as SessionFactory:
-            config.configure_hammertime()
+            config.configure_hammertime(cookies=cookies)
 
             _, kwargs = SessionFactory.call_args
             self.assertTrue(isinstance(kwargs["cookie_jar"], DummyCookieJar))

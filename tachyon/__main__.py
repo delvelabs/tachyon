@@ -18,16 +18,12 @@
 
 
 import asyncio
-import sys
-from socket import gaierror
-from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
-from urllib3.poolmanager import ProxyManager
+import click
 from hammertime.rules import RejectStatusCode
 from hammertime.rules.deadhostdetection import OfflineHostException
 
 import tachyon.core.conf as conf
 import tachyon.core.database as database
-import tachyon.core.dnscache as dnscache
 import tachyon.core.loaders as loaders
 import tachyon.core.textutils as textutils
 import tachyon.core.netutils as netutils
@@ -36,7 +32,8 @@ from tachyon.plugins import host, file
 from tachyon.core.generator import PathGenerator, FileGenerator
 from tachyon.core.directoryfetcher import DirectoryFetcher
 from tachyon.core.filefetcher import FileFetcher
-from tachyon.core.config import configure_hammertime, set_cookies
+from tachyon.core.config import configure_hammertime, set_cookies, default_user_agent
+from tachyon.core.__version__ import __version__
 
 
 def load_target_paths():
@@ -58,7 +55,7 @@ async def get_session_cookies(hammertime):
     await hammertime.request(conf.base_url + path)
 
 
-async def test_paths_exists(hammertime):
+async def test_paths_exists(hammertime, *, recursive=False, depth_limit=2):
     """
     Test for path existence using http codes and computed 404
     Turn off output for now, it would be irrelevant at this point.
@@ -68,14 +65,13 @@ async def test_paths_exists(hammertime):
     fetcher = DirectoryFetcher(conf.base_url, hammertime)
 
     paths_to_fetch = path_generator.generate_paths(use_valid_paths=False)
-    textutils.output_debug('Cached: ' + str(database.path_cache))
 
     textutils.output_info('Probing %d paths' % len(paths_to_fetch))
     await fetcher.fetch_paths(paths_to_fetch)
 
-    if conf.recursive:
+    if recursive:
         recursion_depth = 0
-        while recursion_depth < conf.recursive_depth_limit:
+        while recursion_depth < depth_limit:
             recursion_depth += 1
             paths_to_fetch = path_generator.generate_paths(use_valid_paths=True)
             await fetcher.fetch_paths(paths_to_fetch)
@@ -113,20 +109,20 @@ async def test_file_exists(hammertime):
 
 def print_program_header():
     """ Print a _cute_ program header """
-    print("\n\t Tachyon v" + conf.version + " - Fast Multi-Threaded Web Discovery Tool")
-    print("\t https://github.com/delvelabs/tachyon\n")
+    return "\n\t Tachyon v" + __version__ + " - Fast Multi-Threaded Web Discovery Tool\n" \
+                                            "\t https://github.com/delvelabs/tachyon\n"
 
 
-async def scan(hammertime, *, directories_only=False, files_only=False, plugins_only=False):
-    if conf.cookies is not None:
-        set_cookies(hammertime, conf.cookies)
+async def scan(hammertime, *, cookies=None, directories_only=False, files_only=False, plugins_only=False, **kwargs):
+    if cookies is not None:
+        set_cookies(hammertime, cookies)
     else:
         await get_session_cookies(hammertime)
 
     load_execute_host_plugins()
     if not plugins_only:
         if not files_only:
-            await test_paths_exists(hammertime)
+            await test_paths_exists(hammertime, **kwargs)
         if not directories_only:
             textutils.output_info('Generating file targets')
             load_execute_file_plugins()
@@ -145,31 +141,34 @@ def finish_output(print_worker):
         pass
 
 
-def main():
-    # Parse command line
-    from tachyon.core.arguments import generate_options, parse_args
-
-    parser = generate_options()
-    options, args = parse_args(parser, sys.argv)
-
-    if not conf.eval_output and not conf.json_output:
-        print_program_header()
-
-    if len(sys.argv) <= 1:
-        parser.print_help()
-        print('')
-        return
+@click.command()
+@click.option("-c", "--cookie-file", default="")
+@click.option("-l", "--depth-limit", default=2)
+@click.option("-s", "--directories-only", is_flag=True)
+@click.option("-f", "--files-only", is_flag=True)
+@click.option("-j", "--json-output", is_flag=True)
+@click.option("-m", "--max-retry-count", default=3)
+@click.option("-z", "--plugins-only", is_flag=True)
+@click.option("-x", "--plugin-settings", multiple=True)
+@click.option("-p", "--proxy", default="")
+@click.option("-r", "--recursive", is_flag=True)
+@click.option("-u", "--user-agent", default=default_user_agent)
+@click.option("-v", "--vhost", type=str, default=None)
+@click.argument("target_host")
+def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_settings, proxy, user_agent, vhost,
+         depth_limit, directories_only, files_only, plugins_only, recursive):
 
     # Spawn synchronized print output worker
+    if json_output:
+        conf.eval_output = True
+    else:
+        click.echo(print_program_header())
     print_worker = PrintWorker()
     print_worker.daemon = True
     print_worker.start()
 
     # Ensure the host is of the right format and set it in config
-    parsed_host, parsed_port, parsed_path, is_ssl = netutils.parse_hostname(args[1])
-    textutils.output_debug(
-        "Parsed: " + parsed_host + " port: " + str(parsed_port) + " " + parsed_path + " SSL:" + str(is_ssl))
-
+    parsed_host, parsed_port, parsed_path, is_ssl = netutils.parse_hostname(target_host)
     # Set conf values
     conf.target_host = parsed_host
     conf.target_base_path = parsed_path
@@ -185,40 +184,17 @@ def main():
     not is_ssl and conf.target_port == 80) else ":%s" % conf.target_port
     conf.base_url = "%s://%s%s" % (conf.scheme, parsed_host, port)
 
-    textutils.output_debug('Version: ' + str(conf.version))
-    textutils.output_debug('Max timeouts per url: ' + str(conf.max_timeout_count))
-    textutils.output_debug('Worker threads: ' + str(conf.thread_count))
-    textutils.output_debug('Target Host: ' + str(conf.target_host))
-    textutils.output_debug('Eval-able output: ' + str(conf.eval_output))
-    textutils.output_debug('JSON output: ' + str(conf.json_output))
-    textutils.output_debug('Using User-Agent: ' + str(conf.user_agent))
-    textutils.output_debug('Search only for files: ' + str(conf.files_only))
-    textutils.output_debug('Search only for subdirs: ' + str(conf.directories_only))
-
-    if conf.proxy_url:
-        textutils.output_debug('Using proxy: ' + str(conf.proxy_url))
-
     textutils.output_info('Starting Discovery on ' + conf.base_url)
 
     # Handle keyboard exit before multi-thread operations
     print_results_worker = None
+
+    for option in plugin_settings:
+        plugin, value = option.split(':', 1)
+        conf.plugin_settings[plugin].append(value)
+
     try:
-        # Resolve target host to avoid multiple dns lookups
-        if not conf.proxy_url:
-            resolved, port = dnscache.get_host_ip(conf.target_host, conf.target_port)
-
-        # Benchmark target host
-        if conf.proxy_url:
-            database.connection_pool = ProxyManager(conf.proxy_url, timeout=conf.fetch_timeout_secs,
-                                                    maxsize=conf.thread_count, block=True, cert_reqs='CERT_NONE')
-        elif not conf.proxy_url and is_ssl:
-            database.connection_pool = HTTPSConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs,
-                                                           block=True, maxsize=conf.thread_count)
-        else:
-            database.connection_pool = HTTPConnectionPool(resolved, port=str(port), timeout=conf.fetch_timeout_secs,
-                                                          block=True, maxsize=conf.thread_count)
-
-        print_results_worker = JSONPrintResultWorker() if conf.json_output else PrintResultsWorker()
+        print_results_worker = JSONPrintResultWorker() if json_output else PrintResultsWorker()
         print_results_worker.daemon = True
         print_results_worker.start()
 
@@ -227,20 +203,22 @@ def main():
         database.valid_paths.append(root_path)
         load_target_paths()
         load_target_files()
+        conf.cookies = loaders.load_cookie_file(cookie_file)
+        conf.user_agent = user_agent
+        conf.proxy_url = proxy
+        conf.forge_vhost = vhost
 
-        hammertime = configure_hammertime()
-        hammertime.loop.run_until_complete(scan(hammertime, directories_only=conf.directories_only,
-                                                files_only=conf.files_only, plugins_only=conf.plugins_only))
+        hammertime = configure_hammertime(cookies=conf.cookies, proxy=conf.proxy_url, retry_count=max_retry_count,
+                                          user_agent=conf.user_agent, vhost=conf.forge_vhost)
+        hammertime.loop.run_until_complete(scan(hammertime, cookies=conf.cookies, directories_only=directories_only,
+                                                files_only=files_only, plugins_only=plugins_only,
+                                                depth_limit=depth_limit, recursive=recursive))
         # Print all remaining messages
         textutils.output_info('Scan completed in: %.3fs\n' % hammertime.stats.duration)
-        database.results_output_queue.join()
-        database.messages_output_queue.join()
 
     except (KeyboardInterrupt, asyncio.CancelledError):
         textutils.output_raw_message('')
         textutils.output_error('Keyboard Interrupt Received')
-    except gaierror:
-        textutils.output_error('Error resolving host')
     except OfflineHostException:
         textutils.output_error("Target host seems to be offline.")
     finally:
