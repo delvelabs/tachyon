@@ -32,7 +32,6 @@ class TestTachyon(TestCase):
 
     def setUp(self):
         tachyon.load_execute_file_plugins = MagicMock()
-        database.messages_output_queue = MagicMock()
         tachyon.load_execute_host_plugins = MagicMock()
 
     @classmethod
