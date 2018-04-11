@@ -40,7 +40,6 @@ def execute():
     new_target['url'] = target
     new_target['description'] = "HostProcessor generated filename"
     database.files.append(new_target)
-    textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
     added += 1
 
     # www.oksala.org -> oksala.org
@@ -49,7 +48,6 @@ def execute():
     new_target['url'] = target
     new_target['description'] = "HostProcessor generated filename"
     database.files.append(new_target)
-    textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
     added += 1
 
     # oksala.org -> oksala
@@ -59,7 +57,6 @@ def execute():
     new_target['url'] = nodom_target
     new_target['description'] = "HostProcessor generated filename"
     database.files.append(new_target)
-    textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
     added += 1
 
     # shortdom (blabla.ok.ok.test.com -> test)
@@ -76,19 +73,16 @@ def execute():
         new_target['url'] = short_dom
         new_target['description'] = "HostProcessor generated filename"
         database.files.append(new_target)
-        textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
         added += 1
         
         new_target = new_target.copy()
         new_target['url'] = short_dom + 'admin'
         database.files.append(new_target)
-        textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
         added += 1
         
         new_target = new_target.copy()
         new_target['url'] = short_dom + '-admin'
         database.files.append(new_target)
-        textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
         added += 1
 
     # flatten subdomains
@@ -97,12 +91,6 @@ def execute():
     new_target['url'] = target
     new_target['description'] = "HostProcessor generated filename"
     database.files.append(new_target)
-    textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
     added += 1
 
     textutils.output_info(" - HostProcessor Plugin: added " + str(added) + " new filenames")
-
-
-
-        
-    

@@ -27,6 +27,15 @@ from fixtures import async
 
 class TestLogBehaviorChange(TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        cls.patcher = patch("tachyon.core.textutils.output_manager")
+        cls.patcher.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.patcher.stop()
+
     @async()
     async def test_update_current_behavior_state(self):
         log_behavior_change = LogBehaviorChange()

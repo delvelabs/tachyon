@@ -26,6 +26,7 @@ except ImportError:
     from urllib.parse import urljoin
     from urllib.parse import urlparse
 
+
 def add_path(path):
     current_template = conf.path_template.copy()
     current_template['description'] = 'Found in sitemap.xml'
@@ -35,6 +36,7 @@ def add_path(path):
         database.paths.append(current_template)
         return True
 
+
 def add_file(filename):
     """ Add file to database """
     current_template = conf.path_template.copy()
@@ -43,6 +45,7 @@ def add_file(filename):
     if current_template not in database.files:
         database.files.append(current_template)
         return True
+
 
 def execute():
     """ Fetch sitemap.xml and add each entry as a target """
@@ -67,8 +70,6 @@ def execute():
         regexp = re.compile('(?im).*<url>\s*<loc>(.*)</loc>\s*</url>.*')
         matches = re.findall(regexp, content)
 
-        textutils.output_debug("SitemapXML plugin")
-
         added = 0
         for match in matches:
             if not isinstance(match, str):
@@ -86,8 +87,6 @@ def execute():
             if add_path(new_path):
                 added +=1
                 
-            textutils.output_debug(" - Added: %s from /sitemap.xml" % new_path)
-
         if added > 0:
             textutils.output_info(' - SitemapXML Plugin: added %d base paths '
                                   'using /sitemap.xml' % added)

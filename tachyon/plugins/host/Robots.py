@@ -25,6 +25,7 @@ try:
 except ImportError:
     from urllib.parse import urljoin
 
+
 def execute():
     """ Fetch /robots.txt and add the disallowed paths as target """
     current_template = dict(conf.path_template)
@@ -41,7 +42,6 @@ def execute():
         if not isinstance(content, str):
             content = content.decode('utf-8', 'ignore')
         matches = re.findall(r'Disallow:\s*/[a-zA-Z0-9-/\r]+\n', content)
-        textutils.output_debug(content)
 
         added = 0
         for match in matches:
@@ -55,8 +55,7 @@ def execute():
             splitted = match.split(':')
             if splitted[1]:
                 target_path = splitted[1]
-                textutils.output_debug(target_path)
-                
+
                 # Remove trailing /
                 if target_path.endswith('/'):
                     target_path = target_path[:-1]   
@@ -64,7 +63,6 @@ def execute():
                 current_template = current_template.copy()
                 current_template['url'] = target_path
                 database.paths.append(current_template)
-                textutils.output_debug(' - Robots Plugin Added: ' + str(target_path) + ' from robots.txt')
                 added += 1
                     
         if added > 0:

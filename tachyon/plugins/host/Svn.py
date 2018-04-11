@@ -24,6 +24,7 @@ from xml.etree import ElementTree
 
 base_headers = dict()
 
+
 def save_file(path, content):
     output = "output/" + conf.target_host + path
 
@@ -44,6 +45,7 @@ def save_file(path, content):
 #    #    if
 #    pass
 
+
 def parse_svn_entries(url):
     description_file = 'SVN entries file at'
     description_dir = "SVN entries Dir at"
@@ -61,8 +63,6 @@ def parse_svn_entries(url):
                 if token == 'dir':
                     # Fetch more entries recursively
                     if tokens[pos-1] != '':
-                        textutils.output_debug(' - Svn Plugin: Found dir: ' + url + '/' + tokens[pos-1])
-
                         if conf.allow_download:
                             textutils.output_info(' - Svn Plugin: Downloading: ' + url + '/' + tokens[pos-1] + '\r')
                         else:
@@ -72,7 +72,6 @@ def parse_svn_entries(url):
                         parse_svn_entries(url + "/" + tokens[pos-1])
 
                 elif token == 'file':
-                    textutils.output_debug(' - Svn Plugin: Found file: ' + url + '/' + tokens[pos-1])
                     if conf.allow_download:
                         textutils.output_info(' - Svn Plugin: Downloading: ' + url + '/' + tokens[pos-1] + '\r')
                         # Fetch text-base file
@@ -127,4 +126,3 @@ def execute():
             textutils.output_info('')
     else:
         textutils.output_info(' - Svn Plugin: no /.svn/entries found')
-

@@ -148,13 +148,13 @@ class TestDirectoryFetcher(TestCase):
         self.async_setup(loop)
         self.hammertime.heuristics.add(SetResponseCode(404))
         path_list = create_json_data(["/path"])
+        self.directory_fetcher.detect_tomcat_fake_404 = MagicMock(return_value=True)
 
-        with patch("tachyon.core.workers.detect_tomcat_fake_404", MagicMock(return_value=True)):
-            await self.directory_fetcher.fetch_paths(path_list)
+        await self.directory_fetcher.fetch_paths(path_list)
 
-            message, data = self.expected_output(path_list[0], message_prefix="Tomcat redirect, ", code=404)
-            data["special"] = "tomcat-redirect"
-            textutils.output_found.assert_called_once_with(message, data)
+        message, data = self.expected_output(path_list[0], message_prefix="Tomcat redirect, ", code=404)
+        data["special"] = "tomcat-redirect"
+        textutils.output_found.assert_called_once_with(message, data)
 
     @async()
     async def test_fetch_paths_append_slash_to_path(self, loop):
