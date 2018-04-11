@@ -28,7 +28,6 @@ def add_generated_path(path):
     current_template['url'] = '/' + path
     current_template['handle_redirect'] = "ignoreRedirect" not in plugin_settings
     database.paths.append(current_template)
-    textutils.output_debug(' - PathGenerator Plugin Generated path: ' + str(current_template))
 
 def add_generated_file(file):
     """ Add file to database """
@@ -37,7 +36,6 @@ def add_generated_file(file):
     current_template['url'] = file
     current_template['handle_redirect'] = "ignoreRedirect" not in plugin_settings
     database.files.append(current_template)
-    textutils.output_debug(' - PathGenerator Plugin Generated file: ' + str(current_template))
 
 def execute():
     """ Generate common simple paths (a-z, 0-9) """

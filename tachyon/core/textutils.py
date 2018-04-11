@@ -40,10 +40,6 @@ def output_found(text, data=None):
     output_manager.output_result(text, data)
 
 
-def output_debug(text):
-    pass
-
-
 def flush():
     output_manager.flush()
 
