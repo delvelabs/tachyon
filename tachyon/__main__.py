@@ -27,7 +27,6 @@ import tachyon.core.database as database
 import tachyon.core.loaders as loaders
 import tachyon.core.textutils as textutils
 import tachyon.core.netutils as netutils
-from tachyon.core.workers import PrintWorker, PrintResultsWorker, JSONPrintResultWorker
 from tachyon.plugins import host, file
 from tachyon.core.generator import PathGenerator, FileGenerator
 from tachyon.core.directoryfetcher import DirectoryFetcher
@@ -158,14 +157,10 @@ def finish_output(print_worker):
 def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_settings, proxy, user_agent, vhost,
          depth_limit, directories_only, files_only, plugins_only, recursive):
 
-    # Spawn synchronized print output worker
     if json_output:
-        conf.eval_output = True
+        conf.json_output = True
     else:
         click.echo(print_program_header())
-    print_worker = PrintWorker()
-    print_worker.daemon = True
-    print_worker.start()
 
     # Ensure the host is of the right format and set it in config
     parsed_host, parsed_port, parsed_path, is_ssl = netutils.parse_hostname(target_host)
@@ -184,20 +179,14 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
     not is_ssl and conf.target_port == 80) else ":%s" % conf.target_port
     conf.base_url = "%s://%s%s" % (conf.scheme, parsed_host, port)
 
+    textutils.init_log()
     textutils.output_info('Starting Discovery on ' + conf.base_url)
-
-    # Handle keyboard exit before multi-thread operations
-    print_results_worker = None
 
     for option in plugin_settings:
         plugin, value = option.split(':', 1)
         conf.plugin_settings[plugin].append(value)
 
     try:
-        print_results_worker = JSONPrintResultWorker() if json_output else PrintResultsWorker()
-        print_results_worker.daemon = True
-        print_results_worker.start()
-
         root_path = conf.path_template.copy()
         root_path['url'] = '/'
         database.valid_paths.append(root_path)
@@ -217,13 +206,11 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
         textutils.output_info('Scan completed in: %.3fs\n' % hammertime.stats.duration)
 
     except (KeyboardInterrupt, asyncio.CancelledError):
-        textutils.output_raw_message('')
         textutils.output_error('Keyboard Interrupt Received')
     except OfflineHostException:
         textutils.output_error("Target host seems to be offline.")
     finally:
-        if print_results_worker is not None:
-            finish_output(print_results_worker)
+        textutils.flush()
 
 
 if __name__ == "__main__":

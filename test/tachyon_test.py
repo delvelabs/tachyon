@@ -35,6 +35,15 @@ class TestTachyon(TestCase):
         database.messages_output_queue = MagicMock()
         tachyon.load_execute_host_plugins = MagicMock()
 
+    @classmethod
+    def setUpClass(cls):
+        cls.patcher = patch("tachyon.core.textutils.output_manager")
+        cls.patcher.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.patcher.stop()
+
     @async()
     async def test_paths_exists_fetch_generated_paths(self, loop):
         path_generator = MagicMock()

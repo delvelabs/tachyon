@@ -52,6 +52,15 @@ class TestFileFetcher(TestCase):
         if add_after_defaults is not None:
             self.hammertime.heuristics.add_multiple(add_after_defaults)
 
+    @classmethod
+    def setUpClass(cls):
+        cls.patcher = patch("tachyon.core.textutils.output_manager")
+        cls.patcher.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.patcher.stop()
+
     @async()
     async def test_fetch_files_makes_hammertime_requests_for_files(self, output_found, loop):
         hammertime = MagicMock(loop=loop)

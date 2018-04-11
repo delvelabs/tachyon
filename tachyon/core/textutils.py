@@ -1,5 +1,6 @@
 # Tachyon - Fast Multi-Threaded Web Discovery Tool
 # Copyright (c) 2011 Gabriel Tremblay - initnull hat gmail.com
+# Copyright (C) 2018-  Delve Labs inc.
 #
 # GNU General Public Licence (GPL)
 #
@@ -14,77 +15,42 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
-#
-
-from . import database, conf
-from datetime import datetime
 
 
-def output_result_eval(info_dict):
-    """ Output Eval-able result text to the synchronized result output queue """
-    time_dict = {'time' : str(datetime.now().strftime("%H:%M:%S"))}
-    result_dict = dict(time_dict, **info_dict)
-    database.results_output_queue.put(result_dict)
+from . import conf
+from .output import PrettyOutput, JSONOutput
 
-def output_message_eval(info_dict):
-    """ Output Eval-able result text to the synchronized message output queue """
-    time_dict = {'time' : str(datetime.now().strftime("%H:%M:%S"))}
-    result_dict = dict(time_dict, **info_dict)
-    database.results_output_queue.put(result_dict)
 
-def output_result(text):
-    """ Output result text to the synchronized result output queue """
-    output_text = '[' + str(datetime.now().strftime("%H:%M:%S")) + '] ' + text
-    database.results_output_queue.put(output_text)
-
-def output_message(text):
-    """ Output text to the synchronized output queue """
-    out_text = '[' + str(datetime.now().strftime("%H:%M:%S")) + '] ' + text
-    database.messages_output_queue.put(out_text)
-
-def output_raw_message(text):
-    """ Output a raw message to output buffer """
-    database.messages_output_queue.put(text)
-
+output_manager = None
 
 
 def output_error(text):
-    """ Output text to the synchronized output queue """
-    if conf.eval_output:
-        info_dict = {'type':'error', 'text' : text}
-        output_result_eval(info_dict)
-    else:
-        output_result('[ERROR] ' + text)
+    output_manager.output_error(text)
 
 
 def output_info(text):
-    """ Output text to the synchronized output queue """
-    if conf.eval_output:
-        info_dict = {'type':'info', 'text' : text}
-        output_message_eval(info_dict)
-    else:
-        output_message('[INFO] ' + text)
+    output_manager.output_info(text)
 
 
 def output_timeout(text):
-    """ Output text to the synchronized output queue """
-    if conf.eval_output:
-        info_dict = {'type':'timeout', 'text' : text}
-        output_result_eval(info_dict)
-    else:
-        output_result('[TIMEOUT] ' + text)
+    output_manager.output_timeout(text)
 
 
 def output_found(text, data=None):
-    """ Output text to the synchronized output queue """
-    if conf.eval_output:
-        info_dict = {'type':'found', 'text' : text}
-        info_dict.update(data or {})
-        output_result_eval(info_dict)
-    else:
-        output_result('[FOUND] ' + text)
+    output_manager.output_result(text, data)
 
 
 def output_debug(text):
-    """ Output text to the synchronized output queue """
     pass
+
+
+def flush():
+    output_manager.flush()
+
+
+def init_log():
+    global output_manager
+    if conf.json_output:
+        output_manager = JSONOutput()
+    else:
+        output_manager = PrettyOutput()
