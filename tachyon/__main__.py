@@ -108,8 +108,8 @@ async def test_file_exists(hammertime):
 
 def print_program_header():
     """ Print a _cute_ program header """
-    return "\n\t Tachyon v" + __version__ + " - Fast Multi-Threaded Web Discovery Tool\n" \
-                                            "\t https://github.com/delvelabs/tachyon\n"
+    header = "\n\t Tachyon v%s - Fast Multi-Threaded Web Discovery Tool\n\t https://github.com/delvelabs/tachyon\n"
+    click.echo(header % __version__)
 
 
 async def scan(hammertime, *, cookies=None, directories_only=False, files_only=False, plugins_only=False, **kwargs):
@@ -160,7 +160,7 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
     if json_output:
         conf.json_output = True
     else:
-        click.echo(print_program_header())
+        print_program_header()
 
     # Ensure the host is of the right format and set it in config
     parsed_host, parsed_port, parsed_path, is_ssl = netutils.parse_hostname(target_host)
@@ -203,7 +203,7 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
                                                 files_only=files_only, plugins_only=plugins_only,
                                                 depth_limit=depth_limit, recursive=recursive))
         # Print all remaining messages
-        textutils.output_info('Scan completed in: %.3fs\n' % hammertime.stats.duration)
+        textutils.output_info('Scan completed in: %.3fs' % hammertime.stats.duration)
 
     except (KeyboardInterrupt, asyncio.CancelledError):
         textutils.output_error('Keyboard Interrupt Received')

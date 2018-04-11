@@ -18,6 +18,7 @@
 
 
 from freezegun import freeze_time
+import json
 from unittest import TestCase
 from unittest.mock import MagicMock, patch, call
 
@@ -74,9 +75,10 @@ class TestJSONOutput(TestCase):
 
         output.flush()
 
-        expected = '{"from": "delvelabs/tachyon", "result": [{"text": "information...", "time": "12:00:00", ' \
-                   '"type": "info"}], "version": "%s"}' % __version__
-        output.output_raw_message.assert_called_once_with(expected)
+        expected = {"from": "delvelabs/tachyon", "version": __version__, "result": [
+            {"text": "information...", "time": "12:00:00", "type": "info"}]}
+        actual = output.output_raw_message.call_args[0][0]
+        self.assertEqual(json.loads(actual), expected)
 
 
 @freeze_time("2018-04-11 12:00:00")

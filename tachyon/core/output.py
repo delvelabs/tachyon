@@ -67,8 +67,7 @@ class JSONOutput(OutputManager):
         self.buffer = []
 
     def flush(self):
-        self.output_raw_message(json.dumps({"result": self.buffer, "version": __version__, "from": conf.name},
-                                           sort_keys=True))
+        self.output_raw_message(json.dumps({"result": self.buffer, "version": __version__, "from": conf.name}))
 
     def _add_output(self, text, level, data=None):
         formatted = self._format_output(self._get_current_time(), logging.getLevelName(level), text, data)
