@@ -1,5 +1,6 @@
 # Tachyon - Fast Multi-Threaded Web Discovery Tool
 # Copyright (c) 2011 Gabriel Tremblay - initnull hat gmail.com
+# Copyright (C) 2018-  Delve Labs inc.
 #
 # GNU General Public Licence (GPL)
 #
@@ -16,15 +17,12 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from hammertime.ruleset import StopRequest, RejectRequest
 import re
+from urllib.parse import urljoin
+from urllib.parse import urlparse
+
 from ...core import conf, textutils, database
-from ...core.fetcher import Fetcher
-try:
-    from urlparse import urljoin
-    from urlparse import urlparse
-except ImportError:
-    from urllib.parse import urljoin
-    from urllib.parse import urlparse
 
 
 def add_path(path):
@@ -47,28 +45,20 @@ def add_file(filename):
         return True
 
 
-def execute():
+async def execute(hammertime):
     """ Fetch sitemap.xml and add each entry as a target """
 
     current_template = dict(conf.path_template)
     current_template['description'] = 'sitemap.xml entry'
 
-    target_url = urljoin(conf.target_base_path, "/sitemap.xml")
-    fetcher = Fetcher()
-    response_code, content, headers = fetcher.fetch_url(target_url,
-                                                        conf.user_agent,
-                                                        conf.fetch_timeout_secs,
-                                                        limit_len=False,
-                                                        add_headers={}
-                                                        )
+    target_path = urljoin(conf.target_base_path, "/sitemap.xml")
+    target_url = urljoin(conf.base_url, target_path)
 
-    if not isinstance(content, str):
-        content = content.decode('utf-8', 'ignore')
-
-    if response_code is 200 or response_code is 302 and content:
+    try:
+        entry = await hammertime.request(target_url)
 
         regexp = re.compile('(?im).*<url>\s*<loc>(.*)</loc>\s*</url>.*')
-        matches = re.findall(regexp, content)
+        matches = re.findall(regexp, entry.response.content)
 
         added = 0
         for match in matches:
@@ -90,11 +80,10 @@ def execute():
         if added > 0:
             textutils.output_info(' - SitemapXML Plugin: added %d base paths '
                                   'using /sitemap.xml' % added)
-        else :
+        else:
             textutils.output_info(' - SitemapXML Plugin: no usable entries '
                                   'in /sitemap.xml')
-               
-    else:
+    except (StopRequest, RejectRequest):
         textutils.output_info(' - SitemapXML Plugin: /sitemap.xml not found on '
                               'target site')
 

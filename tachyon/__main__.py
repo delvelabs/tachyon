@@ -77,13 +77,13 @@ async def test_paths_exists(hammertime, *, recursive=False, depth_limit=2):
     textutils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
 
 
-def load_execute_host_plugins():
+async def load_execute_host_plugins(hammertime):
     """ Import and run host plugins """
     textutils.output_info('Executing ' + str(len(host.__all__)) + ' host plugins')
     for plugin_name in host.__all__:
         plugin = __import__("tachyon.plugins.host." + plugin_name, fromlist=[plugin_name])
         if hasattr(plugin, 'execute'):
-            plugin.execute()
+            await plugin.execute(hammertime)
 
 
 def load_execute_file_plugins():
@@ -118,7 +118,7 @@ async def scan(hammertime, *, cookies=None, directories_only=False, files_only=F
     else:
         await get_session_cookies(hammertime)
 
-    load_execute_host_plugins()
+    await load_execute_host_plugins(hammertime)
     if not plugins_only:
         if not files_only:
             await test_paths_exists(hammertime, **kwargs)
