@@ -125,19 +125,7 @@ async def scan(hammertime, *, cookies=None, directories_only=False, files_only=F
         if not directories_only:
             textutils.output_info('Generating file targets')
             load_execute_file_plugins()
-            database.messages_output_queue.join()
             await test_file_exists(hammertime)
-
-
-def finish_output(print_worker):
-    # flush all the output queues.
-    try:
-        database.results_output_queue.join()
-        database.messages_output_queue.join()
-        if print_worker and 'finalize' in dir(print_worker):
-            print_worker.finalize()
-    except KeyboardInterrupt:
-        pass
 
 
 @click.command()
@@ -202,7 +190,7 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
         hammertime.loop.run_until_complete(scan(hammertime, cookies=conf.cookies, directories_only=directories_only,
                                                 files_only=files_only, plugins_only=plugins_only,
                                                 depth_limit=depth_limit, recursive=recursive))
-        # Print all remaining messages
+
         textutils.output_info('Scan completed in: %.3fs' % hammertime.stats.duration)
 
     except (KeyboardInterrupt, asyncio.CancelledError):

@@ -1,5 +1,6 @@
 # Tachyon - Fast Multi-Threaded Web Discovery Tool
 # Copyright (c) 2011 Gabriel Tremblay - initnull hat gmail.com
+# Copyright (C) 2018-  Delve Labs inc.
 #
 # GNU General Public Licence (GPL)
 #
@@ -16,13 +17,15 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from . import database, textutils
+from . import database
+
 
 def _get_cached_url_string(url_obj):
     if len(url_obj['url']) == 1 and url_obj['url'] == '/':
         return url_obj['url']
 
     return url_obj['url'].strip('/')
+
 
 def add_path_to_fetch_queue(url_obj):
     """
@@ -31,11 +34,11 @@ def add_path_to_fetch_queue(url_obj):
     """
     url_string = _get_cached_url_string(url_obj)
     if not url_string in database.path_cache:
-        database.fetch_queue.put(url_obj)
         database.path_cache.add(url_string)
         return True
     else:
         return False
+
 
 def add_file_to_fetch_queue(url_obj):
     """
@@ -44,7 +47,6 @@ def add_file_to_fetch_queue(url_obj):
     """
     url_string = _get_cached_url_string(url_obj)
     if not url_string in database.file_cache:
-        database.fetch_queue.put(url_obj)
         database.file_cache.add(url_string)
         return True
     else:
