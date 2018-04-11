@@ -22,7 +22,7 @@ import asyncio
 from hammertime.ruleset import RejectRequest, StopRequest
 from hammertime.rules.deadhostdetection import OfflineHostException
 
-from . import database, stats, textutils, workers
+from . import database, stats, textutils
 
 
 class DirectoryFetcher:
@@ -62,7 +62,7 @@ class DirectoryFetcher:
             self._format_output(entry, "Password Protected - ")
         elif entry.response.code == 403:
             self._format_output(entry, "*Forbidden* ")
-        elif entry.response.code == 404 and workers.detect_tomcat_fake_404(entry.response.raw):
+        elif entry.response.code == 404 and self.detect_tomcat_fake_404(entry.response.raw):
             self._format_output(entry, "Tomcat redirect, ", special="tomcat-redirect")
         elif entry.response.code == 500:
             self._format_output(entry, "ISE, ")
@@ -76,3 +76,9 @@ class DirectoryFetcher:
         data = {"description": desc, "url": url, "code": entry.response.code, "severity": path.get('severity', "warning")}
         data.update(**kwargs)
         textutils.output_found("{0}{1} at: {2}".format(desc_prefix, desc, url), data)
+
+    def detect_tomcat_fake_404(self, content):
+        """ An apache setup will issue a 404 on an existing path if theres a tomcat trying to handle jsp on the same host """
+        if content.find(b'Apache Tomcat/') != -1:
+            return True
+        return False
