@@ -1,5 +1,6 @@
 # Tachyon - Fast Multi-Threaded Web Discovery Tool
 # Copyright (c) 2011 Gabriel Tremblay - initnull hat gmail.com
+# Copyright (C) 2018-  Delve Labs inc.
 #
 # GNU General Public Licence (GPL)
 #
@@ -16,32 +17,23 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from hammertime.ruleset import StopRequest, RejectRequest
 import re
+from urllib.parse import urljoin
+
 from ...core import conf, textutils, database
-from ...core.fetcher import Fetcher
-
-try:
-    from urlparse import urljoin
-except ImportError:
-    from urllib.parse import urljoin
 
 
-def execute():
+async def execute(hammertime):
     """ Fetch /robots.txt and add the disallowed paths as target """
     current_template = dict(conf.path_template)
     current_template['description'] = 'Robots.txt entry'
-    
-    target_url = urljoin(conf.target_base_path, "/robots.txt")
 
-    fetcher = Fetcher()
-    response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
-    if isinstance(content, str):
-        content = content.encode('utf-8')
+    target_url = urljoin(conf.base_url, "/robots.txt")
 
-    if response_code is 200 or response_code is 302 and content:
-        if not isinstance(content, str):
-            content = content.decode('utf-8', 'ignore')
-        matches = re.findall(r'Disallow:\s*/[a-zA-Z0-9-/\r]+\n', content)
+    try:
+        entry = await hammertime.request(target_url)
+        matches = re.findall(r'Disallow:\s*/[a-zA-Z0-9-/\r]+\n', entry.response.content)
 
         added = 0
         for match in matches:
@@ -67,9 +59,8 @@ def execute():
                     
         if added > 0:
             textutils.output_info(' - Robots Plugin: added ' + str(added) + ' base paths using /robots.txt')
-        else :
+        else:
             textutils.output_info(' - Robots Plugin: no usable entries in /robots.txt')
-               
-    else:
+    except (StopRequest, RejectRequest):
         textutils.output_info(' - Robots Plugin: /robots.txt not found on target site')
 

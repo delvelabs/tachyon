@@ -17,16 +17,10 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-try:
-    import queue as Queue
-except ImportError:
-    import Queue
 
 from . import conf
 from datetime import datetime
 
-""" Connection pool, to be adjusted by tachyon after initial host benchmark """
-connection_pool = None
 
 """ Path list is used to hold loaded path from disk """
 paths = list()

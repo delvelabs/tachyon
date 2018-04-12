@@ -1,5 +1,6 @@
 # Tachyon - Fast Multi-Threaded Web Discovery Tool
 # Copyright (c) 2011 Gabriel Tremblay - initnull hat gmail.com
+# Copyright (C) 2018-  Delve Labs inc.
 #
 # GNU General Public Licence (GPL)
 #
@@ -17,7 +18,8 @@
 #
 from ...core import conf, textutils, database
 
-def execute():
+
+async def execute(hammertime):
     """ This plugin process the hostname to generate host and filenames relatives to it """
     target = conf.target_host
 

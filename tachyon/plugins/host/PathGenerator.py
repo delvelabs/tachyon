@@ -1,5 +1,6 @@
 # Tachyon - Fast Multi-Threaded Web Discovery Tool
 # Copyright (c) 2011 Gabriel Tremblay - initnull hat gmail.com
+# Copyright (C) 2018-  Delve Labs inc.
 #
 # GNU General Public Licence (GPL)
 #
@@ -16,10 +17,11 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from ...core import conf, database, textutils, dbutils
+from ...core import conf, database, textutils
 from datetime import date
 
 plugin_settings = conf.plugin_settings["PathGenerator"]
+
 
 def add_generated_path(path):
     current_template = conf.path_template.copy()
@@ -29,6 +31,7 @@ def add_generated_path(path):
     current_template['handle_redirect'] = "ignoreRedirect" not in plugin_settings
     database.paths.append(current_template)
 
+
 def add_generated_file(file):
     """ Add file to database """
     current_template = conf.path_template.copy()
@@ -37,7 +40,8 @@ def add_generated_file(file):
     current_template['handle_redirect'] = "ignoreRedirect" not in plugin_settings
     database.files.append(current_template)
 
-def execute():
+
+async def execute(hammertime):
     """ Generate common simple paths (a-z, 0-9) """
     path_added = 0
     file_added = 0

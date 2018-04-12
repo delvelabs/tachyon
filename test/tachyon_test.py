@@ -32,7 +32,7 @@ class TestTachyon(TestCase):
 
     def setUp(self):
         tachyon.load_execute_file_plugins = MagicMock()
-        tachyon.load_execute_host_plugins = MagicMock()
+        tachyon.load_execute_host_plugins = make_mocked_coro()
 
     @classmethod
     def setUpClass(cls):
@@ -176,6 +176,6 @@ class TestTachyon(TestCase):
 
         await tachyon.scan(hammertime, plugins_only=True)
 
-        tachyon.load_execute_host_plugins.assert_called_once_with()
+        tachyon.load_execute_host_plugins.assert_called_once_with(hammertime)
         tachyon.test_file_exists.assert_not_called()
         tachyon.test_paths_exists.assert_not_called()

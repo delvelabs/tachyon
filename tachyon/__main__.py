@@ -21,12 +21,12 @@ import asyncio
 import click
 from hammertime.rules import RejectStatusCode
 from hammertime.rules.deadhostdetection import OfflineHostException
+from urllib.parse import urlparse
 
 import tachyon.core.conf as conf
 import tachyon.core.database as database
 import tachyon.core.loaders as loaders
 import tachyon.core.textutils as textutils
-import tachyon.core.netutils as netutils
 from tachyon.plugins import host, file
 from tachyon.core.generator import PathGenerator, FileGenerator
 from tachyon.core.directoryfetcher import DirectoryFetcher
@@ -77,13 +77,13 @@ async def test_paths_exists(hammertime, *, recursive=False, depth_limit=2):
     textutils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
 
 
-def load_execute_host_plugins():
+async def load_execute_host_plugins(hammertime):
     """ Import and run host plugins """
     textutils.output_info('Executing ' + str(len(host.__all__)) + ' host plugins')
     for plugin_name in host.__all__:
         plugin = __import__("tachyon.plugins.host." + plugin_name, fromlist=[plugin_name])
         if hasattr(plugin, 'execute'):
-            plugin.execute()
+            await plugin.execute(hammertime)
 
 
 def load_execute_file_plugins():
@@ -118,7 +118,7 @@ async def scan(hammertime, *, cookies=None, directories_only=False, files_only=F
     else:
         await get_session_cookies(hammertime)
 
-    load_execute_host_plugins()
+    await load_execute_host_plugins(hammertime)
     if not plugins_only:
         if not files_only:
             await test_paths_exists(hammertime, **kwargs)
@@ -129,6 +129,7 @@ async def scan(hammertime, *, cookies=None, directories_only=False, files_only=F
 
 
 @click.command()
+@click.option("-a", "--allow-download", is_flag=True)
 @click.option("-c", "--cookie-file", default="")
 @click.option("-l", "--depth-limit", default=2)
 @click.option("-s", "--directories-only", is_flag=True)
@@ -143,7 +144,7 @@ async def scan(hammertime, *, cookies=None, directories_only=False, files_only=F
 @click.option("-v", "--vhost", type=str, default=None)
 @click.argument("target_host")
 def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_settings, proxy, user_agent, vhost,
-         depth_limit, directories_only, files_only, plugins_only, recursive):
+         depth_limit, directories_only, files_only, plugins_only, recursive, allow_download):
 
     if json_output:
         conf.json_output = True
@@ -151,25 +152,15 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
         print_program_header()
 
     # Ensure the host is of the right format and set it in config
-    parsed_host, parsed_port, parsed_path, is_ssl = netutils.parse_hostname(target_host)
+    parsed_url = urlparse(target_host)
     # Set conf values
-    conf.target_host = parsed_host
-    conf.target_base_path = parsed_path
-    conf.is_ssl = is_ssl
-
-    if is_ssl and parsed_port == 80:
-        conf.target_port = 443
-    else:
-        conf.target_port = parsed_port
-
-    conf.scheme = 'https' if is_ssl else 'http'
-    port = "" if (is_ssl and conf.target_port == 443) or (
-    not is_ssl and conf.target_port == 80) else ":%s" % conf.target_port
-    conf.base_url = "%s://%s%s" % (conf.scheme, parsed_host, port)
+    conf.target_host = parsed_url.netloc
+    conf.base_url = "%s://%s" % (parsed_url.scheme, parsed_url.netloc)
 
     textutils.init_log()
     textutils.output_info('Starting Discovery on ' + conf.base_url)
 
+    conf.allow_download = allow_download
     for option in plugin_settings:
         plugin, value = option.split(':', 1)
         conf.plugin_settings[plugin].append(value)
