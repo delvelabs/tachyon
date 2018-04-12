@@ -129,6 +129,7 @@ async def scan(hammertime, *, cookies=None, directories_only=False, files_only=F
 
 
 @click.command()
+@click.option("-a", "--allow-download", is_flag=True)
 @click.option("-c", "--cookie-file", default="")
 @click.option("-l", "--depth-limit", default=2)
 @click.option("-s", "--directories-only", is_flag=True)
@@ -143,7 +144,7 @@ async def scan(hammertime, *, cookies=None, directories_only=False, files_only=F
 @click.option("-v", "--vhost", type=str, default=None)
 @click.argument("target_host")
 def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_settings, proxy, user_agent, vhost,
-         depth_limit, directories_only, files_only, plugins_only, recursive):
+         depth_limit, directories_only, files_only, plugins_only, recursive, allow_download):
 
     if json_output:
         conf.json_output = True
@@ -159,6 +160,7 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
     textutils.init_log()
     textutils.output_info('Starting Discovery on ' + conf.base_url)
 
+    conf.allow_download = allow_download
     for option in plugin_settings:
         plugin, value = option.split(':', 1)
         conf.plugin_settings[plugin].append(value)
