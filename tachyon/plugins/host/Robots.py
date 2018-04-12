@@ -28,9 +28,8 @@ async def execute(hammertime):
     """ Fetch /robots.txt and add the disallowed paths as target """
     current_template = dict(conf.path_template)
     current_template['description'] = 'Robots.txt entry'
-    
-    target_path = urljoin(conf.target_base_path, "/robots.txt")
-    target_url = urljoin(conf.base_url, target_path)
+
+    target_url = urljoin(conf.base_url, "/robots.txt")
 
     try:
         entry = await hammertime.request(target_url)

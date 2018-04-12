@@ -86,8 +86,7 @@ async def execute(hammertime):
     """ Fetch /.svn/entries and parse for target paths """
 
     textutils.output_info(' - Svn Plugin: Searching for /.svn/entries')
-    target_path = conf.target_base_path + "/.svn/entries"
-    target_url = urljoin(conf.base_url, target_path)
+    target_url = urljoin(conf.base_url, "/.svn/entries")
     svn_legacy = True
 
     try:
@@ -98,8 +97,7 @@ async def execute(hammertime):
             textutils.output_info(' - Svn Plugin: /.svn/entries found! crawling... (use -a to download files instead of printing)')
        
         # test for version 1.7+
-        target_path = conf.target_base_path + "/.svn/wc.db"
-        target_url = urljoin(conf.base_url, target_path)
+        target_url = urljoin(conf.base_url, "/.svn/wc.db")
         entry = await hammertime.request(target_url)
 
         #if response_code in conf.expected_file_responses and content:
@@ -110,7 +108,7 @@ async def execute(hammertime):
         # Process index
         if svn_legacy:
             # parse entries
-            parse_svn_entries(urljoin(conf.base_url, conf.target_base_path), hammertime)
+            parse_svn_entries(conf.base_url, hammertime)
         #else:
           #  parse_svn_17_db(conf.target_base_path + '/wc.db')
 

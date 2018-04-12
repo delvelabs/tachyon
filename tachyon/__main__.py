@@ -21,12 +21,12 @@ import asyncio
 import click
 from hammertime.rules import RejectStatusCode
 from hammertime.rules.deadhostdetection import OfflineHostException
+from urllib.parse import urlparse
 
 import tachyon.core.conf as conf
 import tachyon.core.database as database
 import tachyon.core.loaders as loaders
 import tachyon.core.textutils as textutils
-import tachyon.core.netutils as netutils
 from tachyon.plugins import host, file
 from tachyon.core.generator import PathGenerator, FileGenerator
 from tachyon.core.directoryfetcher import DirectoryFetcher
@@ -151,21 +151,10 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
         print_program_header()
 
     # Ensure the host is of the right format and set it in config
-    parsed_host, parsed_port, parsed_path, is_ssl = netutils.parse_hostname(target_host)
+    parsed_url = urlparse(target_host)
     # Set conf values
-    conf.target_host = parsed_host
-    conf.target_base_path = parsed_path
-    conf.is_ssl = is_ssl
-
-    if is_ssl and parsed_port == 80:
-        conf.target_port = 443
-    else:
-        conf.target_port = parsed_port
-
-    conf.scheme = 'https' if is_ssl else 'http'
-    port = "" if (is_ssl and conf.target_port == 443) or (
-    not is_ssl and conf.target_port == 80) else ":%s" % conf.target_port
-    conf.base_url = "%s://%s%s" % (conf.scheme, parsed_host, port)
+    conf.target_host = parsed_url.netloc
+    conf.base_url = "%s://%s" % (parsed_url.scheme, parsed_url.netloc)
 
     textutils.init_log()
     textutils.output_info('Starting Discovery on ' + conf.base_url)

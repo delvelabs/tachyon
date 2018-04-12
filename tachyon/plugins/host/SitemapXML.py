@@ -51,8 +51,7 @@ async def execute(hammertime):
     current_template = dict(conf.path_template)
     current_template['description'] = 'sitemap.xml entry'
 
-    target_path = urljoin(conf.target_base_path, "/sitemap.xml")
-    target_url = urljoin(conf.base_url, target_path)
+    target_url = urljoin(conf.base_url, "/sitemap.xml")
 
     try:
         entry = await hammertime.request(target_url)
