@@ -20,7 +20,7 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, call, patch
 from hammertime.core import HammerTime
-from hammertime.ruleset import RejectRequest, StopRequest
+from hammertime.ruleset import RejectRequest
 
 from tachyon.core import database
 from tachyon.core.database import valid_paths
@@ -33,7 +33,6 @@ class TestDirectoryFetcher(TestCase):
 
     def setUp(self):
         valid_paths.clear()
-        database.successful_fetch_count = 0
         self.host = "http://example.com"
         self.fake_output = patch("tachyon.core.textutils.output_found")
         self.fake_output.start()
@@ -61,18 +60,6 @@ class TestDirectoryFetcher(TestCase):
         for path in valid_paths:
             self.assertIn(path["url"], valid)
             self.assertNotIn(path["url"], invalid)
-
-    @async()
-    async def test_fetch_paths_update_successful_fetch_count(self, loop):
-        successful = ["/a", "/b", "/c"]
-        timeout = ["/1", "/2", "/3"]
-        paths = timeout + successful
-        self.async_setup(loop)
-        self.hammertime.heuristics.add(RaiseForPaths(timeout, StopRequest()))
-
-        await self.directory_fetcher.fetch_paths(create_json_data(paths))
-
-        self.assertEqual(len(successful), database.successful_fetch_count)
 
     @async()
     async def test_fetch_paths_dont_add_path_if_response_code_is_401(self, loop):

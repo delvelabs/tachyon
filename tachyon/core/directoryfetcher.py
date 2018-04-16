@@ -22,7 +22,7 @@ import asyncio
 from hammertime.ruleset import RejectRequest, StopRequest
 from hammertime.rules.deadhostdetection import OfflineHostException
 
-from . import database, stats, textutils
+from . import database, textutils
 
 
 class DirectoryFetcher:
@@ -54,8 +54,6 @@ class DirectoryFetcher:
                 pass
             except StopRequest:
                 continue
-            # TODO replace with hammertime.stats when migration is complete.
-            stats.update_processed_items()
 
     def output_found(self, entry):
         if entry.response.code == 401:

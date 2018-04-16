@@ -112,6 +112,11 @@ def print_program_header():
     click.echo(header % __version__)
 
 
+def format_stats(stats):
+    message = "Statistics: Requested: {}; Completed: {}; Duration: {:.0f} s; Retries: {}; Request rate: {:.2f}"
+    return message.format(stats.requested, stats.completed, stats.duration, stats.retries, stats.rate)
+
+
 async def scan(hammertime, *, cookies=None, directories_only=False, files_only=False, plugins_only=False, **kwargs):
     if cookies is not None:
         set_cookies(hammertime, cookies)
@@ -182,7 +187,8 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
                                                 files_only=files_only, plugins_only=plugins_only,
                                                 depth_limit=depth_limit, recursive=recursive))
 
-        textutils.output_info('Scan completed in: %.3fs' % hammertime.stats.duration)
+        textutils.output_info('Scan completed')
+        textutils.output_info(format_stats(hammertime.stats))
 
     except (KeyboardInterrupt, asyncio.CancelledError):
         textutils.output_error('Keyboard Interrupt Received')
