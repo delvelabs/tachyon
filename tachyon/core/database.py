@@ -18,10 +18,6 @@
 #
 
 
-from . import conf
-from datetime import datetime
-
-
 """ Path list is used to hold loaded path from disk """
 paths = list()
 
@@ -34,7 +30,5 @@ valid_paths = list()
 """ caches are used across the app to avoid adding duplicates urls """
 path_cache = set()
 file_cache = set()
-
-scan_start_time = datetime.now()
 
 session_cookie = None

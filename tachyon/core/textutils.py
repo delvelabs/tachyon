@@ -44,9 +44,9 @@ def flush():
     output_manager.flush()
 
 
-def init_log():
+def init_log(json_output):
     global output_manager
-    if conf.json_output:
+    if json_output:
         output_manager = JSONOutput()
     else:
         output_manager = PrettyOutput()
