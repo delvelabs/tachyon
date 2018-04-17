@@ -17,11 +17,11 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from hammertime.ruleset import StopRequest, RejectRequest
 import os
+from hammertime.ruleset import StopRequest, RejectRequest
 from urllib.parse import urljoin
 
-from ...core import conf, textutils
+from tachyon import conf, textutils
 
 
 base_headers = dict()
@@ -62,22 +62,22 @@ async def parse_svn_entries(url, hammertime):
                     # Fetch more entries recursively
                     if tokens[pos-1] != '':
                         if conf.allow_download:
-                            textutils.output_info(' - Svn Plugin: Downloading: ' + url + '/' + tokens[pos-1] + '\r')
+                            textutils.output_info(' - Svn Plugin: Downloading: ' + url + '/' + tokens[pos - 1] + '\r')
                         else:
-                            textutils.output_found(description_dir + ' at: ' + url + '/' + tokens[pos-1])
+                            textutils.output_found(description_dir + ' at: ' + url + '/' + tokens[pos - 1])
 
                         # Parse next
                         parse_svn_entries(url + "/" + tokens[pos-1], hammertime)
 
                 elif token == 'file':
                     if conf.allow_download:
-                        textutils.output_info(' - Svn Plugin: Downloading: ' + url + '/' + tokens[pos-1] + '\r')
+                        textutils.output_info(' - Svn Plugin: Downloading: ' + url + '/' + tokens[pos - 1] + '\r')
                         # Fetch text-base file
                         path = url + "/.svn/text-base" + '/' + tokens[pos-1] + ".svn-base"
                         entry = await hammertime.request(path)
                         save_file(url + '/' + tokens[pos-1], entry.response.content)
                     else:
-                        textutils.output_found(description_file + ' at: ' + url + '/' + tokens[pos-1])
+                        textutils.output_found(description_file + ' at: ' + url + '/' + tokens[pos - 1])
     except (RejectRequest, StopRequest):
         pass
 

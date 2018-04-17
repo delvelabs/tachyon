@@ -19,14 +19,14 @@
 
 from unittest import TestCase
 from unittest.mock import MagicMock, patch, ANY
-from aiohttp.helpers import DummyCookieJar
+
 from aiohttp import TCPConnector
+from aiohttp.helpers import DummyCookieJar
+from fixtures import async
 from hammertime.core import HammerTime
 from hammertime.rules import RejectCatchAllRedirect, FollowRedirects, FilterRequestFromURL
 
-from tachyon.core import conf
-from tachyon.core import config
-from fixtures import fake_future, async, patch_coroutines
+from tachyon import conf, config
 
 
 class TestConfig(TestCase):
@@ -54,7 +54,7 @@ class TestConfig(TestCase):
     async def test_configure_hammertime_add_user_agent_to_request_header(self):
         user_agent = "My-user-agent"
 
-        with patch("tachyon.core.config.add_http_header") as add_http_header:
+        with patch("tachyon.config.add_http_header") as add_http_header:
             config.configure_hammertime(user_agent=user_agent)
 
         add_http_header.assert_any_call(ANY, "User-Agent", user_agent)
@@ -63,7 +63,7 @@ class TestConfig(TestCase):
     async def test_configure_hammertime_add_host_header_to_request_header(self):
         conf.target_host = "example.com"
 
-        with patch("tachyon.core.config.add_http_header") as add_http_header:
+        with patch("tachyon.config.add_http_header") as add_http_header:
             config.configure_hammertime()
 
         add_http_header.assert_any_call(ANY, "Host", conf.target_host)
@@ -73,7 +73,7 @@ class TestConfig(TestCase):
         conf.target_host = "example.com"
         forge_vhost = "vhost.example.com"
 
-        with patch("tachyon.core.config.add_http_header") as add_http_header:
+        with patch("tachyon.config.add_http_header") as add_http_header:
             config.configure_hammertime(vhost=forge_vhost)
 
         add_http_header.assert_any_call(ANY, "Host", forge_vhost)
@@ -83,7 +83,7 @@ class TestConfig(TestCase):
         conf.target_host = "example.com"
         forge_vhost = "vhost.example.com"
 
-        with patch("tachyon.core.config.FilterRequestFromURL", MagicMock(return_value=FilterRequestFromURL)) as url_filter:
+        with patch("tachyon.config.FilterRequestFromURL", MagicMock(return_value=FilterRequestFromURL)) as url_filter:
             config.configure_hammertime(vhost=forge_vhost)
 
             _, kwargs = url_filter.call_args
@@ -93,7 +93,7 @@ class TestConfig(TestCase):
     async def test_configure_hammertime_create_aiohttp_engine_for_hammertime(self, loop):
         engine = MagicMock()
         EngineFactory = MagicMock(return_value=engine)
-        with patch("tachyon.core.config.AioHttpEngine", EngineFactory):
+        with patch("tachyon.config.AioHttpEngine", EngineFactory):
             hammertime = config.configure_hammertime(proxy="my-proxy")
 
             EngineFactory.assert_called_once_with(loop=loop, verify_ssl=False, proxy="my-proxy")
@@ -102,7 +102,7 @@ class TestConfig(TestCase):
     @async()
     async def test_configure_hammertime_create_client_session_with_dummy_cookie_jar_if_user_supply_cookies(self):
         cookies = "not none"
-        with patch("tachyon.core.config.ClientSession") as SessionFactory:
+        with patch("tachyon.config.ClientSession") as SessionFactory:
             config.configure_hammertime(cookies=cookies)
 
             _, kwargs = SessionFactory.call_args
@@ -110,7 +110,7 @@ class TestConfig(TestCase):
 
     @async()
     async def test_configure_hammertime_configure_aiohttp_to_resolve_host_only_once(self, loop):
-        with patch("tachyon.core.config.TCPConnector", MagicMock(return_value=TCPConnector(loop=loop))) as \
+        with patch("tachyon.config.TCPConnector", MagicMock(return_value=TCPConnector(loop=loop))) as \
                 ConnectorFactory:
             config.configure_hammertime()
 

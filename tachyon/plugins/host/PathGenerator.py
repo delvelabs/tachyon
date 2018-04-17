@@ -17,8 +17,10 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from ...core import conf, database, textutils
 from datetime import date
+
+from tachyon import conf, textutils, database
+
 
 plugin_settings = conf.plugin_settings["PathGenerator"]
 

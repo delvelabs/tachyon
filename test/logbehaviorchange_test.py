@@ -19,17 +19,18 @@
 
 from unittest import TestCase
 from unittest.mock import patch, call
+
+from fixtures import async
 from hammertime.http import Entry
 
-from tachyon.core.heuristics import LogBehaviorChange
-from fixtures import async
+from tachyon.heuristics import LogBehaviorChange
 
 
 class TestLogBehaviorChange(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.patcher = patch("tachyon.core.textutils.output_manager")
+        cls.patcher = patch("tachyon.textutils.output_manager")
         cls.patcher.start()
 
     @classmethod
@@ -56,7 +57,7 @@ class TestLogBehaviorChange(TestCase):
         entry = Entry.create("http://example.com/")
         entry.result.error_behavior = True
 
-        with patch("tachyon.core.heuristics.logbehaviorchange.output_info") as output_info:
+        with patch("tachyon.heuristics.logbehaviorchange.output_info") as output_info:
             await log_behavior_change.after_response(entry)
 
             output_info.assert_called_once_with("Behavior change detected! Results may be incomplete or tachyon may "
@@ -69,7 +70,7 @@ class TestLogBehaviorChange(TestCase):
         entry = Entry.create("http://example.com/")
         entry.result.error_behavior = False
 
-        with patch("tachyon.core.heuristics.logbehaviorchange.output_info") as output_info:
+        with patch("tachyon.heuristics.logbehaviorchange.output_info") as output_info:
             await log_behavior_change.after_response(entry)
 
             output_info.assert_called_once_with("Normal behavior seems to be restored.")
@@ -80,7 +81,7 @@ class TestLogBehaviorChange(TestCase):
         entry = Entry.create("http://example.com/")
         entry.result.error_behavior = True
 
-        with patch("tachyon.core.heuristics.logbehaviorchange.output_info") as output_info:
+        with patch("tachyon.heuristics.logbehaviorchange.output_info") as output_info:
             await log_behavior_change.after_response(entry)
             await log_behavior_change.after_response(entry)
             entry.result.error_behavior = False

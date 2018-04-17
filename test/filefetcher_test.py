@@ -19,18 +19,19 @@
 
 from unittest import TestCase
 from unittest.mock import patch, MagicMock, call
+
+from fixtures import async, create_json_data, FakeHammerTimeEngine, SetResponseCode, fake_future, SetResponseContent, \
+    SetFlagInResult
 from hammertime import HammerTime
 from hammertime.http import Entry, StaticResponse
 from hammertime.kb import KnowledgeBase
 
-from tachyon.core.filefetcher import FileFetcher
-from fixtures import async, create_json_data, FakeHammerTimeEngine, SetResponseCode, fake_future, SetResponseContent,\
-    RaiseForPaths, SetFlagInResult
-from tachyon.core import conf
-from tachyon.core.config import setup_hammertime_heuristics
+from tachyon import conf
+from tachyon.config import setup_hammertime_heuristics
+from tachyon.filefetcher import FileFetcher
 
 
-@patch("tachyon.core.filefetcher.output_found")
+@patch("tachyon.filefetcher.output_found")
 class TestFileFetcher(TestCase):
 
     def setUp(self):
@@ -45,14 +46,14 @@ class TestFileFetcher(TestCase):
     def setup_hammertime_heuristics(self, add_before_defaults=None, add_after_defaults=None):
         if add_before_defaults is not None:
             self.hammertime.heuristics.add_multiple(add_before_defaults)
-        with patch("tachyon.core.config.DetectSoft404", new=MagicMock(return_value=SetFlagInResult("soft404", False))):
+        with patch("tachyon.config.DetectSoft404", new=MagicMock(return_value=SetFlagInResult("soft404", False))):
             setup_hammertime_heuristics(self.hammertime)
         if add_after_defaults is not None:
             self.hammertime.heuristics.add_multiple(add_after_defaults)
 
     @classmethod
     def setUpClass(cls):
-        cls.patcher = patch("tachyon.core.textutils.output_manager")
+        cls.patcher = patch("tachyon.textutils.output_manager")
         cls.patcher.start()
 
     @classmethod
@@ -154,7 +155,7 @@ class TestFileFetcher(TestCase):
         file = create_json_data(["file"])[0]
         self.setUpFetcher(loop)
         set_error_behavior = SetFlagInResult("error_behavior", True)
-        with patch("tachyon.core.config.DetectBehaviorChange", new=MagicMock(return_value=set_error_behavior)):
+        with patch("tachyon.config.DetectBehaviorChange", new=MagicMock(return_value=set_error_behavior)):
             self.setup_hammertime_heuristics(add_after_defaults=[SetFlagInResult("string_match", True)])
 
         await self.file_fetcher.fetch_files([file])
@@ -166,7 +167,7 @@ class TestFileFetcher(TestCase):
         file = create_json_data(["file"])[0]
         self.setUpFetcher(loop)
         set_error_behavior = SetFlagInResult("error_behavior", True)
-        with patch("tachyon.core.config.DetectBehaviorChange", new=MagicMock(return_value=set_error_behavior)):
+        with patch("tachyon.config.DetectBehaviorChange", new=MagicMock(return_value=set_error_behavior)):
             self.setup_hammertime_heuristics()
 
         await self.file_fetcher.fetch_files([file])

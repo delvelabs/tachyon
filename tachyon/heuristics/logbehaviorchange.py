@@ -17,7 +17,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-from ..textutils import output_info
+from tachyon.textutils import output_info
 
 
 class LogBehaviorChange:

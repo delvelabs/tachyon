@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 from pip.req import parse_requirements
 
-from tachyon.core.__version__ import __version__
+from tachyon.__version__ import __version__
 
 reqs = [str(x.req) for x in parse_requirements('./requirements.txt', session=False)]
 

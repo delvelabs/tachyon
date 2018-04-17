@@ -17,7 +17,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from . import database
+from tachyon import database
 
 
 def _get_cached_url_string(url_obj):

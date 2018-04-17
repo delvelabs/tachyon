@@ -17,8 +17,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-import tachyon.core.database as database
-import tachyon.core.conf as conf
+import tachyon.database as database
 
 
 class PathGenerator:

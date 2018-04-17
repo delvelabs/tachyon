@@ -17,12 +17,13 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from hammertime.ruleset import StopRequest, RejectRequest
 import re
 from urllib.parse import urljoin
 from urllib.parse import urlparse
 
-from ...core import conf, textutils, database
+from hammertime.ruleset import StopRequest, RejectRequest
+
+from tachyon import conf, textutils, database
 
 
 def add_path(path):

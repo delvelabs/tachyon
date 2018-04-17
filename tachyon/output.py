@@ -16,14 +16,14 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
-from . import conf
-from .__version__ import __version__
+import json
+import logging
 from datetime import datetime
 
 import click
-import logging
-import json
 
+from tachyon import conf
+from tachyon.__version__ import __version__
 
 FOUND = logging.INFO + 5
 TIMEOUT = logging.WARNING + 5
