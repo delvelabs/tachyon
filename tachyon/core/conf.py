@@ -19,12 +19,8 @@
 
 from collections import defaultdict
 
-from .__version__ import __version__
 
-
-# Internal config and consts
 name = "delvelabs/tachyon"
-version = __version__
 expected_file_responses = [200, 206]
 file_sample_len = 5120
 
@@ -34,14 +30,8 @@ path_template = {'url': '', 'timeout_count': 0, 'description': ''}
 # User config
 target_host = ''
 base_url = ''
-json_output = False
 proxy_url = ''
 forge_vhost = None
-search_files = True
-recursive = False
-fetch_timeout_secs = 2
-max_timeout_secs = 15
-max_timeout_count = 500
 user_agent = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36' # maximum compatibility
 cookies = None
 allow_download = False

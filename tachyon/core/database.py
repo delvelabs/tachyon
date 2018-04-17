@@ -18,10 +18,6 @@
 #
 
 
-from . import conf
-from datetime import datetime
-
-
 """ Path list is used to hold loaded path from disk """
 paths = list()
 
@@ -35,12 +31,4 @@ valid_paths = list()
 path_cache = set()
 file_cache = set()
 
-scan_start_time = datetime.now()
-
-"""Timeout management """
-latest_successful_request_time = conf.fetch_timeout_secs
-total_timeouts = 0
-
 session_cookie = None
-
-successful_fetch_count = 0

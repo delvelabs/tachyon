@@ -112,6 +112,11 @@ def print_program_header():
     click.echo(header % __version__)
 
 
+def format_stats(stats):
+    message = "Statistics: Requested: {}; Completed: {}; Duration: {:.0f} s; Retries: {}; Request rate: {:.2f}"
+    return message.format(stats.requested, stats.completed, stats.duration, stats.retries, stats.rate)
+
+
 async def scan(hammertime, *, cookies=None, directories_only=False, files_only=False, plugins_only=False, **kwargs):
     if cookies is not None:
         set_cookies(hammertime, cookies)
@@ -146,9 +151,7 @@ async def scan(hammertime, *, cookies=None, directories_only=False, files_only=F
 def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_settings, proxy, user_agent, vhost,
          depth_limit, directories_only, files_only, plugins_only, recursive, allow_download):
 
-    if json_output:
-        conf.json_output = True
-    else:
+    if not json_output:
         print_program_header()
 
     # Ensure the host is of the right format and set it in config
@@ -157,7 +160,7 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
     conf.target_host = parsed_url.netloc
     conf.base_url = "%s://%s" % (parsed_url.scheme, parsed_url.netloc)
 
-    textutils.init_log()
+    textutils.init_log(json_output)
     textutils.output_info('Starting Discovery on ' + conf.base_url)
 
     conf.allow_download = allow_download
@@ -182,7 +185,8 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
                                                 files_only=files_only, plugins_only=plugins_only,
                                                 depth_limit=depth_limit, recursive=recursive))
 
-        textutils.output_info('Scan completed in: %.3fs' % hammertime.stats.duration)
+        textutils.output_info('Scan completed')
+        textutils.output_info(format_stats(hammertime.stats))
 
     except (KeyboardInterrupt, asyncio.CancelledError):
         textutils.output_error('Keyboard Interrupt Received')

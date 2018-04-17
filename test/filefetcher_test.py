@@ -21,13 +21,12 @@ from unittest import TestCase
 from unittest.mock import patch, MagicMock, call
 from hammertime import HammerTime
 from hammertime.http import Entry, StaticResponse
-from hammertime.ruleset import StopRequest, RejectRequest
 from hammertime.kb import KnowledgeBase
 
 from tachyon.core.filefetcher import FileFetcher
 from fixtures import async, create_json_data, FakeHammerTimeEngine, SetResponseCode, fake_future, SetResponseContent,\
     RaiseForPaths, SetFlagInResult
-from tachyon.core import database, conf
+from tachyon.core import conf
 from tachyon.core.config import setup_hammertime_heuristics
 
 
@@ -35,7 +34,6 @@ from tachyon.core.config import setup_hammertime_heuristics
 class TestFileFetcher(TestCase):
 
     def setUp(self):
-        database.successful_fetch_count = 0
         self.host = "http://www.example.com"
         self.files = create_json_data(["config", ".htaccess", "data", "files"])
 
@@ -81,18 +79,6 @@ class TestFileFetcher(TestCase):
             calls.append(call(url, arguments={"file": file}))
         hammertime.request.assert_has_calls(calls, any_order=True)
 
-    @async()
-    async def test_fetch_files_update_processed_items_if_not_timeout(self, output_found, loop):
-        rejected = create_json_data(["rejected"])
-        timeout_files = create_json_data(["test"])
-        self.setUpFetcher(loop)
-        self.setup_hammertime_heuristics(add_before_defaults=[RaiseForPaths(["/test"], StopRequest()),
-                                                              RaiseForPaths(["/rejected"], RejectRequest())])
-        file_list = self.files + timeout_files + rejected
-
-        await self.file_fetcher.fetch_files(file_list)
-
-        self.assertEqual(database.successful_fetch_count, len(self.files + rejected))
 
     @async()
     async def test_fetch_files_output_found_files(self, output_found, loop):

@@ -24,7 +24,6 @@ from hammertime.rules.redirects import valid_redirects
 from hammertime.rules.deadhostdetection import OfflineHostException
 
 from tachyon.core.textutils import output_found
-from tachyon.core import stats
 
 
 class FileFetcher:
@@ -56,8 +55,6 @@ class FileFetcher:
                 pass
             except StopRequest:
                 continue
-            # TODO replace with hammertime.stats when migration is complete.
-            stats.update_processed_items()
 
     def output_found(self, entry, message_prefix=""):
         url = entry.request.url
