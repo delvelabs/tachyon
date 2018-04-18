@@ -19,8 +19,9 @@
 
 from unittest import TestCase
 
-from tachyon.core.generator import FileGenerator
-import tachyon.core.database as database
+import tachyon.database as database
+
+from tachyon.generator import FileGenerator
 
 
 class TestFileGenerator(TestCase):

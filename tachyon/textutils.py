@@ -17,7 +17,6 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-from . import conf
 from .output import PrettyOutput, JSONOutput
 
 

@@ -17,17 +17,18 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 
+import hashlib
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
+
+from fixtures import async, FakeHammerTimeEngine
+from hammertime.engine.aiohttp import Response
 from hammertime.http import Entry, StaticResponse
 from hammertime.kb import KnowledgeBase
-from hammertime.ruleset import RejectRequest
 from hammertime.rules.simhash import Simhash
-from hammertime.engine.aiohttp import Response
-import hashlib
+from hammertime.ruleset import RejectRequest
 
-from tachyon.core.heuristics import RejectIgnoredQuery
-from fixtures import async, FakeHammerTimeEngine, create_json_data
+from tachyon.heuristics import RejectIgnoredQuery
 
 
 class TestRejectIgnoredQuery(TestCase):
@@ -46,7 +47,7 @@ class TestRejectIgnoredQuery(TestCase):
         entry = Entry.create("http://example.com/?wsdl", response=StaticResponse(200, {}, "not same content"))
         self.engine.mock.perform_high_priority.return_value = response
 
-        with patch("tachyon.core.heuristics.rejectignoredquery.uuid4", MagicMock(return_value="random-uuid-abc123")):
+        with patch("tachyon.heuristics.rejectignoredquery.uuid4", MagicMock(return_value="random-uuid-abc123")):
             await self.filter.after_response(entry)
 
             self.engine.mock.perform_high_priority.assert_called_once_with(
@@ -73,7 +74,7 @@ class TestRejectIgnoredQuery(TestCase):
         self.engine.mock.perform_high_priority.side_effect = [root_path_response, admin_path_response,
                                                               images_path_response, login_file_response]
 
-        with patch("tachyon.core.heuristics.rejectignoredquery.Simhash", FakeSimhash):
+        with patch("tachyon.heuristics.rejectignoredquery.Simhash", FakeSimhash):
             await self.filter.after_response(root_path)
             await self.filter.after_response(admin_path)
             await self.filter.after_response(images_path)
@@ -127,7 +128,7 @@ class TestRejectIgnoredQuery(TestCase):
         hash = self.filter._hash_response(StaticResponse(200, {}, "content"))
         self.kb.query_samples["example.com/"] = {"simhash": hash}
 
-        with patch("tachyon.core.heuristics.rejectignoredquery.Simhash") as Simhash:
+        with patch("tachyon.heuristics.rejectignoredquery.Simhash") as Simhash:
             await self.filter.after_response(Entry.create("http://example.com/?wsdl", response=response))
 
             Simhash.assert_not_called()
@@ -137,7 +138,7 @@ class TestRejectIgnoredQuery(TestCase):
         self.kb.query_samples["example.com/"] = {"md5": "12345"}
         response = StaticResponse(200, {}, "content")
 
-        with patch("tachyon.core.heuristics.rejectignoredquery.hashlib") as hashlib:
+        with patch("tachyon.heuristics.rejectignoredquery.hashlib") as hashlib:
             await self.filter.after_response(Entry.create("http://example.com/?wsdl", response=response))
 
             hashlib.md5.assert_not_called()

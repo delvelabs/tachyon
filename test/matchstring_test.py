@@ -17,12 +17,13 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-from unittest import TestCase
-from hammertime.http import Entry, StaticResponse
 import binascii
+from unittest import TestCase
 
-from tachyon.core.heuristics import MatchString
 from fixtures import async, create_json_data
+from hammertime.http import Entry, StaticResponse
+
+from tachyon.heuristics import MatchString
 
 
 class TestMatchString(TestCase):

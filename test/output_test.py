@@ -17,12 +17,13 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-from freezegun import freeze_time
 import json
 from unittest import TestCase
 from unittest.mock import MagicMock, patch, call
 
-from tachyon.core.output import JSONOutput, PrettyOutput, __version__
+from freezegun import freeze_time
+
+from tachyon.output import JSONOutput, PrettyOutput, __version__
 
 
 class TestJSONOutput(TestCase):
@@ -97,7 +98,7 @@ class TestPrettyOutput(TestCase):
 
         self.assertEqual(output.result_buffer, ["[12:00:00] [FOUND] %s" % result])
 
-    @patch("tachyon.core.output.click")
+    @patch("tachyon.output.click")
     def test_output_info_print_message_with_level_info(self, click):
         message = "information..."
 
@@ -105,7 +106,7 @@ class TestPrettyOutput(TestCase):
 
         click.echo.assert_called_once_with("[12:00:00] [INFO] information...")
 
-    @patch("tachyon.core.output.click")
+    @patch("tachyon.output.click")
     def test_output_error_print_message_with_level_error(self, click):
         message = "ERROR!!!"
 
@@ -113,7 +114,7 @@ class TestPrettyOutput(TestCase):
 
         click.echo.assert_called_once_with("[12:00:00] [ERROR] ERROR!!!")
 
-    @patch("tachyon.core.output.click")
+    @patch("tachyon.output.click")
     def test_output_info_print_message_with_level_timeout(self, click):
         message = "timeout..."
 
@@ -121,7 +122,7 @@ class TestPrettyOutput(TestCase):
 
         click.echo.assert_called_once_with("[12:00:00] [TIMEOUT] timeout...")
 
-    @patch("tachyon.core.output.click")
+    @patch("tachyon.output.click")
     def test_flush_print_message_in_found_buffer(self, click):
         url = "http://example.com/y"
         found0 = "File x found at " + url

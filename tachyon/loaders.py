@@ -19,7 +19,7 @@ import json
 import os.path as osp
 import sys
 
-from . import textutils
+from tachyon import textutils
 
 
 def _get_data_dir():

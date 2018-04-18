@@ -18,21 +18,22 @@
 
 
 import asyncio
-import click
-from hammertime.rules import RejectStatusCode
-from hammertime.rules.deadhostdetection import OfflineHostException
 from urllib.parse import urlparse
 
-import tachyon.core.conf as conf
-import tachyon.core.database as database
-import tachyon.core.loaders as loaders
-import tachyon.core.textutils as textutils
+import click
+import tachyon.database as database
+import tachyon.loaders as loaders
+import tachyon.textutils as textutils
+from hammertime.rules import RejectStatusCode
+from hammertime.rules.deadhostdetection import OfflineHostException
+from tachyon.directoryfetcher import DirectoryFetcher
+from tachyon.filefetcher import FileFetcher
+
+import tachyon.conf as conf
+from tachyon.__version__ import __version__
+from tachyon.config import configure_hammertime, set_cookies, default_user_agent
+from tachyon.generator import PathGenerator, FileGenerator
 from tachyon.plugins import host, file
-from tachyon.core.generator import PathGenerator, FileGenerator
-from tachyon.core.directoryfetcher import DirectoryFetcher
-from tachyon.core.filefetcher import FileFetcher
-from tachyon.core.config import configure_hammertime, set_cookies, default_user_agent
-from tachyon.core.__version__ import __version__
 
 
 def load_target_paths():

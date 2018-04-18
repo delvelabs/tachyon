@@ -17,17 +17,16 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-from hammertime import HammerTime
-from hammertime.rules import DetectSoft404, RejectStatusCode, DynamicTimeout, RejectCatchAllRedirect, FollowRedirects, \
-    SetHeader, DeadHostDetection, FilterRequestFromURL, DetectBehaviorChange, IgnoreLargeBody
 from aiohttp import ClientSession, TCPConnector
 from aiohttp.helpers import DummyCookieJar
-from hammertime.engine import AioHttpEngine
+from hammertime import HammerTime
 from hammertime.config import custom_event_loop
+from hammertime.engine import AioHttpEngine
+from hammertime.rules import DetectSoft404, RejectStatusCode, DynamicTimeout, RejectCatchAllRedirect, FollowRedirects, \
+    SetHeader, DeadHostDetection, FilterRequestFromURL, DetectBehaviorChange, IgnoreLargeBody
 
-from tachyon.core.heuristics import RejectIgnoredQuery, LogBehaviorChange, MatchString
-from tachyon.core import conf
-
+from tachyon import conf
+from tachyon.heuristics import RejectIgnoredQuery, LogBehaviorChange, MatchString
 
 heuristics_with_child = []
 initial_limit = 5120

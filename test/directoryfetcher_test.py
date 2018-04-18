@@ -19,14 +19,15 @@
 
 from unittest import TestCase
 from unittest.mock import MagicMock, call, patch
+
+from fixtures import async, FakeHammerTimeEngine, create_json_data, RaiseForPaths, SetResponseCode, SetFlagInResult
 from hammertime.core import HammerTime
 from hammertime.ruleset import RejectRequest
+from tachyon.database import valid_paths
+from tachyon.directoryfetcher import DirectoryFetcher
 
-from tachyon.core import database
-from tachyon.core.database import valid_paths
-from tachyon.core.directoryfetcher import DirectoryFetcher
-from fixtures import async, FakeHammerTimeEngine, create_json_data, RaiseForPaths, SetResponseCode, SetFlagInResult
-from tachyon.core import textutils
+from tachyon import textutils
+from tachyon import database
 
 
 class TestDirectoryFetcher(TestCase):
@@ -34,7 +35,7 @@ class TestDirectoryFetcher(TestCase):
     def setUp(self):
         valid_paths.clear()
         self.host = "http://example.com"
-        self.fake_output = patch("tachyon.core.textutils.output_found")
+        self.fake_output = patch("tachyon.textutils.output_found")
         self.fake_output.start()
 
     def tearDown(self):

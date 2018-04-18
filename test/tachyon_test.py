@@ -17,15 +17,15 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 
+import asyncio
 from unittest import TestCase
 from unittest.mock import MagicMock, patch, call, ANY
+
 from aiohttp.test_utils import make_mocked_coro
-import asyncio
+from fixtures import async, patch_coroutines
 from hammertime.core import HammerTime
 
-from tachyon.core import database
-from tachyon import __main__ as tachyon
-from fixtures import fake_future, async, patch_coroutines
+from tachyon import __main__ as tachyon, database
 
 
 class TestTachyon(TestCase):
@@ -36,7 +36,7 @@ class TestTachyon(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.patcher = patch("tachyon.core.textutils.output_manager")
+        cls.patcher = patch("tachyon.textutils.output_manager")
         cls.patcher.start()
 
     @classmethod
@@ -66,7 +66,7 @@ class TestTachyon(TestCase):
         tachyon.PathGenerator = MagicMock(return_value=path_generator)
         tachyon.DirectoryFetcher = MagicMock(return_value=fake_directory_fetcher)
 
-        with patch("tachyon.core.textutils.output_info") as output_info:
+        with patch("tachyon.textutils.output_info") as output_info:
             await tachyon.test_paths_exists(HammerTime(loop=loop))
 
             output_info.assert_any_call("Probing %d paths" % len(paths))
@@ -100,7 +100,7 @@ class TestTachyon(TestCase):
         asyncio.set_event_loop(asyncio.new_event_loop())
         database.valid_paths = paths
 
-        with patch("tachyon.core.textutils.output_info") as output_info:
+        with patch("tachyon.textutils.output_info") as output_info:
             await tachyon.test_paths_exists(HammerTime(loop=loop))
 
             output_info.assert_any_call("Found %d valid paths" % len(database.valid_paths))
@@ -144,7 +144,7 @@ class TestTachyon(TestCase):
         cookies = "test-cookie=true"
         hammertime = MagicMock()
 
-        with patch("tachyon.core.config.add_http_header") as add_http_header:
+        with patch("tachyon.config.add_http_header") as add_http_header:
             await tachyon.scan(hammertime, cookies=cookies)
 
             add_http_header.assert_any_call(ANY, "Cookie", "test-cookie=true")

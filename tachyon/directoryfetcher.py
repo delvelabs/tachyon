@@ -17,12 +17,14 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-from urllib.parse import urljoin
 import asyncio
-from hammertime.ruleset import RejectRequest, StopRequest
-from hammertime.rules.deadhostdetection import OfflineHostException
+from urllib.parse import urljoin
 
-from . import database, textutils
+from hammertime.rules.deadhostdetection import OfflineHostException
+from hammertime.ruleset import RejectRequest, StopRequest
+
+from tachyon import textutils
+from tachyon import database
 
 
 class DirectoryFetcher:

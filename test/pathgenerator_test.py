@@ -19,8 +19,8 @@
 
 from unittest import TestCase
 
-from tachyon.core import database
-from tachyon.core.generator import PathGenerator
+from tachyon import database
+from tachyon.generator import PathGenerator
 
 
 class TestPathGenerator(TestCase):
