@@ -33,7 +33,7 @@ def add_path_to_fetch_queue(url_obj):
      returns True if the path was not in the list, False if it's a duplicate
     """
     url_string = _get_cached_url_string(url_obj)
-    if not url_string in database.path_cache:
+    if url_string not in database.path_cache:
         database.path_cache.add(url_string)
         return True
     else:
@@ -46,7 +46,7 @@ def add_file_to_fetch_queue(url_obj):
      returns True if the file was not in the list, False if it's a duplicate
     """
     url_string = _get_cached_url_string(url_obj)
-    if not url_string in database.file_cache:
+    if url_string not in database.file_cache:
         database.file_cache.add(url_string)
         return True
     else:

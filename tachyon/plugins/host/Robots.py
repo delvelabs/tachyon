@@ -43,25 +43,24 @@ async def execute(hammertime):
 
             if match:
                 match = ''.join(match)
-            
-            # Split on ':'               
+
+            # Split on ':'
             splitted = match.split(':')
             if splitted[1]:
                 target_path = splitted[1]
 
                 # Remove trailing /
                 if target_path.endswith('/'):
-                    target_path = target_path[:-1]   
+                    target_path = target_path[:-1]
 
                 current_template = current_template.copy()
                 current_template['url'] = target_path
                 database.paths.append(current_template)
                 added += 1
-                    
+
         if added > 0:
             textutils.output_info(' - Robots Plugin: added ' + str(added) + ' base paths using /robots.txt')
         else:
             textutils.output_info(' - Robots Plugin: no usable entries in /robots.txt')
     except (StopRequest, RejectRequest):
         textutils.output_info(' - Robots Plugin: /robots.txt not found on target site')
-

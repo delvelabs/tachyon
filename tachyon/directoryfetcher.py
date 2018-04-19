@@ -73,12 +73,14 @@ class DirectoryFetcher:
         path = entry.arguments["path"]
         url = entry.request.url
         desc = path["description"]
-        data = {"description": desc, "url": url, "code": entry.response.code, "severity": path.get('severity', "warning")}
+        data = {"description": desc, "url": url, "code": entry.response.code,
+                "severity": path.get('severity', "warning")}
         data.update(**kwargs)
         textutils.output_found("{0}{1} at: {2}".format(desc_prefix, desc, url), data)
 
     def detect_tomcat_fake_404(self, content):
-        """ An apache setup will issue a 404 on an existing path if theres a tomcat trying to handle jsp on the same host """
+        """ An apache setup will issue a 404 on an existing path if there is a tomcat trying to handle jsp on the same
+            host """
         if content.find(b'Apache Tomcat/') != -1:
             return True
         return False

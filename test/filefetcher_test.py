@@ -80,7 +80,6 @@ class TestFileFetcher(TestCase):
             calls.append(call(url, arguments={"file": file}))
         hammertime.request.assert_has_calls(calls, any_order=True)
 
-
     @async()
     async def test_fetch_files_output_found_files(self, output_found, loop):
         self.setUpFetcher(loop)

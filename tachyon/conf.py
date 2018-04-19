@@ -32,7 +32,8 @@ target_host = ''
 base_url = ''
 proxy_url = ''
 forge_vhost = None
-user_agent = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36' # maximum compatibility
+# maximum compatibility
+user_agent = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'
 cookies = None
 allow_download = False
 
