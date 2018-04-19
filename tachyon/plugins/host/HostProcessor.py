@@ -76,12 +76,12 @@ async def execute(hammertime):
         new_target['description'] = "HostProcessor generated filename"
         database.files.append(new_target)
         added += 1
-        
+
         new_target = new_target.copy()
         new_target['url'] = short_dom + 'admin'
         database.files.append(new_target)
         added += 1
-        
+
         new_target = new_target.copy()
         new_target['url'] = short_dom + '-admin'
         database.files.append(new_target)

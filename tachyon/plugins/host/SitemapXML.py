@@ -72,11 +72,11 @@ async def execute(hammertime):
 
             # Remove trailing /
             if new_path.endswith('/'):
-                new_path = new_path[:-1]   
+                new_path = new_path[:-1]
 
             if add_path(new_path):
-                added +=1
-                
+                added += 1
+
         if added > 0:
             textutils.output_info(' - SitemapXML Plugin: added %d base paths '
                                   'using /sitemap.xml' % added)
@@ -86,4 +86,3 @@ async def execute(hammertime):
     except (StopRequest, RejectRequest):
         textutils.output_info(' - SitemapXML Plugin: /sitemap.xml not found on '
                               'target site')
-
