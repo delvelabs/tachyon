@@ -54,13 +54,13 @@ def setup_hammertime_heuristics(hammertime, *, user_agent=default_user_agent, vh
     heuristics_with_child = [DetectSoft404(distance_threshold=6), FollowRedirects(), RejectCatchAllRedirect(),
                              RejectIgnoredQuery()]
     hosts = (vhost, conf.target_host) if vhost is not None else conf.target_host
-    global_heuristics = [DeadHostDetection(), DynamicTimeout(0.5, 5), DetectBehaviorChange(), LogBehaviorChange(),
-                         FilterRequestFromURL(allowed_urls=hosts),
+    global_heuristics = [DeadHostDetection(threshold=200), DynamicTimeout(0.5, 5), DetectBehaviorChange(),
+                         LogBehaviorChange(), FilterRequestFromURL(allowed_urls=hosts),
                          IgnoreLargeBody(initial_limit=initial_limit)]
     heuristics = [RejectStatusCode({404, 502}), MatchString()]
+    hammertime.heuristics.add_multiple(global_heuristics)
     hammertime.heuristics.add_multiple(heuristics)
     hammertime.heuristics.add_multiple(heuristics_with_child)
-    hammertime.heuristics.add_multiple(global_heuristics)
     for heuristic in heuristics_with_child:
         heuristic.child_heuristics.add_multiple(global_heuristics)
     add_http_header(hammertime, "User-Agent", user_agent)
