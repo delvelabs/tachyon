@@ -18,7 +18,7 @@
 
 
 from aiohttp import ClientSession, TCPConnector
-from aiohttp.helpers import DummyCookieJar
+from aiohttp.cookiejar import DummyCookieJar
 from hammertime import HammerTime
 from hammertime.config import custom_event_loop
 from hammertime.engine import AioHttpEngine
@@ -34,10 +34,10 @@ default_user_agent = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, li
                      'Chrome/41.0.2228.0 Safari/537.36'
 
 
-def configure_hammertime(proxy=None, retry_count=3, cookies=None, **kwargs):
+async def configure_hammertime(proxy=None, retry_count=3, cookies=None, **kwargs):
     loop = custom_event_loop()
     engine = AioHttpEngine(loop=loop, verify_ssl=False, proxy=proxy)
-    engine.session.close()
+    await engine.session.close()
     connector = TCPConnector(loop=loop, verify_ssl=False, use_dns_cache=True, ttl_dns_cache=None)
     if cookies is not None:
         engine.session = ClientSession(loop=loop, connector=connector, cookie_jar=DummyCookieJar(loop=loop))

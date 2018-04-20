@@ -31,7 +31,7 @@ from tachyon.filefetcher import FileFetcher
 
 import tachyon.conf as conf
 from tachyon.__version__ import __version__
-from tachyon.config import configure_hammertime, set_cookies, default_user_agent
+from tachyon.config import configure_hammertime, set_cookies, default_user_agent, custom_event_loop
 from tachyon.generator import PathGenerator, FileGenerator
 from tachyon.plugins import host, file
 
@@ -179,12 +179,13 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
         conf.user_agent = user_agent
         conf.proxy_url = proxy
         conf.forge_vhost = vhost
-
-        hammertime = configure_hammertime(cookies=conf.cookies, proxy=conf.proxy_url, retry_count=max_retry_count,
-                                          user_agent=conf.user_agent, vhost=conf.forge_vhost)
-        hammertime.loop.run_until_complete(scan(hammertime, cookies=conf.cookies, directories_only=directories_only,
-                                                files_only=files_only, plugins_only=plugins_only,
-                                                depth_limit=depth_limit, recursive=recursive))
+        loop = custom_event_loop()
+        hammertime = loop.run_until_complete(
+            configure_hammertime(cookies=conf.cookies, proxy=conf.proxy_url, retry_count=max_retry_count,
+                                 user_agent=conf.user_agent, vhost=conf.forge_vhost))
+        loop.run_until_complete(scan(hammertime, cookies=conf.cookies, directories_only=directories_only,
+                                     files_only=files_only, plugins_only=plugins_only, depth_limit=depth_limit,
+                                     recursive=recursive))
 
         textutils.output_info('Scan completed')
         textutils.output_info(format_stats(hammertime.stats))
