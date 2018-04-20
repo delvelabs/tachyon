@@ -19,7 +19,7 @@ import json
 import os.path as osp
 import sys
 
-from . import textutils
+from tachyon import textutils
 
 
 def _get_data_dir():
@@ -42,3 +42,15 @@ def load_targets(file):
         except json.JSONDecodeError as e:
             textutils.output_error("Error when loading file %s: %s" % (file, str(e)))
     return loaded
+
+
+def load_cookie_file(filename):
+    try:
+        with open(filename, 'r') as cookie_file:
+            content = cookie_file.read()
+            content = content.replace('Cookie: ', '')
+            content = content.replace('\n', '')
+            return content
+    except IOError:
+        textutils.output_info('Supplied cookie file not found, will use server provided cookies')
+        return None

@@ -1,5 +1,6 @@
 # Tachyon - Fast Multi-Threaded Web Discovery Tool
 # Copyright (c) 2011 Gabriel Tremblay - initnull hat gmail.com
+# Copyright (C) 2018-  Delve Labs inc.
 #
 # GNU General Public Licence (GPL)
 #
@@ -15,9 +16,10 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from ...core import conf, textutils, database
+from tachyon import conf, textutils, database
 
-def execute():
+
+async def execute(hammertime):
     """ This plugin process the hostname to generate host and filenames relatives to it """
     target = conf.target_host
 
@@ -40,7 +42,6 @@ def execute():
     new_target['url'] = target
     new_target['description'] = "HostProcessor generated filename"
     database.files.append(new_target)
-    textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
     added += 1
 
     # www.oksala.org -> oksala.org
@@ -49,7 +50,6 @@ def execute():
     new_target['url'] = target
     new_target['description'] = "HostProcessor generated filename"
     database.files.append(new_target)
-    textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
     added += 1
 
     # oksala.org -> oksala
@@ -59,7 +59,6 @@ def execute():
     new_target['url'] = nodom_target
     new_target['description'] = "HostProcessor generated filename"
     database.files.append(new_target)
-    textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
     added += 1
 
     # shortdom (blabla.ok.ok.test.com -> test)
@@ -76,19 +75,16 @@ def execute():
         new_target['url'] = short_dom
         new_target['description'] = "HostProcessor generated filename"
         database.files.append(new_target)
-        textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
         added += 1
-        
+
         new_target = new_target.copy()
         new_target['url'] = short_dom + 'admin'
         database.files.append(new_target)
-        textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
         added += 1
-        
+
         new_target = new_target.copy()
         new_target['url'] = short_dom + '-admin'
         database.files.append(new_target)
-        textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
         added += 1
 
     # flatten subdomains
@@ -97,12 +93,6 @@ def execute():
     new_target['url'] = target
     new_target['description'] = "HostProcessor generated filename"
     database.files.append(new_target)
-    textutils.output_debug(" - HostProcessor Plugin added: " + str(new_target))
     added += 1
 
     textutils.output_info(" - HostProcessor Plugin: added " + str(added) + " new filenames")
-
-
-
-        
-    

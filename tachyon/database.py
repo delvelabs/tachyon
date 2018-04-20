@@ -1,5 +1,6 @@
 # Tachyon - Fast Multi-Threaded Web Discovery Tool
 # Copyright (c) 2011 Gabriel Tremblay - initnull hat gmail.com
+# Copyright (C) 2018-  Delve Labs inc.
 #
 # GNU General Public Licence (GPL)
 #
@@ -16,16 +17,6 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-try:
-    import queue as Queue
-except ImportError:
-    import Queue
-
-from . import conf
-from datetime import datetime
-
-""" Connection pool, to be adjusted by tachyon after initial host benchmark """
-connection_pool = None
 
 """ Path list is used to hold loaded path from disk """
 paths = list()
@@ -36,46 +27,8 @@ files = list()
 """ Valid path is used to store the path that were found before merging with filenames """
 valid_paths = list()
 
-""" Fetch List contains all the url that have to be fetched by the workers """
-fetch_queue = Queue.Queue()
-
-""" messages output queue contains all the information,debug and timeout messages """
-messages_output_queue = Queue.Queue()
-
-""" results output contains the scan results """
-results_output_queue = Queue.Queue()
-
-""" Crafted 404's database """
-crafted_404s = list()
-
 """ caches are used across the app to avoid adding duplicates urls """
 path_cache = set()
 file_cache = set()
 
-""" Dns resolve cache """
-dns_cache = dict()
-
-""" Scan start time """
-scan_start_time = datetime.now()
-
-"""Timeout management """
-latest_successful_request_time = conf.fetch_timeout_secs
-total_request_time = 0
-total_timeouts = 0
-
-""" App global kill """
-kill_received = False
-
-""" Session cookie """
 session_cookie = None
-
-""" Stats values """
-successful_fetch_count = 0
-
-""" Last printed len """
-last_printed_len = 0
-
-
-""" Behavioral queue, used to buffer different behaviors """
-behavioral_buffer = list()
-behavior_error = False

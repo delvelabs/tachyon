@@ -1,5 +1,6 @@
 # Tachyon - Fast Multi-Threaded Web Discovery Tool
 # Copyright (c) 2011 Gabriel Tremblay - initnull hat gmail.com
+# Copyright (C) 2018-  Delve Labs inc.
 #
 # GNU General Public Licence (GPL)
 #
@@ -16,35 +17,24 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import re
-try:
-    from urlparse import urlparse
-except ImportError:
-    from urllib.parse import urlparse
-
-from . import textutils
+from collections import defaultdict
 
 
+name = "delvelabs/tachyon"
+expected_file_responses = [200, 206]
+file_sample_len = 5120
 
-def parse_hostname(hostname):
-    ssl = False
-    if not re.search(r'http://', hostname, re.I) and not re.search(r'https://', hostname, re.I):
-        hostname = 'http://' + hostname
+# Templates, used by plugins
+path_template = {'url': '', 'timeout_count': 0, 'description': ''}
 
-    if re.search(r'https://', hostname, re.I):
-        ssl = True
+# User config
+target_host = ''
+base_url = ''
+proxy_url = ''
+forge_vhost = None
+# maximum compatibility
+user_agent = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'
+cookies = None
+allow_download = False
 
-    parsed = urlparse(hostname)
-    parsed_path = parsed.path
-
-    if parsed_path.endswith('/'):
-        parsed_path = parsed_path[0:-1]
-
-    if not parsed.port:
-        parsed_port = 80
-    else:
-        parsed_port = parsed.port
-
-
-    textutils.output_debug("Starting scan on: " + parsed.hostname + " base: " + parsed_path + " ssl: " + str(ssl))
-    return parsed.hostname, parsed_port, parsed_path, ssl
+plugin_settings = defaultdict(list)

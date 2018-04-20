@@ -1,5 +1,6 @@
 # Tachyon - Fast Multi-Threaded Web Discovery Tool
 # Copyright (c) 2011 Gabriel Tremblay - initnull hat gmail.com
+# Copyright (C) 2018-  Delve Labs inc.
 #
 # GNU General Public Licence (GPL)
 #
@@ -14,4 +15,26 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
-#
+
+
+from tachyon.textutils import output_info
+
+
+class LogBehaviorChange:
+
+    def __init__(self):
+        self.is_behavior_normal = True
+
+    async def after_response(self, entry):
+        if self._has_behavior_changed(entry):
+            if self._is_normal_behavior_restored(entry):
+                output_info("Normal behavior seems to be restored.")
+            else:
+                output_info("Behavior change detected! Results may be incomplete or tachyon may never exit.")
+        self.is_behavior_normal = not entry.result.error_behavior
+
+    def _has_behavior_changed(self, entry):
+        return self.is_behavior_normal == entry.result.error_behavior
+
+    def _is_normal_behavior_restored(self, entry):
+        return not self.is_behavior_normal and not entry.result.error_behavior

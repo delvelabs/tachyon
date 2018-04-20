@@ -1,5 +1,6 @@
 # Tachyon - Fast Multi-Threaded Web Discovery Tool
 # Copyright (c) 2011 Gabriel Tremblay - initnull hat gmail.com
+# Copyright (C) 2018-  Delve Labs inc.
 #
 # GNU General Public Licence (GPL)
 #
@@ -17,12 +18,14 @@
 #
 
 import os
-import sqlite3
-from ...core import conf, textutils, database, dbutils
-from ...core.fetcher import Fetcher
-from xml.etree import ElementTree
+from hammertime.ruleset import StopRequest, RejectRequest
+from urllib.parse import urljoin
+
+from tachyon import conf, textutils
+
 
 base_headers = dict()
+
 
 def save_file(path, content):
     output = "output/" + conf.target_host + path
@@ -44,71 +47,58 @@ def save_file(path, content):
 #    #    if
 #    pass
 
-def parse_svn_entries(url):
+
+async def parse_svn_entries(url, hammertime):
     description_file = 'SVN entries file at'
     description_dir = "SVN entries Dir at"
     target_url = url + "/.svn/entries"
-    fetcher = Fetcher()
 
-    response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False, add_headers=base_headers)
-    if not isinstance(content, str):
-        content = content.decode('utf-8', 'ignore')
-
-    if response_code in conf.expected_file_responses and content:
-        tokens = content.split('\n')
+    try:
+        entry = await hammertime.request(target_url)
+        tokens = entry.response.content.split('\n')
         if 'dir' in tokens:
             for pos, token in enumerate(tokens):
                 if token == 'dir':
                     # Fetch more entries recursively
                     if tokens[pos-1] != '':
-                        textutils.output_debug(' - Svn Plugin: Found dir: ' + url + '/' + tokens[pos-1])
-
                         if conf.allow_download:
-                            textutils.output_info(' - Svn Plugin: Downloading: ' + url + '/' + tokens[pos-1] + '\r')
+                            textutils.output_info(' - Svn Plugin: Downloading: ' + url + '/' + tokens[pos - 1] + '\r')
                         else:
-                            textutils.output_found(description_dir + ' at: ' + url + '/' + tokens[pos-1])
+                            textutils.output_found(description_dir + ' at: ' + url + '/' + tokens[pos - 1])
 
                         # Parse next
-                        parse_svn_entries(url + "/" + tokens[pos-1])
+                        parse_svn_entries(url + "/" + tokens[pos-1], hammertime)
 
                 elif token == 'file':
-                    textutils.output_debug(' - Svn Plugin: Found file: ' + url + '/' + tokens[pos-1])
                     if conf.allow_download:
-                        textutils.output_info(' - Svn Plugin: Downloading: ' + url + '/' + tokens[pos-1] + '\r')
+                        textutils.output_info(' - Svn Plugin: Downloading: ' + url + '/' + tokens[pos - 1] + '\r')
                         # Fetch text-base file
                         path = url + "/.svn/text-base" + '/' + tokens[pos-1] + ".svn-base"
-                        fetcher = Fetcher()
-                        response_code, content, headers = fetcher.fetch_url(path, conf.user_agent,
-                                                                            conf.fetch_timeout_secs, limit_len=False)
-                        save_file(url + '/' + tokens[pos-1], content)
+                        entry = await hammertime.request(path)
+                        save_file(url + '/' + tokens[pos-1], entry.response.content)
                     else:
-                        textutils.output_found(description_file + ' at: ' + url + '/' + tokens[pos-1])
+                        textutils.output_found(description_file + ' at: ' + url + '/' + tokens[pos - 1])
+    except (RejectRequest, StopRequest):
+        pass
 
 
-def execute():
+async def execute(hammertime):
     """ Fetch /.svn/entries and parse for target paths """
 
     textutils.output_info(' - Svn Plugin: Searching for /.svn/entries')
-    target_url = conf.target_base_path + "/.svn/entries"
-
-    fetcher = Fetcher()
-    response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
+    target_url = urljoin(conf.base_url, "/.svn/entries")
     svn_legacy = True
 
-    if not isinstance(content, str):
-        content = content.decode('utf-8', 'ignore')
-
-    if response_code in conf.expected_file_responses and content:
-
+    try:
+        entry = await hammertime.request(target_url)
         if conf.allow_download:
             textutils.output_info(' - Svn Plugin: /.svn/entries found! crawling... (will download files to output/)')
         else:
             textutils.output_info(' - Svn Plugin: /.svn/entries found! crawling... (use -a to download files instead of printing)')
        
         # test for version 1.7+
-        target_url = conf.target_base_path + "/.svn/wc.db"
-        fetcher = Fetcher()
-        response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
+        target_url = urljoin(conf.base_url, "/.svn/wc.db")
+        entry = await hammertime.request(target_url)
 
         #if response_code in conf.expected_file_responses and content:
         #    textutils.output_info(' - Svn Plugin: SVN 1.7+ detected, parsing wc.db')
@@ -118,13 +108,12 @@ def execute():
         # Process index
         if svn_legacy:
             # parse entries
-            parse_svn_entries(conf.target_base_path)
+            parse_svn_entries(conf.base_url, hammertime)
         #else:
           #  parse_svn_17_db(conf.target_base_path + '/wc.db')
 
         # Clean up display
         if conf.allow_download:
             textutils.output_info('')
-    else:
+    except (StopRequest, RejectRequest):
         textutils.output_info(' - Svn Plugin: no /.svn/entries found')
-

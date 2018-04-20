@@ -1,5 +1,6 @@
 # Tachyon - Fast Multi-Threaded Web Discovery Tool
 # Copyright (c) 2011 Gabriel Tremblay - initnull hat gmail.com
+# Copyright (C) 2018-  Delve Labs inc.
 #
 # GNU General Public Licence (GPL)
 #
@@ -17,31 +18,23 @@
 #
 
 import re
-from ...core import conf, textutils, database
-from ...core.fetcher import Fetcher
+from urllib.parse import urljoin
 
-try:
-    from urlparse import urljoin
-except ImportError:
-    from urllib.parse import urljoin
+from hammertime.ruleset import StopRequest, RejectRequest
 
-def execute():
+from tachyon import conf, textutils, database
+
+
+async def execute(hammertime):
     """ Fetch /robots.txt and add the disallowed paths as target """
     current_template = dict(conf.path_template)
     current_template['description'] = 'Robots.txt entry'
-    
-    target_url = urljoin(conf.target_base_path, "/robots.txt")
 
-    fetcher = Fetcher()
-    response_code, content, headers = fetcher.fetch_url(target_url, conf.user_agent, conf.fetch_timeout_secs, limit_len=False)
-    if isinstance(content, str):
-        content = content.encode('utf-8')
+    target_url = urljoin(conf.base_url, "/robots.txt")
 
-    if response_code is 200 or response_code is 302 and content:
-        if not isinstance(content, str):
-            content = content.decode('utf-8', 'ignore')
-        matches = re.findall(r'Disallow:\s*/[a-zA-Z0-9-/\r]+\n', content)
-        textutils.output_debug(content)
+    try:
+        entry = await hammertime.request(target_url)
+        matches = re.findall(r'Disallow:\s*/[a-zA-Z0-9-/\r]+\n', entry.response.content)
 
         added = 0
         for match in matches:
@@ -50,28 +43,24 @@ def execute():
 
             if match:
                 match = ''.join(match)
-            
-            # Split on ':'               
+
+            # Split on ':'
             splitted = match.split(':')
             if splitted[1]:
                 target_path = splitted[1]
-                textutils.output_debug(target_path)
-                
+
                 # Remove trailing /
                 if target_path.endswith('/'):
-                    target_path = target_path[:-1]   
+                    target_path = target_path[:-1]
 
                 current_template = current_template.copy()
                 current_template['url'] = target_path
                 database.paths.append(current_template)
-                textutils.output_debug(' - Robots Plugin Added: ' + str(target_path) + ' from robots.txt')
                 added += 1
-                    
+
         if added > 0:
             textutils.output_info(' - Robots Plugin: added ' + str(added) + ' base paths using /robots.txt')
-        else :
+        else:
             textutils.output_info(' - Robots Plugin: no usable entries in /robots.txt')
-               
-    else:
+    except (StopRequest, RejectRequest):
         textutils.output_info(' - Robots Plugin: /robots.txt not found on target site')
-
