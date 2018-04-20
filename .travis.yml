@@ -1,7 +1,7 @@
 language: python
 python:
-  - '3.5'
-install: pip install -r requirements.txt && pip install -r requirements-dev.txt
+  - '3.6'
+install: pip install --ignore-installed -r requirements.txt && pip install --ignore-installed -r requirements-dev.txt
 script:
  - nosetests
  - flake8 --config setup.cfg tachyon test
