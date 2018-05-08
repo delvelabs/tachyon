@@ -67,7 +67,7 @@ async def parse_svn_entries(url, hammertime):
                             textutils.output_found(description_dir + ' at: ' + url + '/' + tokens[pos - 1])
 
                         # Parse next
-                        parse_svn_entries(url + "/" + tokens[pos-1], hammertime)
+                        await parse_svn_entries(url + "/" + tokens[pos-1], hammertime)
 
                 elif token == 'file':
                     if conf.allow_download:
@@ -108,7 +108,7 @@ async def execute(hammertime):
         # Process index
         if svn_legacy:
             # parse entries
-            parse_svn_entries(conf.base_url, hammertime)
+            await parse_svn_entries(conf.base_url, hammertime)
         #else:
           #  parse_svn_17_db(conf.target_base_path + '/wc.db')
 
