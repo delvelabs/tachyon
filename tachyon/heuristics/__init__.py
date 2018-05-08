@@ -20,10 +20,12 @@
 from .logbehaviorchange import LogBehaviorChange
 from .matchstring import MatchString
 from .rejectignoredquery import RejectIgnoredQuery
+from .redirects import RedirectLimiter
 
 
 __all__ = [
     LogBehaviorChange,
     MatchString,
-    RejectIgnoredQuery
+    RejectIgnoredQuery,
+    RedirectLimiter,
 ]

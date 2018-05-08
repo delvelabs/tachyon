@@ -23,10 +23,11 @@ from hammertime import HammerTime
 from hammertime.config import custom_event_loop
 from hammertime.engine import AioHttpEngine
 from hammertime.rules import DetectSoft404, RejectStatusCode, DynamicTimeout, RejectCatchAllRedirect, FollowRedirects, \
-    SetHeader, DeadHostDetection, FilterRequestFromURL, DetectBehaviorChange, IgnoreLargeBody
+    SetHeader, DeadHostDetection, FilterRequestFromURL, DetectBehaviorChange, IgnoreLargeBody, \
+    RejectSoft404
 
 from tachyon import conf
-from tachyon.heuristics import RejectIgnoredQuery, LogBehaviorChange, MatchString
+from tachyon.heuristics import RejectIgnoredQuery, LogBehaviorChange, MatchString, RedirectLimiter
 
 heuristics_with_child = []
 initial_limit = 5120
@@ -51,18 +52,28 @@ async def configure_hammertime(proxy=None, retry_count=3, cookies=None, **kwargs
 def setup_hammertime_heuristics(hammertime, *, user_agent=default_user_agent, vhost=None):
     #  TODO Make sure rejecting 404 does not conflict with tomcat fake 404 detection.
     global heuristics_with_child
-    heuristics_with_child = [DetectSoft404(distance_threshold=6), FollowRedirects(), RejectCatchAllRedirect(),
+    detect_soft_404 = DetectSoft404(distance_threshold=6)
+    follow_redirects = FollowRedirects()
+    heuristics_with_child = [RejectCatchAllRedirect(), follow_redirects,
                              RejectIgnoredQuery()]
     hosts = (vhost, conf.target_host) if vhost is not None else conf.target_host
-    global_heuristics = [DeadHostDetection(threshold=200), DynamicTimeout(0.5, 5), DetectBehaviorChange(),
-                         LogBehaviorChange(), FilterRequestFromURL(allowed_urls=hosts),
+    global_heuristics = [DynamicTimeout(1.0, 5),
+                         RedirectLimiter(),
+                         FilterRequestFromURL(allowed_urls=hosts),
                          IgnoreLargeBody(initial_limit=initial_limit)]
-    heuristics = [RejectStatusCode({404, 502}), MatchString()]
+    heuristics = [RejectStatusCode({404, 502}),
+                  detect_soft_404, RejectSoft404(),
+                  MatchString(),
+                  DeadHostDetection(threshold=200),
+                  DetectBehaviorChange(buffer_size=100), LogBehaviorChange()]
     hammertime.heuristics.add_multiple(global_heuristics)
     hammertime.heuristics.add_multiple(heuristics)
     hammertime.heuristics.add_multiple(heuristics_with_child)
     for heuristic in heuristics_with_child:
         heuristic.child_heuristics.add_multiple(global_heuristics)
+
+    detect_soft_404.child_heuristics.add(follow_redirects)
+
     add_http_header(hammertime, "User-Agent", user_agent)
     add_http_header(hammertime, "Host", vhost if vhost is not None else conf.target_host)
 
