@@ -67,7 +67,6 @@ def setup_hammertime_heuristics(hammertime, *, user_agent=default_user_agent, vh
                   MatchString(),
                   DetectBehaviorChange(buffer_size=100), LogBehaviorChange()]
 
-
     # Dead host detection must be first to make sure there is no skipped after_headers
     hammertime.heuristics.add(dead_host_detection)
 
