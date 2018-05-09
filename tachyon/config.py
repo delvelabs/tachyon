@@ -52,6 +52,7 @@ async def configure_hammertime(proxy=None, retry_count=3, cookies=None, **kwargs
 def setup_hammertime_heuristics(hammertime, *, user_agent=default_user_agent, vhost=None):
     #  TODO Make sure rejecting 404 does not conflict with tomcat fake 404 detection.
     global heuristics_with_child
+    dead_host_detection = DeadHostDetection(threshold=200)
     detect_soft_404 = DetectSoft404(distance_threshold=6)
     follow_redirects = FollowRedirects()
     heuristics_with_child = [RejectCatchAllRedirect(), follow_redirects,
@@ -61,17 +62,25 @@ def setup_hammertime_heuristics(hammertime, *, user_agent=default_user_agent, vh
                          RedirectLimiter(),
                          FilterRequestFromURL(allowed_urls=hosts),
                          IgnoreLargeBody(initial_limit=initial_limit)]
-    heuristics = [RejectStatusCode({404, 502}),
+    heuristics = [RejectStatusCode({404, 406, 502}),
                   detect_soft_404, RejectSoft404(),
                   MatchString(),
-                  DeadHostDetection(threshold=200),
                   DetectBehaviorChange(buffer_size=100), LogBehaviorChange()]
+
+
+    # Dead host detection must be first to make sure there is no skipped after_headers
+    hammertime.heuristics.add(dead_host_detection)
+
     hammertime.heuristics.add_multiple(global_heuristics)
-    hammertime.heuristics.add_multiple(heuristics)
+
+    # Make sure follow redirect comes in before soft404
     hammertime.heuristics.add_multiple(heuristics_with_child)
+    hammertime.heuristics.add_multiple(heuristics)
+
     for heuristic in heuristics_with_child:
         heuristic.child_heuristics.add_multiple(global_heuristics)
 
+    detect_soft_404.child_heuristics.add(dead_host_detection)
     detect_soft_404.child_heuristics.add(follow_redirects)
 
     add_http_header(hammertime, "User-Agent", user_agent)
