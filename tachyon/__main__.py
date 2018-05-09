@@ -26,6 +26,7 @@ import tachyon.loaders as loaders
 import tachyon.textutils as textutils
 from hammertime.rules import RejectStatusCode
 from hammertime.rules.deadhostdetection import OfflineHostException
+from hammertime.ruleset import RejectRequest
 from tachyon.directoryfetcher import DirectoryFetcher
 from tachyon.filefetcher import FileFetcher
 
@@ -49,10 +50,13 @@ def load_target_files():
 
 
 async def get_session_cookies(hammertime):
-    """ Fetch the root path in a single request so aiohttp will use the returned cookies in all future requests. """
-    textutils.output_info('Fetching session cookie')
-    path = '/'
-    await hammertime.request(conf.base_url + path)
+    try:
+        """ Fetch the root path in a single request so aiohttp will use the returned cookies in all future requests. """
+        textutils.output_info('Fetching session cookie')
+        path = '/'
+        await hammertime.request(conf.base_url + path)
+    except RejectRequest:
+        textutils.output_info('Request for website root failed.')
 
 
 async def test_paths_exists(hammertime, *, recursive=False, depth_limit=2):
@@ -188,13 +192,13 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
                                      recursive=recursive))
 
         textutils.output_info('Scan completed')
-        textutils.output_info(format_stats(hammertime.stats))
 
     except (KeyboardInterrupt, asyncio.CancelledError):
         textutils.output_error('Keyboard Interrupt Received')
     except OfflineHostException:
         textutils.output_error("Target host seems to be offline.")
     finally:
+        textutils.output_info(format_stats(hammertime.stats))
         textutils.flush()
 
 
