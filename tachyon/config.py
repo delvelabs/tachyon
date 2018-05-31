@@ -58,12 +58,12 @@ def setup_hammertime_heuristics(hammertime, *, user_agent=default_user_agent, vh
     heuristics_with_child = [RejectCatchAllRedirect(), follow_redirects,
                              RejectIgnoredQuery()]
     hosts = (vhost, conf.target_host) if vhost is not None else conf.target_host
-    global_heuristics = [DynamicTimeout(1.0, 5),
+    global_heuristics = [RejectStatusCode({404, 406, 502}),
+                         DynamicTimeout(1.0, 5),
                          RedirectLimiter(),
                          FilterRequestFromURL(allowed_urls=hosts),
                          IgnoreLargeBody(initial_limit=initial_limit)]
-    heuristics = [RejectStatusCode({404, 406, 502}),
-                  detect_soft_404, RejectSoft404(),
+    heuristics = [detect_soft_404, RejectSoft404(),
                   MatchString(),
                   DetectBehaviorChange(buffer_size=100), LogBehaviorChange()]
 

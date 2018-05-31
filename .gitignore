@@ -2,6 +2,7 @@
 *.iml
 .idea
 *.pyc
+*.swp
 *~
 #PyDev
 .project
@@ -10,7 +11,14 @@
 output/
 bin/
 include/
-lib/
+src/
+share/
+lib
+lib64
+dist/
+man/
+tachyon3.egg-info/
+pyvenv.cfg
 
 # cookies
 cookies*
