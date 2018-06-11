@@ -27,7 +27,7 @@ from hammertime.rules import DetectSoft404, RejectStatusCode, DynamicTimeout, Re
     RejectSoft404
 
 from tachyon import conf
-from tachyon.heuristics import RejectIgnoredQuery, LogBehaviorChange, MatchString, RedirectLimiter
+from tachyon.heuristics import RejectIgnoredQuery, LogBehaviorChange, MatchString, RedirectLimiter, StripTag
 
 heuristics_with_child = []
 initial_limit = 5120
@@ -58,12 +58,12 @@ def setup_hammertime_heuristics(hammertime, *, user_agent=default_user_agent, vh
     heuristics_with_child = [RejectCatchAllRedirect(), follow_redirects,
                              RejectIgnoredQuery()]
     hosts = (vhost, conf.target_host) if vhost is not None else conf.target_host
-    global_heuristics = [RejectStatusCode({404, 406, 502}),
+    global_heuristics = [RejectStatusCode({404, 406, 502, 503}),
                          DynamicTimeout(1.0, 5),
                          RedirectLimiter(),
                          FilterRequestFromURL(allowed_urls=hosts),
                          IgnoreLargeBody(initial_limit=initial_limit)]
-    heuristics = [detect_soft_404, RejectSoft404(),
+    heuristics = [StripTag('input'), StripTag('script'), detect_soft_404, RejectSoft404(),
                   MatchString(),
                   DetectBehaviorChange(buffer_size=100), LogBehaviorChange()]
 
@@ -79,6 +79,8 @@ def setup_hammertime_heuristics(hammertime, *, user_agent=default_user_agent, vh
     for heuristic in heuristics_with_child:
         heuristic.child_heuristics.add_multiple(global_heuristics)
 
+    detect_soft_404.child_heuristics.add(StripTag('input'))
+    detect_soft_404.child_heuristics.add(StripTag('script'))
     detect_soft_404.child_heuristics.add(dead_host_detection)
     detect_soft_404.child_heuristics.add(follow_redirects)
 

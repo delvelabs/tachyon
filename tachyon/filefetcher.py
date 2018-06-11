@@ -66,6 +66,8 @@ class FileFetcher:
         output_found(message, data=data)
 
     def _is_entry_invalid(self, entry):
+        if entry is None:
+            return True
         if entry.result.string_match:
             return False
         return entry.result.soft404 or entry.result.error_behavior
