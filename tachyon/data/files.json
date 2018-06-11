@@ -1471,5 +1471,24 @@
                 "no_suffix": true
             }
         ]
+    },
+    {
+        "description": "Apache server files",
+	"data" : [
+            {
+                "url" : "/server-info",
+                "description" : "Apache debug server information",
+                "timeout_count": 0,
+                "severity": "critical",
+		"no_suffix": true
+            },
+            {
+                "url" : "/server-status",
+                "description" : "Apache debug server status",
+                "timeout_count": 0,
+                "severity": "critical",
+		"no_suffix": true
+            }
+	]
     }
 ]
