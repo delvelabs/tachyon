@@ -137,8 +137,7 @@ async def scan(hammertime, *, cookies=None, directories_only=False, files_only=F
             load_execute_file_plugins()
             await test_file_exists(hammertime)
 
-
-@click.command()
+@click.command(context_settings=dict(help_option_names=['-h', '--help']))
 @click.option("-a", "--allow-download", is_flag=True)
 @click.option("-c", "--cookie-file", default="")
 @click.option("-l", "--depth-limit", default=2)
