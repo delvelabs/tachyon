@@ -16,7 +16,8 @@ It is specifically meant to crawl web application and look for left over or non-
 ```bash
 $ mkdir tachyon
 $ python3 -m venv tachyon/
-$ source tachyon/bin/activate
+$ cd tachyon
+$ source bin/activate
 $ pip install tachyon3
 $ tachyon -h
 ```
@@ -28,11 +29,15 @@ $ source bin/activate
 $ pip install --ignore-installed --upgrade tachyon3
 ```
 
+### Usage:
+$ cd tachyon
+$ source bin/activate
+$ tachyon -h
 
 ## Developers Installation
 
 ```bash
-git clone https://github.com/delvelabs/tachyon.git
+$ git clone https://github.com/delvelabs/tachyon.git
 $ mkdir tachyon
 $ python3 -m venv tachyon/
 $ source tachyon/bin/activate
