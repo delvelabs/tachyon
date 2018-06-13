@@ -25,7 +25,7 @@ expected_file_responses = [200, 206]
 file_sample_len = 5120
 
 # Templates, used by plugins
-path_template = {'url': '', 'timeout_count': 0, 'description': ''}
+path_template = {'url': '', 'description': ''}
 
 # User config
 target_host = ''
