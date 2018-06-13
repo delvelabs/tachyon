@@ -5,697 +5,584 @@
             {
                 "url": "access",
                 "description": "access log",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "account",
                 "description": "Accounts",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "accounts",
                 "description": "Accounts",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "authors",
                 "description": "Accounts",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "severity": "critical",
                 "url": "akeeba.backend.log",
                 "description": "Akeeba backup transation logs",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "medium",
                 "url": "analog.html",
                 "description": "Analog web statistics",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "url": "admin",
                 "description": "Admin file",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "administrators",
                 "description": "Admin file",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "administration",
                 "description": "Admin file",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "application",
                 "description": "Application file",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "severity": "medium",
                 "url": "application.wadl",
                 "description": "REST API description file",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "url": "auth",
                 "description": "auth file",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "authuser",
                 "description": "auth file",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "authusers",
                 "description": "auth file",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "archive",
                 "description": "archive file",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "archives",
                 "description": "archive file",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "backup",
                 "description": "backup",
-                "timeout_count": 0,
                 "severity": "cricital"
             },
             {
                 "url": "bar",
                 "description": "random backup",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "browser",
                 "description": "Browser-oriented file",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "build",
                 "description": "Build file",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "cache",
                 "description": "Cache related file",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "caching",
                 "description": "Cache related file",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "severity": "critical",
                 "url": "cachemgr.cgi",
                 "description": "Squid proxy admin interface",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "url": "ccbill",
                 "description": "CCBill.com logs",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "url": "fckeditor",
                 "description": "CkEditor",
-                "timeout_count": 0,
                 "severity": "medium"
             },
             {
                 "url": "config",
                 "description": "Config file",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "url": "configuration",
                 "description": "Config file",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "url": "conf",
                 "description": "Config file",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "url": "common",
                 "description": "Config file",
-                "timeout_count": 0,
                 "severity": "medium"
             },
             {
                 "url": "cron",
                 "description": "crontab file",
-                "timeout_count": 0,
                 "severity": "medium"
             },
             {
                 "severity": "info",
                 "url": "crossdomain.xml",
                 "description": "Crossdomain policy file",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "url": "crypt",
                 "description": "encryption file",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "crypto",
                 "description": "encryption file",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "data",
                 "description": "database backup",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "url": "database",
                 "description": "database backup",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "url": "db",
                 "description": "database backup",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "url": "default",
                 "description": "default file",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "deploy",
                 "description": "Site backup",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "severity": "warning",
                 "url": "deploy.php",
                 "description": "Deployment Script",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "url": "digest",
                 "description": "digest file",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "dokuwiki",
                 "description": "Dokuwiki backup",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "encrypt",
                 "description": "encryption file",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "error",
                 "description": "error log",
-                "timeout_count": 0,
                 "severity": "medium"
             },
             {
                 "url": "errors",
                 "description": "errors log",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "export",
                 "description": "database backup",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "foo",
                 "description": "random backup",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "files",
                 "description": "files reference",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "global",
                 "description": "global settings",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "severity": "medium",
                 "url": ".htaccess",
                 "description": "htacces file",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "medium",
                 "url": ".hta",
                 "description": "htacces file",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": ".htpasswd",
                 "description": "htpasswd file",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": "id_rsa",
                 "description": "rsa private key",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "warning",
                 "url": "id_rsa.pub",
                 "description": "rsa public key",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "medium",
                 "url": "known_hosts",
                 "description": "ssh known hosts",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": ".ssh/authorized_keys",
                 "description": "SSH authorized keys",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "url": "import",
                 "description": "database backup",
-                "timeout_count": 0,
                 "severity": "medium"
             },
             {
                 "url": "index",
                 "description": "index.php backup",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "install",
                 "description": "install file",
-                "timeout_count": 0,
                 "severity": "medium"
             },
             {
                 "url": "info",
                 "description": "info file",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "infos",
                 "description": "info file",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "key",
                 "description": "key file",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "url": "keys",
                 "description": "key file",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "url": "local",
                 "description": "Local config",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "login",
                 "description": "login log (login.txt could be Gallery key)",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "log",
                 "description": "Log file",
-                "timeout_count": 0,
                 "severity": "medium"
             },
             {
                 "url": "logs",
                 "description": "Log file",
-                "timeout_count": 0,
                 "severity": "medium"
             },
             {
                 "url": "logfile",
                 "description": "Log file",
-                "timeout_count": 0,
                 "severity": "medium"
             },
             {
                 "url": "logger",
                 "description": "Log file",
-                "timeout_count": 0,
                 "severity": "medium"
             },
             {
                 "url": "master",
                 "description": "master file",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "severity": "critical",
                 "url": "main.mdb",
                 "description": "ASP-Nuke db",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "url": "mysql",
                 "description": "Mysql config",
-                "timeout_count": 0,
                 "severity": "medium"
             },
             {
                 "url": "my",
                 "description": "Mysql config",
-                "timeout_count": 0,
                 "severity": "medium"
             },
             {
                 "url": "memcached",
                 "description": "memcached monitoring",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "note",
                 "description": "notes file",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "notes",
                 "description": "notes file",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "parameters",
                 "description": "Parameter file",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "url": "pass",
                 "description": "Password file",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "url": "password",
                 "description": "password file",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "url": "passwords",
                 "description": "password file",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "url": "passwd",
                 "description": "Password file",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "severity": "critical",
                 "url": ".passwd",
                 "description": "Password file",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "url": "php",
                 "description": "php config",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "proftpd",
                 "description": "ProFTPD config",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "pixelpost",
                 "description": "Pixelpost config",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "pmwiki",
                 "description": "pmwiki file",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "putty",
                 "description": "PuTTY logs",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "severity": "critical",
                 "url": "putty.reg",
                 "description": "PuTTY logs",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "url": "register",
                 "description": "Register file",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "redis",
                 "description": "redis monitoring",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "rsync",
                 "description": "Remote sync file",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "service",
                 "description": "Password file",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "server",
                 "description": "server file",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "settings",
                 "description": "settings file",
-                "timeout_count": 0,
                 "severity": "medium"
             },
             {
                 "url": "site",
                 "description": "database backup",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "shadow",
                 "description": "Shadow file",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "url": "stats",
                 "description": "statistic file",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "system",
                 "description": "system file",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "test",
                 "description": "test dir/file",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "test_db",
                 "description": "database backup",
-                "timeout_count": 0,
                 "severity": "medium"
             },
             {
                 "url": "transactions",
                 "description": "transactions log",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "url": "transaction",
                 "description": "transactions log",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "url": "user",
                 "description": "username file",
-                "timeout_count": 0,
                 "severity": "medium"
             },
             {
                 "url": "users",
                 "description": "usernames file",
-                "timeout_count": 0,
                 "severity": "medium"
             },
             {
                 "url": "usernames",
                 "description": "usernames file",
-                "timeout_count": 0,
                 "severity": "medium"
             },
             {
                 "url": "username",
                 "description": "usernames file",
-                "timeout_count": 0,
                 "severity": "medium"
             },
             {
                 "severity": "critical",
                 "url": "WS_FTP.LOG",
                 "description": "WS_FTP client logs",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "url": "ws_ftp",
                 "description": "WS_FTP client config",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "severity": "info",
                 "url": "xmlrpc.php",
                 "description": "Website API",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "url": "xml-rpc",
                 "description": "Website API",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "rpc",
                 "description": "Website API",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "json",
                 "description": "Website API",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "json-api",
                 "description": "Website API",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "web",
                 "description": "Web file",
-                "timeout_count": 0,
                 "severity": "warning"
             }
         ]
@@ -705,7 +592,6 @@
         "data": [
             {
                 "no_suffix": true,
-                "timeout_count": 0,
                 "url": "info.php",
                 "severity": "medium",
                 "description": "Common phpinfo() wrapper script",
@@ -713,7 +599,6 @@
             },
             {
                 "no_suffix": true,
-                "timeout_count": 0,
                 "url": "infos.php",
                 "severity": "medium",
                 "description": "Common phpinfo() wrapper script",
@@ -721,7 +606,6 @@
             },
             {
                 "no_suffix": true,
-                "timeout_count": 0,
                 "url": "phpinfo.php",
                 "severity": "medium",
                 "description": "Common phpinfo() wrapper script",
@@ -729,7 +613,6 @@
             },
             {
                 "no_suffix": true,
-                "timeout_count": 0,
                 "url": "phpinfos.php",
                 "severity": "medium",
                 "description": "Common phpinfo() wrapper script",
@@ -744,49 +627,42 @@
                 "severity": "critical",
                 "url": ".bash_history",
                 "description": "Bash history",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": ".bash_profile",
                 "description": "Bash shell config file",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": ".bashrc",
                 "description": "Bash default config file",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": ".config",
                 "description": "Generic config",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": ".mysql_history",
                 "description": "mysql history",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": ".profile",
                 "description": "Common default shell config file",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": ".sh_history",
                 "description": "sh history",
-                "timeout_count": 0,
                 "no_suffix": true
             }
         ]
@@ -798,14 +674,12 @@
                 "severity": "critical",
                 "url": ".viminfo",
                 "description": "Vim history, can leak sensitive information",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": ".vimrc",
                 "description": "Vim default configuration file",
-                "timeout_count": 0,
                 "no_suffix": true
             }
         ]
@@ -817,14 +691,12 @@
                 "severity": "info",
                 "url": "index2.php",
                 "description": "Backup index page",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "info",
                 "url": "index3.php",
                 "description": "Backup index page",
-                "timeout_count": 0,
                 "no_suffix": true
             }
         ]
@@ -836,7 +708,6 @@
                 "severity": "crtical",
                 "url": ".svn/entries",
                 "description": "SVN entries file",
-                "timeout_count": 0,
                 "no_suffix": true
             }
         ]
@@ -848,21 +719,18 @@
                 "severity": "critical",
                 "url": "_vti_bin/_vti_adm/admin.dll",
                 "description": "Frontpage administration file",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": "_vti_bin/_vti_aut/author.dll",
                 "description": "Frontpage administration file",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": "_vti_bin/shtml.dll",
                 "description": "Frontpage administration file",
-                "timeout_count": 0,
                 "no_suffix": true
             }
         ]
@@ -874,21 +742,18 @@
                 "severity": "critical",
                 "url": "CVS/Entries",
                 "description": "CVS entries file",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": "CVS/Root",
                 "description": "CVS root file",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": "CVS/Repository",
                 "description": "CVS repository file",
-                "timeout_count": 0,
                 "no_suffix": true
             }
         ]
@@ -900,7 +765,6 @@
                 "severity": "critical",
                 "url": ".git/HEAD",
                 "description": "git HEAD file",
-                "timeout_count": 0,
                 "no_suffix": true
             }
         ]
@@ -912,14 +776,12 @@
                 "severity": "critical",
                 "url": ".listing",
                 "description": "File/Dir Listing",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": ".listings",
                 "description": "File/Dir Listing",
-                "timeout_count": 0,
                 "no_suffix": true
             }
         ]
@@ -931,7 +793,6 @@
                 "severity": "critical",
                 "url": "awstats.conf",
                 "description": "AWstats log analyzer",
-                "timeout_count": 0,
                 "no_suffix": true
             }
         ]
@@ -943,21 +804,18 @@
                 "severity": "warning",
                 "url": "admin.php",
                 "description": "Admin script",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "warning",
                 "url": "admin.cgi",
                 "description": "Admin script",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "warning",
                 "url": "admin.pl",
                 "description": "Admin script",
-                "timeout_count": 0,
                 "no_suffix": true
             }
         ]
@@ -969,21 +827,18 @@
                 "severity": "critical",
                 "url": "showcode.asp",
                 "description": "Possible file access",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": "getFile.cfm",
                 "description": "Possible file access",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": "AT-admin.cgi",
                 "description": "Possible file access",
-                "timeout_count": 0,
                 "no_suffix": true
             }
         ]
@@ -995,14 +850,12 @@
                 "severity": "critical",
                 "url": "development.log  ",
                 "description": "Ruby logger",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": "production.log",
                 "description": "Ruby logger",
-                "timeout_count": 0,
                 "no_suffix": true
             }
         ]
@@ -1018,28 +871,24 @@
                 "url": "apc",
                 "executable": true,
                 "description": "Zend cache monitoring",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "memcached",
                 "executable": true,
                 "description": "memcached monitoring",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "redis",
                 "executable": true,
                 "description": "redis monitoring",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "cachemgr",
                 "executable": true,
                 "description": "cache manager",
-                "timeout_count": 0,
                 "severity": "warning"
             }
         ]
@@ -1051,91 +900,78 @@
                 "url": "download",
                 "executable": true,
                 "description": "Possible file access",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "readfile",
                 "executable": true,
                 "description": "Possible file access",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "getfile",
                 "executable": true,
                 "description": "Possible file access",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "get",
                 "executable": true,
                 "description": "Possible file access",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "show",
                 "executable": true,
                 "description": "Possible file access",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "forcedownload",
                 "executable": true,
                 "description": "Possible file access",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "upload",
                 "executable": true,
                 "description": "Possible file access",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "uploadfile",
                 "executable": true,
                 "description": "Possible file access",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "uploader",
                 "executable": true,
                 "description": "Possible file access",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "upload_file",
                 "executable": true,
                 "description": "Possible file access",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "view",
                 "executable": true,
                 "description": "Possible file access",
-                "timeout_count": 0,
                 "severity": "info"
             },
             {
                 "url": "viewfile",
                 "executable": true,
                 "description": "Possible file access",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "url": "source",
                 "executable": true,
                 "description": "Possible file access",
-                "timeout_count": 0,
                 "severity": "warning"
             }
         ]
@@ -1145,7 +981,6 @@
         "data": [
             {
                 "no_suffix": true,
-                "timeout_count": 0,
                 "url": "r57shell.php",
                 "severity": "critical",
                 "description": "Common backdoor",
@@ -1153,7 +988,6 @@
             },
             {
                 "no_suffix": true,
-                "timeout_count": 0,
                 "url": "r57.php",
                 "severity": "critical",
                 "description": "Common backdoor",
@@ -1161,7 +995,6 @@
             },
             {
                 "no_suffix": true,
-                "timeout_count": 0,
                 "url": "c99shell.php",
                 "severity": "critical",
                 "description": "Common backdoor",
@@ -1169,7 +1002,6 @@
             },
             {
                 "no_suffix": true,
-                "timeout_count": 0,
                 "url": "c99.php",
                 "severity": "critical",
                 "description": "Common backdoor",
@@ -1177,7 +1009,6 @@
             },
             {
                 "no_suffix": true,
-                "timeout_count": 0,
                 "url": "nstview.php",
                 "severity": "critical",
                 "description": "Common backdoor",
@@ -1185,7 +1016,6 @@
             },
             {
                 "no_suffix": true,
-                "timeout_count": 0,
                 "url": "nst.php",
                 "severity": "critical",
                 "description": "Common backdoor",
@@ -1193,7 +1023,6 @@
             },
             {
                 "no_suffix": true,
-                "timeout_count": 0,
                 "url": "rst.php",
                 "severity": "critical",
                 "description": "Common backdoor",
@@ -1201,7 +1030,6 @@
             },
             {
                 "no_suffix": true,
-                "timeout_count": 0,
                 "url": "r57eng.php",
                 "severity": "critical",
                 "description": "Common backdoor",
@@ -1209,7 +1037,6 @@
             },
             {
                 "no_suffix": true,
-                "timeout_count": 0,
                 "url": "r.php",
                 "severity": "critical",
                 "description": "Common backdoor",
@@ -1217,7 +1044,6 @@
             },
             {
                 "no_suffix": true,
-                "timeout_count": 0,
                 "url": "lol.php",
                 "severity": "critical",
                 "description": "Common backdoor",
@@ -1225,7 +1051,6 @@
             },
             {
                 "no_suffix": true,
-                "timeout_count": 0,
                 "url": "zenhir.php",
                 "severity": "critical",
                 "description": "Common backdoor",
@@ -1233,7 +1058,6 @@
             },
             {
                 "no_suffix": true,
-                "timeout_count": 0,
                 "url": "c-h.v2.php",
                 "severity": "critical",
                 "description": "Common backdoor",
@@ -1241,7 +1065,6 @@
             },
             {
                 "no_suffix": true,
-                "timeout_count": 0,
                 "url": "php-backdoor.php",
                 "severity": "critical",
                 "description": "Common backdoor",
@@ -1249,7 +1072,6 @@
             },
             {
                 "no_suffix": true,
-                "timeout_count": 0,
                 "url": "cmdasp.asp",
                 "severity": "critical",
                 "description": "Common backdoor",
@@ -1259,21 +1081,18 @@
                 "url": "shell",
                 "description": "Common backdoor",
                 "type": "malware",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "url": "backdoor",
                 "description": "Common backdoor",
                 "type": "malware",
-                "timeout_count": 0,
                 "severity": "critical"
             },
             {
                 "url": "cmd",
                 "description": "Common backdoor",
                 "type": "malware",
-                "timeout_count": 0,
                 "severity": "critical"
             }
         ]
@@ -1285,14 +1104,12 @@
                 "severity": "warning",
                 "url": "swagger.json",
                 "description": "Common API Disclosure",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "warning",
                 "url": "?wsdl",
                 "description": "Common API Disclosure",
-                "timeout_count": 0,
                 "no_suffix": true
             }
         ]
@@ -1304,7 +1121,6 @@
                 "severity": "warning",
                 "url": "trace.axd",
                 "description": "Information Disclosure",
-                "timeout_count": 0,
                 "no_suffix": true
             }
         ]
@@ -1316,118 +1132,101 @@
                 "severity": "warning",
                 "url": "FileListAbsolute.txt",
                 "description": ".Net Deployment File List",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "warning",
                 "url": "scan_result_file",
                 "description": "ClamAV scan result",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "warning",
                 "url": "SystemOut.log",
                 "description": "Jboss Syslog dump",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "warning",
                 "url": "main.cgi?next_file",
                 "description": "Open Network Camera",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "warning",
                 "url": "pgadmin.log ",
                 "description": "Postgres admin logs",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "url": ".user",
                 "description": "User Configuration",
-                "timeout_count": 0,
                 "severity": "warning"
             },
             {
                 "severity": "warning",
                 "url": "/wp-content/plugins/wordpress-social-stream/inc/dcwp_twitter.php?1=",
                 "description": "Twitter api log",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": "/generator/data/urllist.txt",
                 "description": "Gnu Zebra Configuration",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "warning",
                 "url": "zebra.conf",
                 "description": "Information Disclosure",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "warning",
                 "url": "hts-log.txt",
                 "description": "HTTrack logs",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "warning",
                 "url": "iProber2.php",
                 "description": "Website operational stats and data",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": "proftpdpasswd",
                 "description": "ProFTPD Passwd file",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": "ipf.conf",
                 "description": "IP Filter config",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": "bigdump.php",
                 "description": "SQL Dump importer",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "warning",
                 "url": "/phppgadmin/browser.php",
                 "description": "PHPPGAdmin Portal",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "warning",
                 "url": "/zabbix/httpmon.php",
                 "description": "Zabbix http monitoring",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "warning",
                 "url": "/status?full=true",
                 "description": "Tomcat Status file",
-                "timeout_count": 0,
                 "no_suffix": true
             }
         ]
@@ -1439,35 +1238,30 @@
                 "severity": "critical",
                 "url": "sftp-config.json",
                 "description": "Config file for Multiple SFTP clients, e.g. Sublime SFTP",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": "recentservers.xml",
                 "description": "FileZilla",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": "sitemanager.xml",
                 "description": "FileZilla",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": ".ftpconfig",
                 "description": "Remote FTP for Atom.io",
-                "timeout_count": 0,
                 "no_suffix": true
             },
             {
                 "severity": "critical",
                 "url": "ftpsync.settings",
                 "description": "FTPSync for Sublime Text",
-                "timeout_count": 0,
                 "no_suffix": true
             }
         ]
@@ -1478,14 +1272,12 @@
             {
                 "url" : "/server-info",
                 "description" : "Apache debug server information",
-                "timeout_count": 0,
                 "severity": "critical",
 		"no_suffix": true
             },
             {
                 "url" : "/server-status",
                 "description" : "Apache debug server status",
-                "timeout_count": 0,
                 "severity": "critical",
 		"no_suffix": true
             }
