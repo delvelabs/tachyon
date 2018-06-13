@@ -1,45 +1,53 @@
 # Tachyon
 
-Tachyon is a fast Web discovery tool.
+Tachyon is a fast web application security reconnaissance tool.
 
-The main goal of tachyon is to help webadmins find leftover files in their
-site installation, permission problems and web server configuration errors.
+It is specifically meant to crawl web application and look for left over or non-indexed files with the addition of reporting pages or scripts leaking internal data.
 
-It is not a vulnerability scanner, nor a web crawler.
-
-## Features
-
-It provides:
- - Plugin support
- - SSL support
- - Robots.txt support
- - Common directory lookup
- - Recursive scanning
-
-## Requirements    
+## User Requirements    
 
 - Linux
 - Python 3.5.2
 
-## Installation
+## User Installation
 
-### Pip version:
+### Install:
 
 ```bash
-pip install git+https://github.com/delvelabs/tachyon.git
+$ mkdir tachyon
+$ python3 -m venv tachyon/
+$ source tachyon/bin/activate
+$ pip install tachyon3
+$ tachyon -h
+```
+### Upgrading:
+
+```bash
+$ cd tachyon
+$ source bin/activate
+$ pip install --ignore-installed --upgrade tachyon3
 ```
 
-### Source code version
+
+## Developers Installation
 
 ```bash
 git clone https://github.com/delvelabs/tachyon.git
-cd tachyon
-pip install -r requirements.txt
+$ mkdir tachyon
+$ python3 -m venv tachyon/
+$ source tachyon/bin/activate
+$ cd tachyon
+$ pip install -r requirements-dev.txt
 ```
 
 ## Getting started
 
-Note: if you have the source code version, replace ```tachyon``` with ```python -m tachyon``` in the examples below.
+Note: if you have the source code version, replace ```tachyon``` with ```python3 -m tachyon``` in the examples below.
+
+```bash
+$ cd tachyon
+$ source bin/activate
+```
 
 To run a discovery with the default settings:
 ```bash
