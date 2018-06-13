@@ -67,7 +67,7 @@ class TestFileGenerator(TestCase):
 def load_paths(path_list):
     loaded_paths = []
     for path in path_list:
-        _path = {"url": path, "description": "desc", "timeout_count": 0, "severity": "warning"}
+        _path = {"url": path, "description": "desc", "severity": "warning"}
         loaded_paths.append(_path)
     return loaded_paths
 
@@ -75,7 +75,7 @@ def load_paths(path_list):
 def load_files(file_list, **kwargs):
     loaded_files = []
     for filename in file_list:
-        file = {"url": filename, "description": "desc", "severity": "warning", "timeout_count": 0}
+        file = {"url": filename, "description": "desc", "severity": "warning"}
         file.update(**kwargs)
         loaded_files.append(file)
     return loaded_files
