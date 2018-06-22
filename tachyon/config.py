@@ -22,6 +22,7 @@ from aiohttp.cookiejar import DummyCookieJar
 from hammertime import HammerTime
 from hammertime.config import custom_event_loop
 from hammertime.engine import AioHttpEngine
+from hammertime.ruleset import StopRequest
 from hammertime.rules import DetectSoft404, RejectStatusCode, DynamicTimeout, RejectCatchAllRedirect, FollowRedirects, \
     SetHeader, DeadHostDetection, FilterRequestFromURL, DetectBehaviorChange, IgnoreLargeBody, \
     RejectSoft404
@@ -58,34 +59,38 @@ def setup_hammertime_heuristics(hammertime, *, user_agent=default_user_agent, vh
     heuristics_with_child = [RejectCatchAllRedirect(), follow_redirects,
                              RejectIgnoredQuery()]
     hosts = (vhost, conf.target_host) if vhost is not None else conf.target_host
-    global_heuristics = [RejectStatusCode({404, 406, 502, 503}),
+
+    init_heuristics = [SetHeader("User-Agent", user_agent),
+                       SetHeader("Host", vhost if vhost is not None else conf.target_host),
+                       dead_host_detection,
+                       RejectStatusCode({503, 508}, exception_class=StopRequest),
+                       StripTag('input'), StripTag('script')]
+
+    global_heuristics = [RejectStatusCode({404, 406, 502}),
                          DynamicTimeout(1.0, 5),
                          RedirectLimiter(),
                          FilterRequestFromURL(allowed_urls=hosts),
                          IgnoreLargeBody(initial_limit=initial_limit)]
-    heuristics = [StripTag('input'), StripTag('script'), detect_soft_404, RejectSoft404(),
-                  MatchString(),
-                  DetectBehaviorChange(buffer_size=100), LogBehaviorChange()]
 
     # Dead host detection must be first to make sure there is no skipped after_headers
-    hammertime.heuristics.add(dead_host_detection)
+    hammertime.heuristics.add_multiple(init_heuristics)
 
+    # General
     hammertime.heuristics.add_multiple(global_heuristics)
-
-    # Make sure follow redirect comes in before soft404
     hammertime.heuristics.add_multiple(heuristics_with_child)
-    hammertime.heuristics.add_multiple(heuristics)
+    hammertime.heuristics.add_multiple([
+        detect_soft_404,
+        RejectSoft404(),
+        MatchString(),
+        DetectBehaviorChange(buffer_size=100),
+        LogBehaviorChange(),
+    ])
+    detect_soft_404.child_heuristics.add_multiple(init_heuristics)
+    detect_soft_404.child_heuristics.add_multiple(heuristics_with_child)
 
     for heuristic in heuristics_with_child:
+        heuristic.child_heuristics.add_multiple(init_heuristics)
         heuristic.child_heuristics.add_multiple(global_heuristics)
-
-    detect_soft_404.child_heuristics.add(StripTag('input'))
-    detect_soft_404.child_heuristics.add(StripTag('script'))
-    detect_soft_404.child_heuristics.add(dead_host_detection)
-    detect_soft_404.child_heuristics.add(follow_redirects)
-
-    add_http_header(hammertime, "User-Agent", user_agent)
-    add_http_header(hammertime, "Host", vhost if vhost is not None else conf.target_host)
 
 
 def add_http_header(hammertime, header_name, header_value):
