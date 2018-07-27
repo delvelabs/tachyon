@@ -26,6 +26,8 @@ from fixtures import async, patch_coroutines
 from hammertime.core import HammerTime
 
 from tachyon import __main__ as tachyon, database
+from tachyon.result import ResultAccumulator
+from tachyon.output import PrettyOutput
 
 
 class TestTachyon(TestCase):
@@ -33,6 +35,7 @@ class TestTachyon(TestCase):
     def setUp(self):
         tachyon.load_execute_file_plugins = MagicMock()
         tachyon.load_execute_host_plugins = make_mocked_coro()
+        self.accumulator = ResultAccumulator(output_manager=PrettyOutput)
 
     @classmethod
     def setUpClass(cls):
@@ -52,7 +55,7 @@ class TestTachyon(TestCase):
         tachyon.PathGenerator = MagicMock(return_value=path_generator)
         tachyon.DirectoryFetcher = MagicMock(return_value=fake_directory_fetcher)
 
-        await tachyon.test_paths_exists(HammerTime(loop=loop))
+        await tachyon.test_paths_exists(HammerTime(loop=loop), accumulator=self.accumulator)
 
         fake_directory_fetcher.fetch_paths.assert_called_once_with(path_generator.generate_paths.return_value)
 
@@ -67,7 +70,7 @@ class TestTachyon(TestCase):
         tachyon.DirectoryFetcher = MagicMock(return_value=fake_directory_fetcher)
 
         with patch("tachyon.textutils.output_info") as output_info:
-            await tachyon.test_paths_exists(HammerTime(loop=loop))
+            await tachyon.test_paths_exists(HammerTime(loop=loop), accumulator=self.accumulator)
 
             output_info.assert_any_call("Probing %d paths" % len(paths))
 
@@ -81,7 +84,7 @@ class TestTachyon(TestCase):
         tachyon.PathGenerator = MagicMock(return_value=path_generator)
         tachyon.DirectoryFetcher = MagicMock(return_value=fake_directory_fetcher)
 
-        await tachyon.test_paths_exists(HammerTime(loop=loop), recursive=True)
+        await tachyon.test_paths_exists(HammerTime(loop=loop), recursive=True, accumulator=self.accumulator)
 
         path_generator.generate_paths.assert_has_calls([call(use_valid_paths=False), call(use_valid_paths=True),
                                                         call(use_valid_paths=True)], any_order=False)
@@ -101,7 +104,7 @@ class TestTachyon(TestCase):
         database.valid_paths = paths
 
         with patch("tachyon.textutils.output_info") as output_info:
-            await tachyon.test_paths_exists(HammerTime(loop=loop))
+            await tachyon.test_paths_exists(HammerTime(loop=loop), accumulator=self.accumulator)
 
             output_info.assert_any_call("Found %d valid paths" % len(database.valid_paths))
 
@@ -115,7 +118,7 @@ class TestTachyon(TestCase):
         fake_file_generator.generate_files.return_value = ["list of files"]
 
         with patch("tachyon.__main__.FileGenerator", MagicMock(return_value=fake_file_generator)):
-            await tachyon.test_file_exists(HammerTime(loop=loop))
+            await tachyon.test_file_exists(HammerTime(loop=loop), accumulator=self.accumulator)
 
         fake_file_fetcher.fetch_files.assert_called_once_with(["list of files"])
 
@@ -124,7 +127,7 @@ class TestTachyon(TestCase):
     async def test_fetch_session_cookies_on_scan_start_if_no_user_supplied_cookies(self):
         hammertime = MagicMock()
 
-        await tachyon.scan(hammertime, cookies=None)
+        await tachyon.scan(hammertime, cookies=None, accumulator=self.accumulator)
 
         tachyon.get_session_cookies.assert_called_once_with(hammertime)
 
@@ -134,7 +137,7 @@ class TestTachyon(TestCase):
         hammertime = MagicMock()
         cookies = "not none"
 
-        await tachyon.scan(hammertime, cookies=cookies)
+        await tachyon.scan(hammertime, cookies=cookies, accumulator=self.accumulator)
 
         tachyon.get_session_cookies.assert_not_called()
 
@@ -145,7 +148,7 @@ class TestTachyon(TestCase):
         hammertime = MagicMock()
 
         with patch("tachyon.config.add_http_header") as add_http_header:
-            await tachyon.scan(hammertime, cookies=cookies)
+            await tachyon.scan(hammertime, cookies=cookies, accumulator=self.accumulator)
 
             add_http_header.assert_any_call(ANY, "Cookie", "test-cookie=true")
 
@@ -154,9 +157,9 @@ class TestTachyon(TestCase):
     async def test_scan_directory_only(self):
         hammertime = MagicMock()
 
-        await tachyon.scan(hammertime, directories_only=True)
+        await tachyon.scan(hammertime, directories_only=True, accumulator=self.accumulator)
 
-        tachyon.test_paths_exists.assert_called_once_with(hammertime)
+        tachyon.test_paths_exists.assert_called_once_with(hammertime, accumulator=self.accumulator)
         tachyon.test_file_exists.assert_not_called()
 
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
@@ -164,9 +167,9 @@ class TestTachyon(TestCase):
     async def test_scan_file_only(self):
         hammertime = MagicMock()
 
-        await tachyon.scan(hammertime, files_only=True)
+        await tachyon.scan(hammertime, files_only=True, accumulator=self.accumulator)
 
-        tachyon.test_file_exists.assert_called_once_with(hammertime)
+        tachyon.test_file_exists.assert_called_once_with(hammertime, accumulator=self.accumulator)
         tachyon.test_paths_exists.assert_not_called()
 
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
@@ -174,7 +177,7 @@ class TestTachyon(TestCase):
     async def test_scan_plugins_only(self):
         hammertime = MagicMock()
 
-        await tachyon.scan(hammertime, plugins_only=True)
+        await tachyon.scan(hammertime, plugins_only=True, accumulator=self.accumulator)
 
         tachyon.load_execute_host_plugins.assert_called_once_with(hammertime)
         tachyon.test_file_exists.assert_not_called()

@@ -1,4 +1,3 @@
-from hammertime.rules.redirects import valid_redirects
 
 
 class ResultAccumulator:
@@ -15,7 +14,7 @@ class ResultAccumulator:
         self.output_manager.output_result(message, data=data)
 
     def _format_message(self, entry):
-        url = entry.request.url
+        url = self._find_url(entry)
         data = entry.arguments.get("file") or entry.arguments.get("path")
         message_prefix = self._get_prefix(entry)
         return "{prefix}{desc} at: {url}".format(prefix=message_prefix, desc=data["description"], url=url)
@@ -39,7 +38,7 @@ class ResultAccumulator:
         return ""
 
     def _get_data(self, entry, additional):
-        url = entry.request.url
+        url = self._find_url(entry)
         descriptor = entry.arguments.get("file") or entry.arguments.get("path")
 
         data = {"url": url,
@@ -60,3 +59,8 @@ class ResultAccumulator:
             return True
 
         return False
+
+    def _find_url(self, entry):
+        if entry.result.redirects:
+            return self._find_url(entry.result.redirects[-1])
+        return entry.request.url

@@ -94,3 +94,31 @@ class ResultAccumulatorTest(TestCase):
             "severity": "medium",
             "special": "tomcat-redirect",
         })
+
+    def test_redirection_should_provide_the_final_url_as_result(self):
+        entry = Entry.create(url="http://example.com/private",
+                             arguments={
+                               "path": {
+                                   "description": "private",
+                                   "severity": "medium",
+                               }
+                             },
+                             response=StaticResponse(200, content="Hello", headers={}))
+        entry.result.redirects.append(Entry.create(url="http://example.com/private",
+                                                   response=StaticResponse(302, content="", headers={
+                                                    "Location": "/private/",
+                                                   })))
+        entry.result.redirects.append(Entry.create(url="http://example.com/private/",
+                                                   response=StaticResponse(200, content="Hello", headers={})))
+
+        manager = MagicMock()
+
+        acc = ResultAccumulator(output_manager=manager)
+        acc.add_entry(entry)
+
+        manager.output_result.assert_called_with("private at: http://example.com/private/", data={
+            "url": "http://example.com/private/",
+            "description": "private",
+            "code": 200,
+            "severity": "medium",
+        })
