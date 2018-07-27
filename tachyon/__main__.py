@@ -152,9 +152,10 @@ async def scan(hammertime, *, cookies=None, directories_only=False, files_only=F
 @click.option("-r", "--recursive", is_flag=True)
 @click.option("-u", "--user-agent", default=default_user_agent)
 @click.option("-v", "--vhost", type=str, default=None)
+@click.option("-C", "--confirmation-factor", default=1)
 @click.argument("target_host")
 def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_settings, proxy, user_agent, vhost,
-         depth_limit, directories_only, files_only, plugins_only, recursive, allow_download):
+         depth_limit, directories_only, files_only, plugins_only, recursive, allow_download, confirmation_factor):
 
     if not json_output:
         print_program_header()
@@ -186,7 +187,8 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
         loop = custom_event_loop()
         hammertime = loop.run_until_complete(
             configure_hammertime(cookies=conf.cookies, proxy=conf.proxy_url, retry_count=max_retry_count,
-                                 user_agent=conf.user_agent, vhost=conf.forge_vhost))
+                                 user_agent=conf.user_agent, vhost=conf.forge_vhost,
+                                 confirmation_factor=confirmation_factor))
         loop.run_until_complete(scan(hammertime, cookies=conf.cookies, directories_only=directories_only,
                                      files_only=files_only, plugins_only=plugins_only, depth_limit=depth_limit,
                                      recursive=recursive))

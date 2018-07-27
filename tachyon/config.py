@@ -50,11 +50,11 @@ async def configure_hammertime(proxy=None, retry_count=3, cookies=None, **kwargs
     return hammertime
 
 
-def setup_hammertime_heuristics(hammertime, *, user_agent=default_user_agent, vhost=None):
+def setup_hammertime_heuristics(hammertime, *, user_agent=default_user_agent, vhost=None, confirmation_factor=1):
     #  TODO Make sure rejecting 404 does not conflict with tomcat fake 404 detection.
     global heuristics_with_child
     dead_host_detection = DeadHostDetection(threshold=200)
-    detect_soft_404 = DetectSoft404(distance_threshold=6)
+    detect_soft_404 = DetectSoft404(distance_threshold=6, confirmation_factor=confirmation_factor)
     follow_redirects = FollowRedirects()
     heuristics_with_child = [RejectCatchAllRedirect(), follow_redirects,
                              RejectIgnoredQuery()]
