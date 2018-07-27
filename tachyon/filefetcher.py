@@ -32,7 +32,7 @@ class FileFetcher:
     def __init__(self, host, hammertime, accumulator=None):
         self.host = host
         self.hammertime = hammertime
-        self.accumulator = accumulator or ResultAccumulator(output_manager=output_manager or PrettyOutput)
+        self.accumulator = accumulator or ResultAccumulator(output_manager=output_manager or PrettyOutput())
 
     async def fetch_files(self, file_list):
         requests = []

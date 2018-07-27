@@ -49,3 +49,5 @@ def init_log(json_output):
         output_manager = JSONOutput()
     else:
         output_manager = PrettyOutput()
+
+    return output_manager

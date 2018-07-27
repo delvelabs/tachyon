@@ -35,6 +35,7 @@ from tachyon.__version__ import __version__
 from tachyon.config import configure_hammertime, set_cookies, default_user_agent, custom_event_loop
 from tachyon.generator import PathGenerator, FileGenerator
 from tachyon.plugins import host, file
+from tachyon.result import ResultAccumulator
 
 
 def load_target_paths():
@@ -59,14 +60,14 @@ async def get_session_cookies(hammertime):
         textutils.output_info('Request for website root failed.')
 
 
-async def test_paths_exists(hammertime, *, recursive=False, depth_limit=2):
+async def test_paths_exists(hammertime, *, recursive=False, depth_limit=2, accumulator):
     """
     Test for path existence using http codes and computed 404
     Turn off output for now, it would be irrelevant at this point.
     """
 
     path_generator = PathGenerator()
-    fetcher = DirectoryFetcher(conf.base_url, hammertime)
+    fetcher = DirectoryFetcher(conf.base_url, hammertime, accumulator=accumulator)
 
     paths_to_fetch = path_generator.generate_paths(use_valid_paths=False)
 
@@ -100,9 +101,9 @@ def load_execute_file_plugins():
             plugin.execute()
 
 
-async def test_file_exists(hammertime):
+async def test_file_exists(hammertime, accumulator):
     """ Test for file existence using http codes and computed 404 """
-    fetcher = FileFetcher(conf.base_url, hammertime)
+    fetcher = FileFetcher(conf.base_url, hammertime, accumulator=accumulator)
     generator = FileGenerator()
     database.valid_paths = generator.generate_files()
     textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
@@ -122,7 +123,10 @@ def format_stats(stats):
     return message.format(stats.requested, stats.completed, stats.duration, stats.retries, stats.rate)
 
 
-async def scan(hammertime, *, cookies=None, directories_only=False, files_only=False, plugins_only=False, **kwargs):
+async def scan(hammertime, *, accumulator,
+               cookies=None, directories_only=False, files_only=False, plugins_only=False,
+               **kwargs):
+
     if cookies is not None:
         set_cookies(hammertime, cookies)
     else:
@@ -131,11 +135,11 @@ async def scan(hammertime, *, cookies=None, directories_only=False, files_only=F
     await load_execute_host_plugins(hammertime)
     if not plugins_only:
         if not files_only:
-            await test_paths_exists(hammertime, **kwargs)
+            await test_paths_exists(hammertime, accumulator=accumulator, **kwargs)
         if not directories_only:
             textutils.output_info('Generating file targets')
             load_execute_file_plugins()
-            await test_file_exists(hammertime)
+            await test_file_exists(hammertime, accumulator=accumulator)
 
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
@@ -166,8 +170,10 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
     conf.target_host = parsed_url.netloc
     conf.base_url = "%s://%s" % (parsed_url.scheme, parsed_url.netloc)
 
-    textutils.init_log(json_output)
-    textutils.output_info('Starting Discovery on ' + conf.base_url)
+    output_manager = textutils.init_log(json_output)
+    accumulator = ResultAccumulator(output_manager=output_manager)
+
+    output_manager.output_info('Starting Discovery on ' + conf.base_url)
 
     conf.allow_download = allow_download
     for option in plugin_settings:
@@ -189,19 +195,20 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
             configure_hammertime(cookies=conf.cookies, proxy=conf.proxy_url, retry_count=max_retry_count,
                                  user_agent=conf.user_agent, vhost=conf.forge_vhost,
                                  confirmation_factor=confirmation_factor))
-        loop.run_until_complete(scan(hammertime, cookies=conf.cookies, directories_only=directories_only,
+        loop.run_until_complete(scan(hammertime, accumulator=accumulator,
+                                     cookies=conf.cookies, directories_only=directories_only,
                                      files_only=files_only, plugins_only=plugins_only, depth_limit=depth_limit,
                                      recursive=recursive))
 
-        textutils.output_info('Scan completed')
+        output_manager.output_info('Scan completed')
 
     except (KeyboardInterrupt, asyncio.CancelledError):
-        textutils.output_error('Keyboard Interrupt Received')
+        output_manager.output_error('Keyboard Interrupt Received')
     except OfflineHostException:
-        textutils.output_error("Target host seems to be offline.")
+        output_manager.output_error("Target host seems to be offline.")
     finally:
         textutils.output_info(format_stats(hammertime.stats))
-        textutils.flush()
+        output_manager.flush()
 
 
 if __name__ == "__main__":
