@@ -18,7 +18,7 @@
 
 
 from unittest import TestCase
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import call, patch
 
 from fixtures import async, FakeHammerTimeEngine, create_json_data, RaiseForPaths, SetResponseCode, SetFlagInResult
 from hammertime.core import HammerTime
@@ -26,20 +26,15 @@ from hammertime.ruleset import RejectRequest
 from tachyon.database import valid_paths
 from tachyon.directoryfetcher import DirectoryFetcher
 
-from tachyon import textutils
 from tachyon import database
 
 
+@patch("tachyon.output.OutputManager.output_result")
 class TestDirectoryFetcher(TestCase):
 
     def setUp(self):
         valid_paths.clear()
         self.host = "http://example.com"
-        self.fake_output = patch("tachyon.textutils.output_found")
-        self.fake_output.start()
-
-    def tearDown(self):
-        self.fake_output.stop()
 
     def async_setup(self, loop):
         self.hammertime = HammerTime(loop=loop, request_engine=FakeHammerTimeEngine())
@@ -48,7 +43,7 @@ class TestDirectoryFetcher(TestCase):
         self.directory_fetcher = DirectoryFetcher(self.host, self.hammertime)
 
     @async()
-    async def test_fetch_paths_add_valid_path_to_database(self, loop):
+    async def test_fetch_paths_add_valid_path_to_database(self, output_result, loop):
         valid = ["/a", "b", "/c", "/1", "/2", "/3"]
         invalid = ["/d", "/e", "/4", "/5"]
         paths = valid + invalid
@@ -63,7 +58,7 @@ class TestDirectoryFetcher(TestCase):
             self.assertNotIn(path["url"], invalid)
 
     @async()
-    async def test_fetch_paths_dont_add_path_if_response_code_is_401(self, loop):
+    async def test_fetch_paths_dont_add_path_if_response_code_is_401(self, output_result, loop):
         paths = ["/401"]
         self.async_setup(loop)
         self.hammertime.heuristics.add(SetResponseCode(401))
@@ -73,7 +68,7 @@ class TestDirectoryFetcher(TestCase):
         self.assertEqual(len(database.valid_paths), 0)
 
     @async()
-    async def test_fetch_paths_output_found_directory(self, loop):
+    async def test_fetch_paths_output_found_directory(self, output_result, loop):
         found = ["/%d" % i for i in range(10)]
         not_found = ["/1%d" % i for i in range(10)]
         paths = found + not_found
@@ -85,21 +80,21 @@ class TestDirectoryFetcher(TestCase):
         calls = []
         for path in create_json_data(found):
             message, data = self.expected_output(path)
-            calls.append(call(message, data))
-        textutils.output_found.assert_has_calls(calls, any_order=True)
+            calls.append(call(message, data=data))
+        output_result.assert_has_calls(calls, any_order=True)
 
     @async()
-    async def test_fetch_paths_does_not_output_root_path(self, loop):
+    async def test_fetch_paths_does_not_output_root_path(self, output_result, loop):
         paths = create_json_data(["/"])
         self.async_setup(loop)
 
         await self.directory_fetcher.fetch_paths(paths)
 
         self.assertEqual(database.valid_paths, paths)
-        textutils.output_found.assert_not_called()
+        output_result.assert_not_called()
 
     @async()
-    async def test_fetch_paths_output_401_directory(self, loop):
+    async def test_fetch_paths_output_401_directory(self, output_result, loop):
         self.async_setup(loop)
         self.hammertime.heuristics.add(SetResponseCode(401))
         path_list = create_json_data(["/admin"])
@@ -107,10 +102,10 @@ class TestDirectoryFetcher(TestCase):
         await self.directory_fetcher.fetch_paths(path_list)
 
         message, data = self.expected_output(path_list[0], code=401, message_prefix="Password Protected - ")
-        textutils.output_found.assert_called_once_with(message, data)
+        output_result.assert_called_once_with(message, data=data)
 
     @async()
-    async def test_fetch_paths_output_500_response(self, loop):
+    async def test_fetch_paths_output_500_response(self, output_result, loop):
         self.async_setup(loop)
         self.hammertime.heuristics.add(SetResponseCode(500))
         path_list = create_json_data(["/server-error"])
@@ -118,10 +113,10 @@ class TestDirectoryFetcher(TestCase):
         await self.directory_fetcher.fetch_paths(path_list)
 
         message, data = self.expected_output(path_list[0], message_prefix="ISE, ", code=500)
-        textutils.output_found.assert_called_once_with(message, data)
+        output_result.assert_called_once_with(message, data=data)
 
     @async()
-    async def test_fetch_paths_output_403_directory(self, loop):
+    async def test_fetch_paths_output_403_directory(self, output_result, loop):
         self.async_setup(loop)
         self.hammertime.heuristics.add(SetResponseCode(403))
         path_list = create_json_data(["/forbidden"])
@@ -129,23 +124,10 @@ class TestDirectoryFetcher(TestCase):
         await self.directory_fetcher.fetch_paths(path_list)
 
         message, data = self.expected_output(path_list[0], message_prefix="*Forbidden* ", code=403)
-        textutils.output_found.assert_called_once_with(message, data)
+        output_result.assert_called_once_with(message, data=data)
 
     @async()
-    async def test_fetch_paths_output_tomcat_fake_404(self, loop):
-        self.async_setup(loop)
-        self.hammertime.heuristics.add(SetResponseCode(404))
-        path_list = create_json_data(["/path"])
-        self.directory_fetcher.detect_tomcat_fake_404 = MagicMock(return_value=True)
-
-        await self.directory_fetcher.fetch_paths(path_list)
-
-        message, data = self.expected_output(path_list[0], message_prefix="Tomcat redirect, ", code=404)
-        data["special"] = "tomcat-redirect"
-        textutils.output_found.assert_called_once_with(message, data)
-
-    @async()
-    async def test_fetch_paths_append_slash_to_path(self, loop):
+    async def test_fetch_paths_append_slash_to_path(self, output_result, loop):
         paths = ["/a", "/b", "/c", "/1", "/2", "/3"]
         self.async_setup(loop)
         await self.directory_fetcher.fetch_paths(create_json_data(paths))
@@ -155,7 +137,7 @@ class TestDirectoryFetcher(TestCase):
             self.assertEqual(url, "{}{}/".format(self.host, path))
 
     @async()
-    async def test_fetch_paths_does_not_append_slash_to_root_path(self, loop):
+    async def test_fetch_paths_does_not_append_slash_to_root_path(self, output_result, loop):
         paths = ["/"]
         self.async_setup(loop)
         await self.directory_fetcher.fetch_paths(create_json_data(paths))
@@ -163,22 +145,22 @@ class TestDirectoryFetcher(TestCase):
         self.assertEqual(requested, self.host + "/")
 
     @async()
-    async def test_fetch_paths_ignore_soft404(self, loop):
+    async def test_fetch_paths_ignore_soft404(self, output_result, loop):
         self.async_setup(loop)
         self.hammertime.heuristics.add(SetFlagInResult("soft404", True))
 
         await self.directory_fetcher.fetch_paths(create_json_data(["path"]))
 
-        textutils.output_found.assert_not_called()
+        output_result.assert_not_called()
 
     @async()
-    async def test_fetch_paths_ignore_behavior_error(self, loop):
+    async def test_fetch_paths_ignore_behavior_error(self, output_result, loop):
         self.async_setup(loop)
         self.hammertime.heuristics.add(SetFlagInResult("error_behavior", True))
 
         await self.directory_fetcher.fetch_paths(create_json_data(["path"]))
 
-        textutils.output_found.assert_not_called()
+        output_result.assert_not_called()
 
     def expected_output(self, path, *, code=200, message_prefix=""):
         url = "{}{}/".format(self.host, path["url"])

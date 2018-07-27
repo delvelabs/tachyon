@@ -31,7 +31,7 @@ from tachyon.config import setup_hammertime_heuristics
 from tachyon.filefetcher import FileFetcher
 
 
-@patch("tachyon.filefetcher.output_found")
+@patch("tachyon.output.OutputManager.output_result")
 class TestFileFetcher(TestCase):
 
     def setUp(self):

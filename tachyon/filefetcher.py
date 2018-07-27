@@ -21,17 +21,18 @@ import asyncio
 from urllib.parse import urljoin
 
 from hammertime.rules.deadhostdetection import OfflineHostException
-from hammertime.rules.redirects import valid_redirects
 from hammertime.ruleset import StopRequest, RejectRequest
 
-from tachyon.textutils import output_found
+from .textutils import output_manager, PrettyOutput
+from .result import ResultAccumulator
 
 
 class FileFetcher:
 
-    def __init__(self, host, hammertime):
+    def __init__(self, host, hammertime, accumulator=None):
         self.host = host
         self.hammertime = hammertime
+        self.accumulator = accumulator or ResultAccumulator(output_manager=output_manager or PrettyOutput)
 
     async def fetch_files(self, file_list):
         requests = []
@@ -43,27 +44,13 @@ class FileFetcher:
                 entry = await future
                 if self._is_entry_invalid(entry):
                     continue
-                if entry.response.code == 500:
-                    self.output_found(entry, message_prefix="ISE, ")
-                elif entry.response.code not in valid_redirects:
-                    if len(entry.response.raw) == 0:
-                        self.output_found(entry, message_prefix="Empty ")
-                    else:
-                        self.output_found(entry)
+                self.accumulator.add_entry(entry)
             except OfflineHostException:
                 raise
             except RejectRequest:
                 pass
             except StopRequest:
                 continue
-
-    def output_found(self, entry, message_prefix=""):
-        url = entry.request.url
-        file = entry.arguments["file"]
-        message = "{prefix}{desc} at: {url}".format(prefix=message_prefix, desc=file["description"], url=url)
-        data = {"url": url, "description": file["description"], "code": entry.response.code,
-                "severity": file.get('severity', "warning")}
-        output_found(message, data=data)
 
     def _is_entry_invalid(self, entry):
         if entry is None:
