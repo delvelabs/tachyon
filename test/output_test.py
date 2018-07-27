@@ -88,16 +88,6 @@ class TestPrettyOutput(TestCase):
     def setUp(self):
         self.output = PrettyOutput()
 
-    def test_output_result_add_found_to_result_buffer(self):
-        url = "http://example.com/y"
-        result = "File x found at " + url
-        data = {"url": url, "severity": "critical", "description": "File x desc", "code": 200}
-        output = PrettyOutput()
-
-        output.output_result(result, data=data)
-
-        self.assertEqual(output.result_buffer, ["[12:00:00] [FOUND] %s" % result])
-
     @patch("tachyon.output.click")
     def test_output_info_print_message_with_level_info(self, click):
         message = "information..."

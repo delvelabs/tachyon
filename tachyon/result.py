@@ -4,22 +4,30 @@ class ResultAccumulator:
 
     def __init__(self, *, output_manager):
         self.output_manager = output_manager
+        self.candidates = []
 
     def add_entry(self, entry):
-        self.output_found(entry)
+        entry = self._select_entry(entry)
+        self._output_found(entry)
+        self.candidates.append(entry)
 
-    def output_found(self, entry, **kwargs):
-        message = self._format_message(entry)
+    async def revalidate(self, validator):
+        for entry in self.candidates:
+            if await validator.is_valid(entry):
+                self._output_found(entry, confirmed=True)
+
+    def _output_found(self, entry, **kwargs):
         data = self._get_data(entry, kwargs)
+        message = self._format_message(entry, data)
         self.output_manager.output_result(message, data=data)
 
-    def _format_message(self, entry):
-        url = self._find_url(entry)
-        data = entry.arguments.get("file") or entry.arguments.get("path")
-        message_prefix = self._get_prefix(entry)
-        return "{prefix}{desc} at: {url}".format(prefix=message_prefix, desc=data["description"], url=url)
+    def _format_message(self, entry, data):
+        url = entry.request.url
+        return "{prefix}{desc} at: {url}{suffix}".format(prefix=self._get_prefix(entry, data),
+                                                         suffix=self._get_suffix(entry, data),
+                                                         desc=data["description"], url=url)
 
-    def _get_prefix(self, entry):
+    def _get_prefix(self, entry, data):
         if "file" in entry.arguments:
             if entry.response.code == 500:
                 return "ISE, "
@@ -30,15 +38,21 @@ class ResultAccumulator:
                 return "Password Protected - "
             elif entry.response.code == 403:
                 return "*Forbidden* "
-            elif entry.response.code == 404 and self._detect_tomcat_fake_404(entry.response.raw):
+            elif data.get("special") == "tomcat-redirect":
                 return "Tomcat redirect, "
             elif entry.response.code == 500:
                 return "ISE, "
 
         return ""
 
+    def _get_suffix(self, entry, data):
+        if data.get("confirmed"):
+            return " (Confirmed)"
+
+        return ""
+
     def _get_data(self, entry, additional):
-        url = self._find_url(entry)
+        url = entry.request.url
         descriptor = entry.arguments.get("file") or entry.arguments.get("path")
 
         data = {"url": url,
@@ -47,7 +61,7 @@ class ResultAccumulator:
                 "severity": descriptor.get('severity', "warning")}
         data.update(additional)
 
-        if self._detect_tomcat_fake_404(entry.response.raw):
+        if entry.response.code == 404 and self._detect_tomcat_fake_404(entry.response.raw):
             data["special"] = "tomcat-redirect"
 
         return data
@@ -60,7 +74,10 @@ class ResultAccumulator:
 
         return False
 
-    def _find_url(self, entry):
+    def _select_entry(self, entry):
         if entry.result.redirects:
-            return self._find_url(entry.result.redirects[-1])
-        return entry.request.url
+            last_step = entry.result.redirects[-1]
+            last_step.arguments = entry.arguments
+            return last_step
+        else:
+            return entry

@@ -24,6 +24,7 @@ import click
 import tachyon.database as database
 import tachyon.loaders as loaders
 import tachyon.textutils as textutils
+from hammertime.http import Entry
 from hammertime.rules import RejectStatusCode
 from hammertime.rules.deadhostdetection import OfflineHostException
 from hammertime.ruleset import RejectRequest, StopRequest
@@ -133,6 +134,26 @@ async def scan(hammertime, *, accumulator,
             textutils.output_info('Generating file targets')
             load_execute_file_plugins()
             await test_file_exists(hammertime, accumulator=accumulator)
+
+    validator = ReFetch(hammertime)
+
+    if await validator.is_valid(Entry.create(conf.base_url + "/")):
+        textutils.output_info("Re-validating prior results.")
+        await accumulator.revalidate(validator)
+    else:
+        textutils.output_error("Re-validation aborted. Target no longer appears to be up.")
+
+
+class ReFetch:
+    def __init__(self, hammertime):
+        self.hammertime = hammertime
+
+    async def is_valid(self, entry):
+        try:
+            await self.hammertime.request(entry.request.url, arguments=entry.arguments)
+            return True
+        except Exception as e:
+            return False
 
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))

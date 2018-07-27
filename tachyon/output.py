@@ -85,12 +85,8 @@ class JSONOutput(OutputManager):
 
 class PrettyOutput(OutputManager):
 
-    def __init__(self):
-        self.result_buffer = []
-
     def flush(self):
-        for result in self.result_buffer:
-            self.output_raw_message(result)
+        pass
 
     def output_header(self):
         """ Print a _cute_ program header """
@@ -99,10 +95,7 @@ class PrettyOutput(OutputManager):
 
     def _add_output(self, text, level, data=None):
         formatted = self._format_output(self._get_current_time(), logging.getLevelName(level), text, data)
-        if level == FOUND:
-            self.result_buffer.append(formatted)
-        else:
-            self.output_raw_message(formatted)
+        self.output_raw_message(formatted)
 
     def _format_output(self, time, level_name, text, data):
         output_format = "[{time}] [{level}] {text}"

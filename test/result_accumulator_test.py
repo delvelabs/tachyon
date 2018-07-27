@@ -1,3 +1,4 @@
+from fixtures import async
 from unittest import TestCase
 from unittest.mock import MagicMock
 from tachyon.result import ResultAccumulator
@@ -122,3 +123,53 @@ class ResultAccumulatorTest(TestCase):
             "code": 200,
             "severity": "medium",
         })
+
+    @async()
+    async def test_revalidation_reports_the_same_urls_as_confirmed(self, loop):
+        manager = MagicMock()
+
+        acc = ResultAccumulator(output_manager=manager)
+        acc.add_entry(self._simple("backup", "http://example.com/backup.zip"))
+        acc.add_entry(self._simple("ssh key", "http://example.com/.ssh/id_rsa"))
+        manager.reset_mock()
+
+        await acc.revalidate(NoRevalidate(accept=True))
+
+        manager.output_result.assert_called_with("ssh key at: http://example.com/.ssh/id_rsa (Confirmed)", data={
+            "url": "http://example.com/.ssh/id_rsa",
+            "description": "ssh key",
+            "code": 200,
+            "severity": "warning",
+            "confirmed": True,
+        })
+
+    @async()
+    async def test_revalidation_can_reject(self, loop):
+        manager = MagicMock()
+
+        acc = ResultAccumulator(output_manager=manager)
+        acc.add_entry(self._simple("backup", "http://example.com/backup.zip"))
+        acc.add_entry(self._simple("ssh key", "http://example.com/.ssh/id_rsa"))
+        manager.reset_mock()
+
+        await acc.revalidate(NoRevalidate(accept=False))
+
+        manager.output_result.assert_not_called()
+
+    @staticmethod
+    def _simple(description, url):
+        entry = Entry.create(url=url,
+                             arguments={
+                               "file": {"description": description}
+                             },
+                             response=StaticResponse(200, content="Hello", headers={}))
+        return entry
+
+
+class NoRevalidate:
+
+    def __init__(self, accept):
+        self.accept = accept
+
+    async def is_valid(self, entry):
+        return self.accept
