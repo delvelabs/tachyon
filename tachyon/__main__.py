@@ -27,6 +27,7 @@ import tachyon.textutils as textutils
 from hammertime.http import Entry
 from hammertime.rules import RejectStatusCode
 from hammertime.rules.deadhostdetection import OfflineHostException
+from hammertime.rules.simhash import Simhash
 from hammertime.ruleset import RejectRequest, StopRequest
 from tachyon.directoryfetcher import DirectoryFetcher
 from tachyon.filefetcher import FileFetcher
@@ -101,15 +102,15 @@ def load_execute_file_plugins():
             plugin.execute()
 
 
-async def test_file_exists(hammertime, accumulator):
+async def test_file_exists(hammertime, accumulator, skip_root=False):
     """ Test for file existence using http codes and computed 404 """
     fetcher = FileFetcher(conf.base_url, hammertime, accumulator=accumulator)
     generator = FileGenerator()
-    database.valid_paths = generator.generate_files()
-    textutils.output_info('Probing ' + str(len(database.valid_paths)) + ' files')
+    files_to_fetch = generator.generate_files(skip_root=skip_root)
+    textutils.output_info('Probing ' + str(len(files_to_fetch)) + ' files')
     if len(database.valid_paths) > 0:
         hammertime.heuristics.add(RejectStatusCode({401, 403}))
-        await fetcher.fetch_files(database.valid_paths)
+        await fetcher.fetch_files(files_to_fetch)
 
 
 def format_stats(stats):
@@ -127,13 +128,23 @@ async def scan(hammertime, *, accumulator,
         await get_session_cookies(hammertime)
 
     await load_execute_host_plugins(hammertime)
+
+    async for _ in hammertime.successful_requests():
+        pass  # Just drain the pre-probe queries from the queue
+
     if not plugins_only:
-        if not files_only:
-            await test_paths_exists(hammertime, accumulator=accumulator, **kwargs)
         if not directories_only:
-            textutils.output_info('Generating file targets')
+            textutils.output_info('Generating file targets for target root')
             load_execute_file_plugins()
             await test_file_exists(hammertime, accumulator=accumulator)
+
+        if not files_only:
+            await test_paths_exists(hammertime, accumulator=accumulator, **kwargs)
+
+            if not directories_only:
+                textutils.output_info('Generating file targets')
+                load_execute_file_plugins()
+                await test_file_exists(hammertime, accumulator=accumulator, skip_root=True)
 
     validator = ReFetch(hammertime)
 
@@ -149,6 +160,13 @@ class ReFetch:
         self.hammertime = hammertime
 
     async def is_valid(self, entry):
+        value = getattr(entry.result, 'error_simhash', None)
+        if value is not None:
+            # Revalidate the responses with the known bad behavior signatures.
+            current = Simhash(value)
+            if any(current.distance(Simhash(k)) < 5 for k in self.hammertime.kb.bad_behavior_response):
+                return False
+
         try:
             await self.hammertime.request(entry.request.url, arguments=entry.arguments)
             return True

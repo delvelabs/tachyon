@@ -20,15 +20,16 @@
 from unittest import TestCase
 from unittest.mock import patch, MagicMock, call
 
-from fixtures import async, create_json_data, FakeHammerTimeEngine, SetResponseCode, fake_future, SetResponseContent, \
+from fixtures import async, create_json_data, FakeHammerTimeEngine, SetResponseCode, SetResponseContent, \
     SetFlagInResult
 from hammertime import HammerTime
-from hammertime.http import Entry, StaticResponse
+from hammertime.http import Entry
 from hammertime.kb import KnowledgeBase
+from hammertime.ruleset import RejectRequest
 
 from tachyon import conf
 from tachyon.config import setup_hammertime_heuristics
-from tachyon.filefetcher import FileFetcher
+from tachyon.filefetcher import FileFetcher, ValidateEntry
 
 
 @patch("tachyon.output.OutputManager.output_result")
@@ -40,6 +41,7 @@ class TestFileFetcher(TestCase):
 
     def setUpFetcher(self, loop):
         self.hammertime = HammerTime(loop=loop, request_engine=FakeHammerTimeEngine(), kb=KnowledgeBase())
+        self.hammertime.collect_successful_requests()
         conf.target_host = self.host
         self.file_fetcher = FileFetcher(self.host, self.hammertime)
 
@@ -59,26 +61,6 @@ class TestFileFetcher(TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.patcher.stop()
-
-    @async()
-    async def test_fetch_files_makes_hammertime_requests_for_files(self, output_found, loop):
-        hammertime = MagicMock(loop=loop)
-        file_fetcher = FileFetcher(self.host, hammertime)
-        file_fetcher._is_entry_invalid = MagicMock(return_value=False)
-        entries = []
-        for file in self.files:
-            entry = Entry.create("%s/%s" % (self.host, file["url"]), response=StaticResponse(200, {}, "content"),
-                                 arguments={"file": file})
-            entries.append(fake_future(entry, loop=loop))
-        hammertime.request.side_effect = entries
-
-        await file_fetcher.fetch_files(self.files)
-
-        calls = []
-        for file in self.files:
-            url = "{host}/{file}".format(host=self.host, file=file["url"])
-            calls.append(call(url, arguments={"file": file}))
-        hammertime.request.assert_has_calls(calls, any_order=True)
 
     @async()
     async def test_fetch_files_output_found_files(self, output_found, loop):
@@ -129,14 +111,13 @@ class TestFileFetcher(TestCase):
 
     @async()
     async def test_fetch_files_reject_soft_404(self, output_found, loop):
-        file = create_json_data(["file"])[0]
-        self.setUpFetcher(loop)
-        self.setup_hammertime_heuristics()
-        self.setup_hammertime_heuristics(add_after_defaults=[SetFlagInResult("soft404", True)])
-
-        await self.file_fetcher.fetch_files([file])
-
-        output_found.assert_not_called()
+        entry = Entry.create("http://example.com/file")
+        entry.result.string_match = False
+        entry.result.error_behavior = False
+        entry.result.soft404 = True
+        rule = ValidateEntry()
+        with self.assertRaises(RejectRequest):
+            await rule.after_response(entry)
 
     @async()
     async def test_fetch_files_do_not_reject_soft_404_if_string_match_is_true(self, output_found, loop):
@@ -151,15 +132,12 @@ class TestFileFetcher(TestCase):
 
     @async()
     async def test_fetch_files_do_not_reject_behavior_error_if_string_match_is_true(self, output_found, loop):
-        file = create_json_data(["file"])[0]
-        self.setUpFetcher(loop)
-        set_error_behavior = SetFlagInResult("error_behavior", True)
-        with patch("tachyon.config.DetectBehaviorChange", new=MagicMock(return_value=set_error_behavior)):
-            self.setup_hammertime_heuristics(add_after_defaults=[SetFlagInResult("string_match", True)])
-
-        await self.file_fetcher.fetch_files([file])
-
-        output_found.assert_has_calls([self.to_output_found_call(file)])
+        entry = Entry.create("http://example.com/file")
+        entry.result.string_match = True
+        entry.result.error_behavior = True
+        entry.result.soft404 = False
+        rule = ValidateEntry()
+        await rule.after_response(entry)
 
     @async()
     async def test_fetch_files_reject_error_behavior(self, output_found, loop):

@@ -17,7 +17,6 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-import asyncio
 from urllib.parse import urljoin
 
 from hammertime.rules.deadhostdetection import OfflineHostException
@@ -36,18 +35,16 @@ class DirectoryFetcher:
         self.accumulator = accumulator or ResultAccumulator(output_manager=output_manager or PrettyOutput())
 
     async def fetch_paths(self, paths):
-        requests = []
         for path in paths:
             url = urljoin(self.target_host, path["url"])
             if url[-1] != "/":
                 url += "/"
-            requests.append(self.hammertime.request(url, arguments={"path": path}))
-        done, pending = await asyncio.wait(requests, loop=self.hammertime.loop, return_when=asyncio.ALL_COMPLETED)
-        for future in done:
+            self.hammertime.request(url, arguments={"path": path})
+        async for entry in self.hammertime.successful_requests():
             try:
-                entry = await future
-                if entry.result.soft404 or entry.result.error_behavior:
+                if "path" not in entry.arguments:
                     continue
+
                 if entry.response.code != 401:
                     database.valid_paths.append(entry.arguments["path"])
                 if entry.arguments["path"]["url"] != "/":

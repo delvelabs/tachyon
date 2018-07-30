@@ -17,9 +17,10 @@ class ResultAccumulator:
                 self._output_found(entry, confirmed=True)
 
     def _output_found(self, entry, **kwargs):
-        data = self._get_data(entry, kwargs)
-        message = self._format_message(entry, data)
-        self.output_manager.output_result(message, data=data)
+        if "file" in entry.arguments or "path" in entry.arguments:
+            data = self._get_data(entry, kwargs)
+            message = self._format_message(entry, data)
+            self.output_manager.output_result(message, data=data)
 
     def _format_message(self, entry, data):
         url = entry.request.url

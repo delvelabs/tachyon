@@ -147,5 +147,8 @@ class SetFlagInResult:
         self.value = value
         self.child_heuristics = MagicMock()
 
+    async def before_request(self, entry):
+        setattr(entry.result, self.flag, self.value)
+
     async def after_response(self, entry):
         setattr(entry.result, self.flag, self.value)

@@ -29,6 +29,17 @@ class ResultAccumulatorTest(TestCase):
             "severity": "critical",
         })
 
+    def test_add_without_arguments(self):
+        entry = Entry.create(url="http://example.com/passwd",
+                             response=StaticResponse(200, content="hello", headers={}))
+
+        manager = MagicMock()
+
+        acc = ResultAccumulator(output_manager=manager)
+        acc.add_entry(entry)
+
+        manager.output_result.assert_not_called()
+
     def test_add_empty_entry(self):
         entry = Entry.create(url="http://example.com/passwd",
                              arguments={

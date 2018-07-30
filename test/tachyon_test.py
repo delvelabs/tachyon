@@ -22,7 +22,7 @@ from unittest import TestCase
 from unittest.mock import MagicMock, patch, call, ANY
 
 from aiohttp.test_utils import make_mocked_coro
-from fixtures import async, patch_coroutines
+from fixtures import async, patch_coroutines, FakeHammerTimeEngine
 from hammertime.core import HammerTime
 
 from tachyon import __main__ as tachyon, database
@@ -124,8 +124,10 @@ class TestTachyon(TestCase):
 
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
     @async()
-    async def test_fetch_session_cookies_on_scan_start_if_no_user_supplied_cookies(self):
-        hammertime = MagicMock()
+    async def test_fetch_session_cookies_on_scan_start_if_no_user_supplied_cookies(self, loop):
+        engine = FakeHammerTimeEngine()
+        hammertime = HammerTime(request_engine=engine, loop=loop)
+        hammertime.collect_successful_requests()
 
         await tachyon.scan(hammertime, cookies=None, accumulator=self.accumulator)
 
@@ -133,8 +135,10 @@ class TestTachyon(TestCase):
 
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
     @async()
-    async def test_dont_fetch_session_cookies_on_scan_start_if_user_supplied_cookies(self):
-        hammertime = MagicMock()
+    async def test_dont_fetch_session_cookies_on_scan_start_if_user_supplied_cookies(self, loop):
+        engine = FakeHammerTimeEngine()
+        hammertime = HammerTime(request_engine=engine, loop=loop)
+        hammertime.collect_successful_requests()
         cookies = "not none"
 
         await tachyon.scan(hammertime, cookies=cookies, accumulator=self.accumulator)
@@ -142,10 +146,12 @@ class TestTachyon(TestCase):
         tachyon.get_session_cookies.assert_not_called()
 
     @async()
-    async def test_use_user_supplied_cookies_if_available(self):
+    async def test_use_user_supplied_cookies_if_available(self, loop):
         database.session_cookie = "my-cookies=123"
         cookies = "test-cookie=true"
-        hammertime = MagicMock()
+        engine = FakeHammerTimeEngine()
+        hammertime = HammerTime(request_engine=engine, loop=loop)
+        hammertime.collect_successful_requests()
 
         with patch("tachyon.config.add_http_header") as add_http_header:
             await tachyon.scan(hammertime, cookies=cookies, accumulator=self.accumulator)
@@ -154,8 +160,10 @@ class TestTachyon(TestCase):
 
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
     @async()
-    async def test_scan_directory_only(self):
-        hammertime = MagicMock()
+    async def test_scan_directory_only(self, loop):
+        engine = FakeHammerTimeEngine()
+        hammertime = HammerTime(request_engine=engine, loop=loop)
+        hammertime.collect_successful_requests()
 
         await tachyon.scan(hammertime, directories_only=True, accumulator=self.accumulator)
 
@@ -164,18 +172,22 @@ class TestTachyon(TestCase):
 
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
     @async()
-    async def test_scan_file_only(self):
-        hammertime = MagicMock()
+    async def test_scan_file_only(self, loop):
+        engine = FakeHammerTimeEngine()
+        hammertime = HammerTime(request_engine=engine, loop=loop)
+        hammertime.collect_successful_requests()
 
         await tachyon.scan(hammertime, files_only=True, accumulator=self.accumulator)
 
-        tachyon.test_file_exists.assert_called_once_with(hammertime, accumulator=self.accumulator)
+        tachyon.test_file_exists.assert_called_with(hammertime, accumulator=self.accumulator)
         tachyon.test_paths_exists.assert_not_called()
 
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
     @async()
-    async def test_scan_plugins_only(self):
-        hammertime = MagicMock()
+    async def test_scan_plugins_only(self, loop):
+        engine = FakeHammerTimeEngine()
+        hammertime = HammerTime(request_engine=engine, loop=loop)
+        hammertime.collect_successful_requests()
 
         await tachyon.scan(hammertime, plugins_only=True, accumulator=self.accumulator)
 
