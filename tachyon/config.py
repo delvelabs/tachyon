@@ -87,8 +87,8 @@ def setup_hammertime_heuristics(hammertime, *, user_agent=default_user_agent, vh
         MatchString(),
         ValidateEntry(),
         DetectBehaviorChange(buffer_size=100),
-        ValidateEntry(),
         LogBehaviorChange(),
+        ValidateEntry(),
     ])
     detect_soft_404.child_heuristics.add_multiple(init_heuristics)
     detect_soft_404.child_heuristics.add_multiple(heuristics_with_child)

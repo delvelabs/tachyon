@@ -18,7 +18,7 @@
 
 
 from unittest import TestCase
-from unittest.mock import patch, call
+from unittest.mock import patch
 
 from fixtures import async
 from hammertime.http import Entry
@@ -38,20 +38,6 @@ class TestLogBehaviorChange(TestCase):
         cls.patcher.stop()
 
     @async()
-    async def test_update_current_behavior_state(self):
-        log_behavior_change = LogBehaviorChange()
-        log_behavior_change.is_behavior_normal = True
-        entry = Entry.create("http://example.com/")
-
-        entry.result.error_behavior = True
-        await log_behavior_change.after_response(entry)
-        self.assertFalse(log_behavior_change.is_behavior_normal)
-
-        entry.result.error_behavior = False
-        await log_behavior_change.after_response(entry)
-        self.assertTrue(log_behavior_change.is_behavior_normal)
-
-    @async()
     async def test_log_message_if_behavior_was_normal_and_entry_is_flagged_has_error_behavior(self):
         log_behavior_change = LogBehaviorChange()
         entry = Entry.create("http://example.com/")
@@ -59,34 +45,19 @@ class TestLogBehaviorChange(TestCase):
 
         with patch("tachyon.heuristics.logbehaviorchange.output_info") as output_info:
             await log_behavior_change.after_response(entry)
+            await log_behavior_change.after_response(entry)
+            await log_behavior_change.after_response(entry)
+            await log_behavior_change.after_response(entry)
 
-            output_info.assert_called_once_with("Behavior change detected! Results may be incomplete or tachyon may "
-                                                "never exit.")
+            output_info.assert_called_once_with(LogBehaviorChange.MESSAGE)
 
     @async()
     async def test_log_message_if_behavior_is_restored_to_normal(self):
         log_behavior_change = LogBehaviorChange()
-        log_behavior_change.is_behavior_normal = False
         entry = Entry.create("http://example.com/")
         entry.result.error_behavior = False
 
         with patch("tachyon.heuristics.logbehaviorchange.output_info") as output_info:
             await log_behavior_change.after_response(entry)
 
-            output_info.assert_called_once_with("Normal behavior seems to be restored.")
-
-    @async()
-    async def test_messages_are_only_logged_once(self):
-        log_behavior_change = LogBehaviorChange()
-        entry = Entry.create("http://example.com/")
-        entry.result.error_behavior = True
-
-        with patch("tachyon.heuristics.logbehaviorchange.output_info") as output_info:
-            await log_behavior_change.after_response(entry)
-            await log_behavior_change.after_response(entry)
-            entry.result.error_behavior = False
-            await log_behavior_change.after_response(entry)
-            await log_behavior_change.after_response(entry)
-
-            output_info.assert_has_calls([call("Behavior change detected! Results may be incomplete or tachyon may "
-                                               "never exit."), call("Normal behavior seems to be restored.")])
+            output_info.assert_not_called()
