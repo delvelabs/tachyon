@@ -17,70 +17,41 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-import asyncio
 from urllib.parse import urljoin
 
 from hammertime.rules.deadhostdetection import OfflineHostException
 from hammertime.ruleset import RejectRequest, StopRequest
 
-from tachyon import textutils
+from .textutils import output_manager, PrettyOutput
+from .result import ResultAccumulator
 from tachyon import database
 
 
 class DirectoryFetcher:
 
-    def __init__(self, target_host, hammertime):
+    def __init__(self, target_host, hammertime, accumulator=None):
         self.target_host = target_host
         self.hammertime = hammertime
+        self.accumulator = accumulator or ResultAccumulator(output_manager=output_manager or PrettyOutput())
 
     async def fetch_paths(self, paths):
-        requests = []
         for path in paths:
             url = urljoin(self.target_host, path["url"])
             if url[-1] != "/":
                 url += "/"
-            requests.append(self.hammertime.request(url, arguments={"path": path}))
-        done, pending = await asyncio.wait(requests, loop=self.hammertime.loop, return_when=asyncio.ALL_COMPLETED)
-        for future in done:
+            self.hammertime.request(url, arguments={"path": path})
+        async for entry in self.hammertime.successful_requests():
             try:
-                entry = await future
-                if entry.result.soft404 or entry.result.error_behavior:
+                if "path" not in entry.arguments:
                     continue
+
                 if entry.response.code != 401:
                     database.valid_paths.append(entry.arguments["path"])
                 if entry.arguments["path"]["url"] != "/":
-                    self.output_found(entry)
+                    self.accumulator.add_entry(entry)
             except OfflineHostException:
                 raise
             except RejectRequest:
                 pass
             except StopRequest:
                 continue
-
-    def output_found(self, entry):
-        if entry.response.code == 401:
-            self._format_output(entry, "Password Protected - ")
-        elif entry.response.code == 403:
-            self._format_output(entry, "*Forbidden* ")
-        elif entry.response.code == 404 and self.detect_tomcat_fake_404(entry.response.raw):
-            self._format_output(entry, "Tomcat redirect, ", special="tomcat-redirect")
-        elif entry.response.code == 500:
-            self._format_output(entry, "ISE, ")
-        else:
-            self._format_output(entry)
-
-    def _format_output(self, entry, desc_prefix="", **kwargs):
-        path = entry.arguments["path"]
-        url = entry.request.url
-        desc = path["description"]
-        data = {"description": desc, "url": url, "code": entry.response.code,
-                "severity": path.get('severity', "warning")}
-        data.update(**kwargs)
-        textutils.output_found("{0}{1} at: {2}".format(desc_prefix, desc, url), data)
-
-    def detect_tomcat_fake_404(self, content):
-        """ An apache setup will issue a 404 on an existing path if there is a tomcat trying to handle jsp on the same
-            host """
-        if content.find(b'Apache Tomcat/') != -1:
-            return True
-        return False

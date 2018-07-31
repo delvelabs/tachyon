@@ -22,19 +22,13 @@ from tachyon.textutils import output_info
 
 class LogBehaviorChange:
 
+    MESSAGE = "Behavior change detected! The above results are known to be unreliable. " \
+              "Re-validation will occur at the end of the scan."
+
     def __init__(self):
-        self.is_behavior_normal = True
+        self.has_error = False
 
     async def after_response(self, entry):
-        if self._has_behavior_changed(entry):
-            if self._is_normal_behavior_restored(entry):
-                output_info("Normal behavior seems to be restored.")
-            else:
-                output_info("Behavior change detected! Results may be incomplete or tachyon may never exit.")
-        self.is_behavior_normal = not entry.result.error_behavior
-
-    def _has_behavior_changed(self, entry):
-        return self.is_behavior_normal == entry.result.error_behavior
-
-    def _is_normal_behavior_restored(self, entry):
-        return not self.is_behavior_normal and not entry.result.error_behavior
+        if not self.has_error and entry.result.error_behavior:
+            self.has_error = True
+            output_info(self.MESSAGE)

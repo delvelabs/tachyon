@@ -22,13 +22,14 @@ from aiohttp.cookiejar import DummyCookieJar
 from hammertime import HammerTime
 from hammertime.config import custom_event_loop
 from hammertime.engine import AioHttpEngine
+from hammertime.kb import KnowledgeBase
 from hammertime.ruleset import StopRequest
 from hammertime.rules import DetectSoft404, RejectStatusCode, DynamicTimeout, RejectCatchAllRedirect, FollowRedirects, \
-    SetHeader, DeadHostDetection, FilterRequestFromURL, DetectBehaviorChange, IgnoreLargeBody, \
-    RejectSoft404
+    SetHeader, DeadHostDetection, FilterRequestFromURL, DetectBehaviorChange, IgnoreLargeBody
 
 from tachyon import conf
 from tachyon.heuristics import RejectIgnoredQuery, LogBehaviorChange, MatchString, RedirectLimiter, StripTag
+from tachyon.filefetcher import ValidateEntry
 
 heuristics_with_child = []
 initial_limit = 5120
@@ -45,16 +46,19 @@ async def configure_hammertime(proxy=None, retry_count=3, cookies=None, **kwargs
         engine.session = ClientSession(loop=loop, connector=connector, cookie_jar=DummyCookieJar(loop=loop))
     else:
         engine.session = ClientSession(loop=loop, connector=connector)
-    hammertime = HammerTime(loop=loop, request_engine=engine, retry_count=retry_count, proxy=proxy)
+    kb = KnowledgeBase()
+    hammertime = HammerTime(loop=loop, request_engine=engine, retry_count=retry_count, proxy=proxy, kb=kb)
     setup_hammertime_heuristics(hammertime, **kwargs)
+    hammertime.collect_successful_requests()
+    hammertime.kb = kb
     return hammertime
 
 
-def setup_hammertime_heuristics(hammertime, *, user_agent=default_user_agent, vhost=None):
+def setup_hammertime_heuristics(hammertime, *, user_agent=default_user_agent, vhost=None, confirmation_factor=1):
     #  TODO Make sure rejecting 404 does not conflict with tomcat fake 404 detection.
     global heuristics_with_child
     dead_host_detection = DeadHostDetection(threshold=200)
-    detect_soft_404 = DetectSoft404(distance_threshold=6)
+    detect_soft_404 = DetectSoft404(distance_threshold=6, confirmation_factor=confirmation_factor)
     follow_redirects = FollowRedirects()
     heuristics_with_child = [RejectCatchAllRedirect(), follow_redirects,
                              RejectIgnoredQuery()]
@@ -80,10 +84,11 @@ def setup_hammertime_heuristics(hammertime, *, user_agent=default_user_agent, vh
     hammertime.heuristics.add_multiple(heuristics_with_child)
     hammertime.heuristics.add_multiple([
         detect_soft_404,
-        RejectSoft404(),
         MatchString(),
+        ValidateEntry(),
         DetectBehaviorChange(buffer_size=100),
         LogBehaviorChange(),
+        ValidateEntry(),
     ])
     detect_soft_404.child_heuristics.add_multiple(init_heuristics)
     detect_soft_404.child_heuristics.add_multiple(heuristics_with_child)

@@ -22,6 +22,9 @@ import binascii
 
 class MatchString:
 
+    async def before_request(self, entry):
+        entry.result.string_match = False
+
     async def after_response(self, entry):
         if "file" in entry.arguments:
             if "match_string" in entry.arguments["file"]:

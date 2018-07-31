@@ -74,11 +74,20 @@ class FileGenerator:
                               '.sql.bak', '0', '1', '2', '.xml', '.csv', '.wsdl', '.pwd', '.yml']
         self.executables_suffixes = ['.php', '.asp', '.aspx', '.pl', '.cgi', '.cfm']
 
-    def generate_files(self):
+    def generate_files(self, skip_root=False):
         files = list()
         for path in database.valid_paths:
-            files.extend(self._add_all_possible_files_to_path(path))
+            if not skip_root or not self._is_root(path):
+                files.extend(self._add_all_possible_files_to_path(path))
         return files
+
+    def _is_root(self, path):
+        if path == "/":
+            return True
+        elif isinstance(path, dict):
+            return self._is_root(path["url"])
+        else:
+            return False
 
     def _add_all_possible_files_to_path(self, path):
         for file in database.files:

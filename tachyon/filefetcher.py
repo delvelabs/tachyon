@@ -17,39 +17,29 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-import asyncio
 from urllib.parse import urljoin
 
 from hammertime.rules.deadhostdetection import OfflineHostException
-from hammertime.rules.redirects import valid_redirects
 from hammertime.ruleset import StopRequest, RejectRequest
 
-from tachyon.textutils import output_found
+from .textutils import output_manager, PrettyOutput
+from .result import ResultAccumulator
 
 
 class FileFetcher:
 
-    def __init__(self, host, hammertime):
+    def __init__(self, host, hammertime, accumulator=None):
         self.host = host
         self.hammertime = hammertime
+        self.accumulator = accumulator or ResultAccumulator(output_manager=output_manager or PrettyOutput())
 
     async def fetch_files(self, file_list):
-        requests = []
         for file in file_list:
             url = urljoin(self.host, file["url"])
-            requests.append(self.hammertime.request(url, arguments={"file": file}))
-        for future in asyncio.as_completed(requests):
+            self.hammertime.request(url, arguments={"file": file})
+        async for entry in self.hammertime.successful_requests():
             try:
-                entry = await future
-                if self._is_entry_invalid(entry):
-                    continue
-                if entry.response.code == 500:
-                    self.output_found(entry, message_prefix="ISE, ")
-                elif entry.response.code not in valid_redirects:
-                    if len(entry.response.raw) == 0:
-                        self.output_found(entry, message_prefix="Empty ")
-                    else:
-                        self.output_found(entry)
+                self.accumulator.add_entry(entry)
             except OfflineHostException:
                 raise
             except RejectRequest:
@@ -57,17 +47,19 @@ class FileFetcher:
             except StopRequest:
                 continue
 
-    def output_found(self, entry, message_prefix=""):
-        url = entry.request.url
-        file = entry.arguments["file"]
-        message = "{prefix}{desc} at: {url}".format(prefix=message_prefix, desc=file["description"], url=url)
-        data = {"url": url, "description": file["description"], "code": entry.response.code,
-                "severity": file.get('severity', "warning")}
-        output_found(message, data=data)
 
-    def _is_entry_invalid(self, entry):
-        if entry is None:
-            return True
+class ValidateEntry:
+    """
+    Combines the RejectSoft404 and RejectErrorBehavior, but excludes problems when
+    the result requested a string match and found it.
+    """
+
+    async def after_response(self, entry):
         if entry.result.string_match:
-            return False
-        return entry.result.soft404 or entry.result.error_behavior
+            # We found what we were looking for, this entry has to be valid.
+            return
+
+        if getattr(entry.result, "error_behavior", False):
+            raise StopRequest("Error behavior detected.")
+        if getattr(entry.result, "soft404", False):
+            raise RejectRequest("Soft 404 detected")
