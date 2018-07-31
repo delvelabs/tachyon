@@ -129,7 +129,7 @@ async def scan(hammertime, *, accumulator,
 
     await load_execute_host_plugins(hammertime)
 
-    async for _ in hammertime.successful_requests():
+    async for _ in hammertime.successful_requests():  # noqa: F841
         pass  # Just drain the pre-probe queries from the queue
 
     if not plugins_only:
