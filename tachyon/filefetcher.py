@@ -63,3 +63,7 @@ class ValidateEntry:
             raise StopRequest("Error behavior detected.")
         if getattr(entry.result, "soft404", False):
             raise RejectRequest("Soft 404 detected")
+
+    async def on_request_successful(self, entry):
+        # Apply the same logic as on response
+        await self.after_response(entry)

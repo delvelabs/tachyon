@@ -14,7 +14,7 @@ setup(
         ]
     },
     install_requires=[
-        'hammertime-http>=0.5.0,<0.6',
+        'hammertime-http>=0.5.1,<0.6',
         'easyinject==0.3',
         'click>=6.7,<7'
     ],

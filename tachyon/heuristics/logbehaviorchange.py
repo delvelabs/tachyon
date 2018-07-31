@@ -28,7 +28,7 @@ class LogBehaviorChange:
     def __init__(self):
         self.has_error = False
 
-    async def after_response(self, entry):
+    async def on_request_successful(self, entry):
         if not self.has_error and entry.result.error_behavior:
             self.has_error = True
             output_info(self.MESSAGE)

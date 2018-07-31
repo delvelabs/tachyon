@@ -44,10 +44,10 @@ class TestLogBehaviorChange(TestCase):
         entry.result.error_behavior = True
 
         with patch("tachyon.heuristics.logbehaviorchange.output_info") as output_info:
-            await log_behavior_change.after_response(entry)
-            await log_behavior_change.after_response(entry)
-            await log_behavior_change.after_response(entry)
-            await log_behavior_change.after_response(entry)
+            await log_behavior_change.on_request_successful(entry)
+            await log_behavior_change.on_request_successful(entry)
+            await log_behavior_change.on_request_successful(entry)
+            await log_behavior_change.on_request_successful(entry)
 
             output_info.assert_called_once_with(LogBehaviorChange.MESSAGE)
 
@@ -58,6 +58,6 @@ class TestLogBehaviorChange(TestCase):
         entry.result.error_behavior = False
 
         with patch("tachyon.heuristics.logbehaviorchange.output_info") as output_info:
-            await log_behavior_change.after_response(entry)
+            await log_behavior_change.on_request_successful(entry)
 
             output_info.assert_not_called()
