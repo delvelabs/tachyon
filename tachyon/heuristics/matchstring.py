@@ -28,8 +28,8 @@ class MatchString:
     async def after_response(self, entry):
         if "file" in entry.arguments:
             if "match_string" in entry.arguments["file"]:
-                string = entry.arguments["file"]["match_string"]
-                entry.result.string_match = string in entry.response.content
+                byte_string = entry.arguments["file"]["match_string"].encode("utf-8")
+                entry.result.string_match = byte_string in entry.response.raw
             elif "match_bytes" in entry.arguments["file"]:
                 raw_hex_string = entry.arguments["file"]["match_bytes"].encode("utf-8")
                 raw_string = binascii.unhexlify(raw_hex_string)
