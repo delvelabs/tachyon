@@ -54,8 +54,9 @@ async def configure_hammertime(proxy=None, retry_count=3, cookies=None, **kwargs
     return hammertime
 
 
-def setup_hammertime_heuristics(hammertime, *, user_agent=default_user_agent, vhost=None, confirmation_factor=1):
-    #  TODO Make sure rejecting 404 does not conflict with tomcat fake 404 detection.
+def setup_hammertime_heuristics(hammertime, *,
+                                user_agent=default_user_agent, vhost=None, confirmation_factor=1,
+                                har_output_dir=None):
     global heuristics_with_child
     dead_host_detection = DeadHostDetection(threshold=200)
     detect_soft_404 = DetectSoft404(distance_threshold=6, confirmation_factor=confirmation_factor)
@@ -96,6 +97,10 @@ def setup_hammertime_heuristics(hammertime, *, user_agent=default_user_agent, vh
     for heuristic in heuristics_with_child:
         heuristic.child_heuristics.add_multiple(init_heuristics)
         heuristic.child_heuristics.add_multiple(global_heuristics)
+
+    if har_output_dir is not None:
+        from tachyon.har import StoreHAR, FileWriter
+        hammertime.heuristics.add(StoreHAR(writer=FileWriter(har_output_dir)))
 
 
 def add_http_header(hammertime, header_name, header_value):

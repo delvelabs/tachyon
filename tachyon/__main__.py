@@ -189,9 +189,11 @@ class ReFetch:
 @click.option("-u", "--user-agent", default=default_user_agent)
 @click.option("-v", "--vhost", type=str, default=None)
 @click.option("-C", "--confirmation-factor", default=1)
+@click.option("--har-output-dir", default=None)
 @click.argument("target_host")
 def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_settings, proxy, user_agent, vhost,
-         depth_limit, directories_only, files_only, plugins_only, recursive, allow_download, confirmation_factor):
+         depth_limit, directories_only, files_only, plugins_only, recursive, allow_download, confirmation_factor,
+         har_output_dir):
 
     output_manager = textutils.init_log(json_output)
     output_manager.output_header()
@@ -209,6 +211,7 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
     conf.target_host = parsed_url.netloc
     conf.base_url = "%s://%s" % (parsed_url.scheme, parsed_url.netloc)
 
+    hammertime = None
     accumulator = ResultAccumulator(output_manager=output_manager)
 
     output_manager.output_info('Starting Discovery on ' + conf.base_url)
@@ -232,7 +235,9 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
         hammertime = loop.run_until_complete(
             configure_hammertime(cookies=conf.cookies, proxy=conf.proxy_url, retry_count=max_retry_count,
                                  user_agent=conf.user_agent, vhost=conf.forge_vhost,
-                                 confirmation_factor=confirmation_factor))
+                                 confirmation_factor=confirmation_factor,
+                                 har_output_dir=har_output_dir))
+        loop.create_task(stat_on_input(hammertime))
         loop.run_until_complete(scan(hammertime, accumulator=accumulator,
                                      cookies=conf.cookies, directories_only=directories_only,
                                      files_only=files_only, plugins_only=plugins_only, depth_limit=depth_limit,
@@ -244,9 +249,36 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
         output_manager.output_error('Keyboard Interrupt Received')
     except (OfflineHostException, StopRequest):
         output_manager.output_error("Target host seems to be offline.")
+    except ModuleNotFoundError as e:
+        output_manager.output_error("Additional module is required for the requested options: %s" % e)
     finally:
-        textutils.output_info(format_stats(hammertime.stats))
+        if hammertime is not None:
+            textutils.output_info(format_stats(hammertime.stats))
+
         output_manager.flush()
+
+
+async def stat_on_input(hammertime):
+    import sys
+    from datetime import datetime, timedelta
+
+    if sys.stdin is None:
+        return
+
+    loop = asyncio.get_event_loop()
+    reader = asyncio.StreamReader()
+    reader_protocol = asyncio.StreamReaderProtocol(reader)
+
+    await loop.connect_read_pipe(lambda: reader_protocol, sys.stdin)
+
+    expiry = datetime.now()
+    while True:
+        await reader.readline()
+
+        # Throttle stats printing
+        if expiry < datetime.now():
+            textutils.output_info(format_stats(hammertime.stats))
+            expiry = datetime.now() + timedelta(seconds=5)
 
 
 if __name__ == "__main__":

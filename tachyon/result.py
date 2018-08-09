@@ -47,10 +47,18 @@ class ResultAccumulator:
         return ""
 
     def _get_suffix(self, entry, data):
-        if data.get("confirmed"):
-            return " (Confirmed)"
+        parts = []
 
-        return ""
+        if data.get("confirmed"):
+            parts.append("Confirmed")
+
+        if data.get('har'):
+            parts.append("HAR: %s" % data.get('har'))
+
+        if parts:
+            return " (%s)" % ", ".join(parts)
+        else:
+            return ""
 
     def _get_data(self, entry, additional):
         url = entry.request.url
@@ -64,6 +72,10 @@ class ResultAccumulator:
 
         if entry.response.code == 404 and self._detect_tomcat_fake_404(entry.response.raw):
             data["special"] = "tomcat-redirect"
+
+        har = getattr(entry.result, "har_location", None)
+        if har is not None:
+            data["har"] = har
 
         return data
 

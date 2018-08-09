@@ -167,13 +167,34 @@ class ResultAccumulatorTest(TestCase):
 
         manager.output_result.assert_not_called()
 
+    @async()
+    async def test_result_contains_evidence(self, loop):
+        manager = MagicMock()
+
+        acc = ResultAccumulator(output_manager=manager)
+        acc.add_entry(self._simple("backup", "http://example.com/backup.zip", har="/tmp/output/abc.har"))
+
+        manager.output_result.assert_called_with(
+            "backup at: http://example.com/backup.zip (HAR: /tmp/output/abc.har)",
+            data={
+                "url": "http://example.com/backup.zip",
+                "description": "backup",
+                "code": 200,
+                "severity": "warning",
+                "har": "/tmp/output/abc.har",
+            })
+
     @staticmethod
-    def _simple(description, url):
+    def _simple(description, url, har=None):
         entry = Entry.create(url=url,
                              arguments={
                                "file": {"description": description}
                              },
                              response=StaticResponse(200, content="Hello", headers={}))
+
+        if har is not None:
+            entry.result.har_location = har
+
         return entry
 
 
