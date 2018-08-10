@@ -74,7 +74,9 @@ async def test_paths_exists(hammertime, *, recursive=False, depth_limit=2, accum
 
     paths_to_fetch = path_generator.generate_paths(use_valid_paths=False)
 
-    textutils.output_info('Probing %d paths' % len(paths_to_fetch))
+    if len(paths_to_fetch) > 0:
+        textutils.output_info('Probing %d paths' % len(paths_to_fetch))
+
     await fetcher.fetch_paths(paths_to_fetch)
 
     if recursive:
@@ -83,12 +85,19 @@ async def test_paths_exists(hammertime, *, recursive=False, depth_limit=2, accum
             recursion_depth += 1
             paths_to_fetch = path_generator.generate_paths(use_valid_paths=True)
             await fetcher.fetch_paths(paths_to_fetch)
-    textutils.output_info('Found ' + str(len(database.valid_paths)) + ' valid paths')
+
+
+    count = len(database.valid_paths) - 1  # Removing one as it is the root path
+    textutils.output_info('Found %d valid paths' % count)
 
 
 async def load_execute_host_plugins(hammertime):
     """ Import and run host plugins """
-    textutils.output_info('Executing ' + str(len(host.__all__)) + ' host plugins')
+    count = len(host.__all__)
+    if count == 0:
+        return
+
+    textutils.output_info('Executing %d host plugins' % count)
     for plugin_name in host.__all__:
         plugin = __import__("tachyon.plugins.host." + plugin_name, fromlist=[plugin_name])
         if hasattr(plugin, 'execute'):
@@ -97,7 +106,11 @@ async def load_execute_host_plugins(hammertime):
 
 def load_execute_file_plugins():
     """ Import and run path plugins """
-    textutils.output_info('Executing ' + str(len(file.__all__)) + ' file plugins')
+    count = len(file.__all__)
+    if count == 0:
+        return
+
+    textutils.output_info('Executing %d file plugins' % count)
     for plugin_name in file.__all__:
         plugin = __import__("tachyon.plugins.file." + plugin_name, fromlist=[plugin_name])
         if hasattr(plugin, 'execute'):
@@ -112,7 +125,10 @@ async def test_file_exists(hammertime, accumulator, skip_root=False):
     fetcher = FileFetcher(conf.base_url, hammertime, accumulator=accumulator)
     generator = FileGenerator()
     files_to_fetch = generator.generate_files(skip_root=skip_root)
-    textutils.output_info('Probing ' + str(len(files_to_fetch)) + ' files')
+
+    count = len(files_to_fetch)
+
+    textutils.output_info('Probing %d files' % count)
     if len(database.valid_paths) > 0:
         hammertime.heuristics.add(RejectStatusCode({401, 403}))
         await fetcher.fetch_files(files_to_fetch)
@@ -128,6 +144,15 @@ def check_closed(hammertime):
         raise KeyboardInterrupt()
 
 
+async def drain(hammertime):
+    iterator = hammertime.successful_requests()
+
+    # Really make sure we are done (issue in hammertime 0.5.1 when first request is a failure?)
+    while iterator.has_pending():
+        async for _ in iterator:  # noqa: F841
+            pass  # Just drain the pre-probe queries from the queue
+
+
 async def scan(hammertime, *, accumulator,
                cookies=None, directories_only=False, files_only=False, plugins_only=False,
                **kwargs):
@@ -139,8 +164,7 @@ async def scan(hammertime, *, accumulator,
 
     await load_execute_host_plugins(hammertime)
 
-    async for _ in hammertime.successful_requests():  # noqa: F841
-        pass  # Just drain the pre-probe queries from the queue
+    await drain(hammertime)
 
     if not plugins_only:
         if not directories_only:

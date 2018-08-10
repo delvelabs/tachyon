@@ -37,15 +37,20 @@ class FileFetcher:
         for file in file_list:
             url = urljoin(self.host, file["url"])
             self.hammertime.request(url, arguments={"file": file})
-        async for entry in self.hammertime.successful_requests():
-            try:
-                self.accumulator.add_entry(entry)
-            except OfflineHostException:
-                raise
-            except RejectRequest:
-                pass
-            except StopRequest:
-                continue
+
+        iterator = self.hammertime.successful_requests()
+
+        # Really make sure we are done (issue in hammertime 0.5.1 when first request is a failure?)
+        while iterator.has_pending():
+            async for entry in iterator:
+                try:
+                    self.accumulator.add_entry(entry)
+                except OfflineHostException:
+                    raise
+                except RejectRequest:
+                    pass
+                except StopRequest:
+                    continue
 
 
 class ValidateEntry:

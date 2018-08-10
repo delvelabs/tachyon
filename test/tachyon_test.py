@@ -106,7 +106,7 @@ class TestTachyon(TestCase):
         with patch("tachyon.textutils.output_info") as output_info:
             await tachyon.test_paths_exists(HammerTime(loop=loop), accumulator=self.accumulator)
 
-            output_info.assert_any_call("Found %d valid paths" % len(database.valid_paths))
+            output_info.assert_any_call("Found 2 valid paths")
 
     @async()
     async def test_file_exists_fetch_all_generate_files(self, loop):

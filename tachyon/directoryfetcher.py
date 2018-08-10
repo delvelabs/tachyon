@@ -40,18 +40,23 @@ class DirectoryFetcher:
             if url[-1] != "/":
                 url += "/"
             self.hammertime.request(url, arguments={"path": path})
-        async for entry in self.hammertime.successful_requests():
-            try:
-                if "path" not in entry.arguments:
-                    continue
 
-                if entry.response.code != 401:
-                    database.valid_paths.append(entry.arguments["path"])
-                if entry.arguments["path"]["url"] != "/":
-                    self.accumulator.add_entry(entry)
-            except OfflineHostException:
-                raise
-            except RejectRequest:
-                pass
-            except StopRequest:
-                continue
+        iterator = self.hammertime.successful_requests()
+
+        # Really make sure we are done (issue in hammertime 0.5.1 when first request is a failure?)
+        while iterator.has_pending():
+            async for entry in iterator:
+                try:
+                    if "path" not in entry.arguments:
+                        continue
+
+                    if entry.response.code != 401:
+                        database.valid_paths.append(entry.arguments["path"])
+                    if entry.arguments["path"]["url"] != "/":
+                        self.accumulator.add_entry(entry)
+                except OfflineHostException:
+                    raise
+                except RejectRequest:
+                    pass
+                except StopRequest:
+                    continue
