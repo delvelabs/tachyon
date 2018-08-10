@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/delvelabs/tachyon.svg?branch=master)](https://travis-ci.org/delvelabs/tachyon)
+[![PyPi](https://badge.fury.io/py/HammerTime-http.svg)](https://badge.fury.io/py/tachyon3)
+
 # Tachyon
 
 Tachyon is a fast web application security reconnaissance tool.
@@ -81,21 +84,27 @@ tachyon -j http://example.com/
 
 ## command line options
 
-* ```a, --allow-download``` allow plugins supporting the feature to download files they fetch.
-* ```c, --cookie-file``` Path to a file containing the cookies to use for the discovery. Format is described 
-                         [here](#format-for-the-cookies-file).
-* ```l, --depth-limit``` Maximum depth for recursive search of directories, default is 2.
-* ```s, --directories-only``` Only search for directories. Can not be used with -f.
-* ```f, --files-only``` Only search for files. Can not be used with -s.
-* ```j, --json-output``` Output the results in JSON format.
-* ```m, --max-retry-count``` The amount of times a failed request will be retried before being dropped. Default is 3.
-* ```z, --plugins-only``` Only execute plugins.
-* ```x, --plugin-settings``` Settings to pass to the plugins. Read [this section](#plugins-settings) for more details.
-* ```p, --proxy``` URL of the proxy to use for discovery.
-* ```r, --recursive``` perform a recursive directory search. Use -l to limit the depth of the search.
-* ```u, --user-agent``` User agent to put in the headers of the requests made by Tachyon. Default is 'Mozilla/5.0 
-    (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'.
-* ```v, --vhost``` Address of the virtual host if the target of the discovery is a hidden virtual host.
+```
+Usage: __main__.py [OPTIONS] TARGET_HOST
+
+Options:
+  -a, --allow-download
+  -c, --cookie-file TEXT
+  -l, --depth-limit INTEGER
+  -s, --directories-only
+  -f, --files-only
+  -j, --json-output
+  -m, --max-retry-count INTEGER
+  -z, --plugins-only
+  -x, --plugin-settings TEXT
+  -p, --proxy TEXT
+  -r, --recursive
+  -u, --user-agent TEXT
+  -v, --vhost TEXT
+  -C, --confirmation-factor INTEGER
+  --har-output-dir TEXT
+  -h, --help                      Show this message and exit.
+```
 
 ### Format for the cookies file
 

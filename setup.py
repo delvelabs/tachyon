@@ -5,6 +5,7 @@ from tachyon.__version__ import __version__
 
 setup(
     name='tachyon3',
+    url="https://github.com/delvelabs/tachyon",
     version=__version__,
     packages=find_packages(),
     package_data={'tachyon': ['data/*.json']},
