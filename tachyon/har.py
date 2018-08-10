@@ -1,3 +1,4 @@
+import asyncio
 import json
 import uuid
 from http.client import responses
@@ -16,7 +17,7 @@ class FileWriter:
         filename = "%s.har" % uuid.uuid4()
         file_path = join(self.dir, filename)
         with open(file_path, "w") as fp:
-            fp.write(json.dumps(har.dump().data))
+            fp.write(json.dumps(har.dump().data, indent=4))
         return file_path
 
 
@@ -27,6 +28,9 @@ class StoreHAR:
         self.converter = HammerTimeToHAR()
 
     async def on_request_successful(self, entry):
+        await asyncio.get_event_loop().run_in_executor(None, self._write_har, entry)
+
+    def _write_har(self, entry):
         har = self.converter.convert_entries([entry])
         entry.result.har_location = self.writer(har)
 
