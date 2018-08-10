@@ -67,6 +67,8 @@ async def test_paths_exists(hammertime, *, recursive=False, depth_limit=2, accum
     Turn off output for now, it would be irrelevant at this point.
     """
 
+    check_closed(hammertime)
+
     path_generator = PathGenerator()
     fetcher = DirectoryFetcher(conf.base_url, hammertime, accumulator=accumulator)
 
@@ -104,6 +106,9 @@ def load_execute_file_plugins():
 
 async def test_file_exists(hammertime, accumulator, skip_root=False):
     """ Test for file existence using http codes and computed 404 """
+
+    check_closed(hammertime)
+
     fetcher = FileFetcher(conf.base_url, hammertime, accumulator=accumulator)
     generator = FileGenerator()
     files_to_fetch = generator.generate_files(skip_root=skip_root)
@@ -116,6 +121,11 @@ async def test_file_exists(hammertime, accumulator, skip_root=False):
 def format_stats(stats):
     message = "Statistics: Requested: {}; Completed: {}; Duration: {:.0f} s; Retries: {}; Request rate: {:.2f}"
     return message.format(stats.requested, stats.completed, stats.duration, stats.retries, stats.rate)
+
+
+def check_closed(hammertime):
+    if hammertime.is_closed or getattr(hammertime, "_interrupted", False):
+        raise KeyboardInterrupt()
 
 
 async def scan(hammertime, *, accumulator,
@@ -146,13 +156,16 @@ async def scan(hammertime, *, accumulator,
                 load_execute_file_plugins()
                 await test_file_exists(hammertime, accumulator=accumulator, skip_root=True)
 
-    validator = ReFetch(hammertime)
+    check_closed(hammertime)
 
+    validator = ReFetch(hammertime)
     if await validator.is_valid(Entry.create(conf.base_url + "/")):
         textutils.output_info("Re-validating prior results.")
         await accumulator.revalidate(validator)
     else:
         textutils.output_error("Re-validation aborted. Target no longer appears to be up.")
+
+    check_closed(hammertime)
 
 
 class ReFetch:
