@@ -86,7 +86,6 @@ async def test_paths_exists(hammertime, *, recursive=False, depth_limit=2, accum
             paths_to_fetch = path_generator.generate_paths(use_valid_paths=True)
             await fetcher.fetch_paths(paths_to_fetch)
 
-
     count = len(database.valid_paths) - 1  # Removing one as it is the root path
     textutils.output_info('Found %d valid paths' % count)
 
