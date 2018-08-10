@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/delvelabs/tachyon.svg?branch=master)](https://travis-ci.org/delvelabs/tachyon)
-[![PyPi](https://badge.fury.io/py/HammerTime-http.svg)](https://badge.fury.io/py/tachyon3)
+[![PyPi](https://badge.fury.io/py/tachyon3.svg)](https://badge.fury.io/py/tachyon3)
 
 # Tachyon
 
