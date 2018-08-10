@@ -262,7 +262,7 @@ async def stat_on_input(hammertime):
     import sys
     from datetime import datetime, timedelta
 
-    if sys.stdin is None:
+    if sys.stdin is None or not sys.stdin.readable() or not sys.stdin.isatty():
         return
 
     loop = asyncio.get_event_loop()
@@ -278,7 +278,10 @@ async def stat_on_input(hammertime):
         # Throttle stats printing
         if expiry < datetime.now():
             textutils.output_info(format_stats(hammertime.stats))
-            expiry = datetime.now() + timedelta(seconds=5)
+            expiry = datetime.now() + timedelta(seconds=2)
+
+        if sys.stdin.seekable():
+            sys.stdin.seek(-1, sys.SEEK_END)
 
 
 if __name__ == "__main__":
