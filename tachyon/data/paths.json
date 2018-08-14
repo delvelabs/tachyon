@@ -68,9 +68,9 @@
                 "severity": "warning"
             },
             {
-                "url": "/archives",
-                "description": "Archive directory",
-                "severity": "warning"
+                "url": "/awstats/data",
+                "description": "Awstats easily guessable stats file / info leak",
+                "severity": "critical"
             },
             {
                 "url": "/backup",
@@ -583,6 +583,11 @@
                 "severity": "info"
             },
             {
+                "url": "/tools",
+                "description": "Tools directory",
+                "severity": "warning"
+            },
+            {
                 "url": "/update",
                 "description": "Update directory",
                 "severity": "info"
@@ -671,6 +676,11 @@
                 "url": "/webadmin",
                 "description": "Admin section",
                 "severity": "info"
+            },
+            {
+                "url": "/webalizer",
+                "description": "Webalizer stats infoleak",
+                "severity": "critical"
             },
             {
                 "url": "/webadm",
