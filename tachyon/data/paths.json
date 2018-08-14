@@ -68,6 +68,11 @@
                 "severity": "warning"
             },
             {
+                "url": "/archives",
+                "description": "Archive directory",
+                "severity": "warning"
+            },
+            {
                 "url": "/awstats/data",
                 "description": "Awstats easily guessable stats file / info leak",
                 "severity": "critical"
