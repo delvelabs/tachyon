@@ -25,6 +25,7 @@ from hammertime.engine import AioHttpEngine
 from hammertime.kb import KnowledgeBase
 from hammertime.ruleset import StopRequest
 from hammertime.rules.sampling import ContentHashSampling, ContentSampling, ContentSimhashSampling
+from hammertime.rules.waf import RejectWebApplicationFirewall
 from hammertime.rules import DetectSoft404, RejectStatusCode, DynamicTimeout, RejectCatchAllRedirect, FollowRedirects, \
     SetHeader, DeadHostDetection, FilterRequestFromURL, DetectBehaviorChange, IgnoreLargeBody, RedirectLimiter
 
@@ -74,6 +75,7 @@ def setup_hammertime_heuristics(hammertime, *,
                        StripTag('input'), StripTag('script')]
 
     global_heuristics = [RejectStatusCode({404, 406, 502}),
+                         RejectWebApplicationFirewall(),
                          DynamicTimeout(1.0, 5),
                          RedirectLimiter(),
                          FilterRequestFromURL(allowed_urls=hosts),
