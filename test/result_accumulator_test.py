@@ -1,4 +1,4 @@
-from fixtures import async
+from fixtures import async_test
 from unittest import TestCase
 from unittest.mock import MagicMock
 from tachyon.result import ResultAccumulator
@@ -135,7 +135,7 @@ class ResultAccumulatorTest(TestCase):
             "severity": "medium",
         })
 
-    @async()
+    @async_test()
     async def test_revalidation_reports_the_same_urls_as_confirmed(self, loop):
         manager = MagicMock()
 
@@ -154,7 +154,7 @@ class ResultAccumulatorTest(TestCase):
             "confirmed": True,
         })
 
-    @async()
+    @async_test()
     async def test_revalidation_can_reject(self, loop):
         manager = MagicMock()
 
@@ -167,7 +167,7 @@ class ResultAccumulatorTest(TestCase):
 
         manager.output_result.assert_not_called()
 
-    @async()
+    @async_test()
     async def test_result_contains_evidence(self, loop):
         manager = MagicMock()
 

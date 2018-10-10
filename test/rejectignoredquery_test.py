@@ -21,7 +21,7 @@ import hashlib
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
-from fixtures import async, FakeHammerTimeEngine
+from fixtures import async_test, FakeHammerTimeEngine
 from hammertime.engine.aiohttp import Response
 from hammertime.http import Entry, StaticResponse
 from hammertime.kb import KnowledgeBase
@@ -41,7 +41,7 @@ class TestRejectIgnoredQuery(TestCase):
         self.kb = KnowledgeBase()
         self.filter.set_kb(self.kb)
 
-    @async()
+    @async_test()
     async def test_after_response_take_a_sample_with_a_junk_query(self):
         response = StaticResponse(200, {}, "content")
         entry = Entry.create("http://example.com/?wsdl", response=StaticResponse(200, {}, "not same content"))
@@ -53,7 +53,7 @@ class TestRejectIgnoredQuery(TestCase):
             self.engine.mock.perform_high_priority.assert_called_once_with(
                 Entry.create("http://example.com/?random-uuid-abc123", response=response), self.filter.child_heuristics)
 
-    @async()
+    @async_test()
     async def test_after_response_does_nothing_if_no_query_in_url(self):
         entry = Entry.create("http://example.com/index.php")
 
@@ -61,7 +61,7 @@ class TestRejectIgnoredQuery(TestCase):
 
         self.engine.mock.perform_high_priority.assert_not_called()
 
-    @async()
+    @async_test()
     async def test_after_response_store_samples_in_kb(self):
         root_path = Entry.create("http://example.com/?wsdl", response=StaticResponse(200, {}, "123"))
         root_path_response = StaticResponse(200, {}, "homepage data")
@@ -85,7 +85,7 @@ class TestRejectIgnoredQuery(TestCase):
             self.assertEqual(self.kb.query_samples["example.com/images/"], self.hash(images_path_response))
             self.assertEqual(self.kb.query_samples["example.com/login.php"], self.hash(login_file_response))
 
-    @async()
+    @async_test()
     async def test_after_response_use_existing_sample(self):
         initial_sample = "hash of response content"
         self.kb.query_samples["example.com/"] = initial_sample
@@ -96,7 +96,7 @@ class TestRejectIgnoredQuery(TestCase):
         self.engine.mock.perform_high_priority.assert_not_called()
         self.assertEqual(self.kb.query_samples["example.com/"], initial_sample)
 
-    @async()
+    @async_test()
     async def test_after_response_reject_request_if_simhash_of_response_content_equals_sample_simhash(self):
         self.kb.query_samples["example.com/"] = {"simhash": Simhash("response content").value}
         entry = Entry.create("http://example.com/?wsdl", response=StaticResponse(200, {}, "response content"))
@@ -108,7 +108,7 @@ class TestRejectIgnoredQuery(TestCase):
         with self.assertRaises(RejectRequest):
             await self.filter.after_response(slightly_different_response)
 
-    @async()
+    @async_test()
     async def test_add_hash_of_raw_content_if_response_content_of_sample_is_not_text(self):
         bytes = b'Invalid UTF8 x\x80Z"'
         sample_response = Response(200, {})
@@ -120,7 +120,7 @@ class TestRejectIgnoredQuery(TestCase):
 
         self.assertEqual(self.kb.query_samples["example.com/"], {"md5": hashlib.md5(bytes).digest()})
 
-    @async()
+    @async_test()
     async def test_content_that_is_not_text_never_match_content_simhash_of_sample(self):
         raw = b'Invalid UTF8 x\x80Z"'
         response = Response(200, {})
@@ -133,7 +133,7 @@ class TestRejectIgnoredQuery(TestCase):
 
             Simhash.assert_not_called()
 
-    @async()
+    @async_test()
     async def test_content_that_is_text_never_match_sample_that_contains_md5(self):
         self.kb.query_samples["example.com/"] = {"md5": "12345"}
         response = StaticResponse(200, {}, "content")

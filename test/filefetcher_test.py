@@ -20,7 +20,7 @@
 from unittest import TestCase
 from unittest.mock import patch, MagicMock, call
 
-from fixtures import async, create_json_data, FakeHammerTimeEngine, SetResponseCode, SetResponseContent, \
+from fixtures import async_test, create_json_data, FakeHammerTimeEngine, SetResponseCode, SetResponseContent, \
     SetFlagInResult
 from hammertime import HammerTime
 from hammertime.http import Entry
@@ -62,7 +62,7 @@ class TestFileFetcher(TestCase):
     def tearDownClass(cls):
         cls.patcher.stop()
 
-    @async()
+    @async_test()
     async def test_fetch_files_output_found_files(self, output_found, loop):
         self.setUpFetcher(loop)
         self.setup_hammertime_heuristics()
@@ -74,7 +74,7 @@ class TestFileFetcher(TestCase):
             calls.append(self.to_output_found_call(file))
         output_found.assert_has_calls(calls, any_order=True)
 
-    @async()
+    @async_test()
     async def test_fetch_files_output_responses_with_error_code_500(self, output_found, loop):
         file_list = create_json_data(["config", ".htaccess"])
         self.setUpFetcher(loop)
@@ -87,7 +87,7 @@ class TestFileFetcher(TestCase):
             calls.append(self.to_output_found_call(file, prefix="ISE, ", status_code=500))
         output_found.assert_has_calls(calls, any_order=True)
 
-    @async()
+    @async_test()
     async def test_fetch_files_output_empty_response(self, output_found, loop):
         file_list = create_json_data(["empty-file"])
         self.setUpFetcher(loop)
@@ -99,7 +99,7 @@ class TestFileFetcher(TestCase):
         call = self.to_output_found_call(file, "Empty ")
         output_found.assert_has_calls([call])
 
-    @async()
+    @async_test()
     async def test_fetch_files_do_not_output_redirects(self, output_found, loop):
         files = ["/admin/resource", "/admin/file"]
         self.setUpFetcher(loop)
@@ -109,7 +109,7 @@ class TestFileFetcher(TestCase):
 
         output_found.assert_not_called()
 
-    @async()
+    @async_test()
     async def test_fetch_files_reject_soft_404(self, output_found, loop):
         entry = Entry.create("http://example.com/file")
         entry.result.string_match = False
@@ -119,7 +119,7 @@ class TestFileFetcher(TestCase):
         with self.assertRaises(RejectRequest):
             await rule.after_response(entry)
 
-    @async()
+    @async_test()
     async def test_fetch_files_do_not_reject_soft_404_if_string_match_is_true(self, output_found, loop):
         file = create_json_data(["file"])[0]
         self.setUpFetcher(loop)
@@ -130,7 +130,7 @@ class TestFileFetcher(TestCase):
 
         output_found.assert_has_calls([self.to_output_found_call(file)])
 
-    @async()
+    @async_test()
     async def test_fetch_files_do_not_reject_behavior_error_if_string_match_is_true(self, output_found, loop):
         entry = Entry.create("http://example.com/file")
         entry.result.string_match = True
@@ -139,7 +139,7 @@ class TestFileFetcher(TestCase):
         rule = ValidateEntry()
         await rule.after_response(entry)
 
-    @async()
+    @async_test()
     async def test_fetch_files_reject_error_behavior(self, output_found, loop):
         file = create_json_data(["file"])[0]
         self.setUpFetcher(loop)

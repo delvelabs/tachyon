@@ -20,7 +20,7 @@
 from unittest import TestCase
 from unittest.mock import patch
 
-from fixtures import async
+from fixtures import async_test
 from hammertime.http import Entry
 
 from tachyon.heuristics import LogBehaviorChange
@@ -37,7 +37,7 @@ class TestLogBehaviorChange(TestCase):
     def tearDownClass(cls):
         cls.patcher.stop()
 
-    @async()
+    @async_test()
     async def test_log_message_if_behavior_was_normal_and_entry_is_flagged_has_error_behavior(self):
         log_behavior_change = LogBehaviorChange()
         entry = Entry.create("http://example.com/")
@@ -51,7 +51,7 @@ class TestLogBehaviorChange(TestCase):
 
             output_info.assert_called_once_with(LogBehaviorChange.MESSAGE)
 
-    @async()
+    @async_test()
     async def test_log_message_if_behavior_is_restored_to_normal(self):
         log_behavior_change = LogBehaviorChange()
         entry = Entry.create("http://example.com/")

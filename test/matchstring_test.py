@@ -20,7 +20,7 @@
 import binascii
 from unittest import TestCase
 
-from fixtures import async, create_json_data
+from fixtures import async_test, create_json_data
 from hammertime.http import Entry, StaticResponse
 
 from tachyon.heuristics import MatchString
@@ -28,7 +28,7 @@ from tachyon.heuristics import MatchString
 
 class TestMatchString(TestCase):
 
-    @async()
+    @async_test()
     async def test_set_string_match_flag_in_entry_result_to_true_if_string_to_match_found_in_response_content(self):
         file_to_fetch = create_json_data(["file"], match_string="abc123")[0]
         match_string = MatchString()
@@ -39,7 +39,7 @@ class TestMatchString(TestCase):
 
         self.assertTrue(entry.result.string_match)
 
-    @async()
+    @async_test()
     async def test_set_string_match_flag_in_entry_result_to_false_if_string_to_match_found_in_response_content(self):
         file_to_fetch = create_json_data(["file"], match_string="abc123")[0]
         match_string = MatchString()
@@ -50,7 +50,7 @@ class TestMatchString(TestCase):
 
         self.assertFalse(entry.result.string_match)
 
-    @async()
+    @async_test()
     async def test_set_string_match_to_false_if_no_match_string_in_file(self):
         file_to_fetch = create_json_data(["file"])[0]
         match_string = MatchString()
@@ -61,7 +61,7 @@ class TestMatchString(TestCase):
 
         self.assertFalse(entry.result.string_match)
 
-    @async()
+    @async_test()
     async def test_only_add_string_match_flag_for_file(self):
         path = create_json_data(["/path/"])[0]
         match_string = MatchString()
@@ -72,7 +72,7 @@ class TestMatchString(TestCase):
 
         self.assertFalse(hasattr(entry.result, "string_match"))
 
-    @async()
+    @async_test()
     async def test_match_bytes_with_string(self):
         bytes_as_string = binascii.hexlify(b"abc123").decode("utf-8")
         file_to_fetch = create_json_data(["file"], match_bytes=bytes_as_string)[0]
@@ -84,7 +84,7 @@ class TestMatchString(TestCase):
 
         self.assertTrue(entry.result.string_match)
 
-    @async()
+    @async_test()
     async def test_match_bytes_with_binary_response(self):
         file_to_fetch = create_json_data(["file"], match_bytes="0102030405060708090a0b0c0d0e0f10")[0]
         match_string = MatchString()

@@ -289,7 +289,7 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
         output_manager.output_error('Keyboard Interrupt Received')
     except (OfflineHostException, StopRequest):
         output_manager.output_error("Target host seems to be offline.")
-    except ModuleNotFoundError as e:
+    except ImportError as e:
         output_manager.output_error("Additional module is required for the requested options: %s" % e)
     finally:
         if hammertime is not None:
