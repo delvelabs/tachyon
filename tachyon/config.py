@@ -24,11 +24,12 @@ from hammertime.config import custom_event_loop
 from hammertime.engine import AioHttpEngine
 from hammertime.kb import KnowledgeBase
 from hammertime.ruleset import StopRequest
+from hammertime.rules.sampling import ContentHashSampling, ContentSampling, ContentSimhashSampling
 from hammertime.rules import DetectSoft404, RejectStatusCode, DynamicTimeout, RejectCatchAllRedirect, FollowRedirects, \
-    SetHeader, DeadHostDetection, FilterRequestFromURL, DetectBehaviorChange, IgnoreLargeBody
+    SetHeader, DeadHostDetection, FilterRequestFromURL, DetectBehaviorChange, IgnoreLargeBody, RedirectLimiter
 
 from tachyon import conf
-from tachyon.heuristics import RejectIgnoredQuery, LogBehaviorChange, MatchString, RedirectLimiter, StripTag
+from tachyon.heuristics import RejectIgnoredQuery, LogBehaviorChange, MatchString, StripTag
 from tachyon.filefetcher import ValidateEntry
 
 heuristics_with_child = []
@@ -67,6 +68,7 @@ def setup_hammertime_heuristics(hammertime, *,
 
     init_heuristics = [SetHeader("User-Agent", user_agent),
                        SetHeader("Host", vhost if vhost is not None else conf.target_host),
+                       ContentHashSampling(), ContentSampling(), ContentSimhashSampling(),
                        dead_host_detection,
                        RejectStatusCode({503, 508}, exception_class=StopRequest),
                        StripTag('input'), StripTag('script')]

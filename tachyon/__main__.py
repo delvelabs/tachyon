@@ -27,6 +27,7 @@ import tachyon.textutils as textutils
 from hammertime.http import Entry
 from hammertime.rules import RejectStatusCode
 from hammertime.rules.deadhostdetection import OfflineHostException
+from hammertime.rules.redirects import RejectRedirection
 from hammertime.rules.simhash import Simhash
 from hammertime.ruleset import RejectRequest, StopRequest
 from tachyon.directoryfetcher import DirectoryFetcher
@@ -205,6 +206,9 @@ class ReFetch:
 
         try:
             await self.hammertime.request(entry.request.url, arguments=entry.arguments)
+            return True
+        except RejectRedirection:
+            # This is most likely the home path check as the result would never reach revalidation otherwise
             return True
         except Exception as e:
             return False

@@ -20,7 +20,6 @@
 from .logbehaviorchange import LogBehaviorChange
 from .matchstring import MatchString
 from .rejectignoredquery import RejectIgnoredQuery
-from .redirects import RedirectLimiter
 from .striptag import StripTag
 
 
@@ -28,6 +27,5 @@ __all__ = [
     LogBehaviorChange,
     MatchString,
     RejectIgnoredQuery,
-    RedirectLimiter,
     StripTag,
 ]
