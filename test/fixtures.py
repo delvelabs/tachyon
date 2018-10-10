@@ -26,7 +26,7 @@ from easyinject import Injector
 from unittest.mock import MagicMock, patch
 
 
-def async():
+def async_test():
     def setup(f):
         @wraps(f)
         def wrapper(*args, **kwargs):

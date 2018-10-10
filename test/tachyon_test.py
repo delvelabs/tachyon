@@ -22,7 +22,7 @@ from unittest import TestCase
 from unittest.mock import MagicMock, patch, call, ANY
 
 from aiohttp.test_utils import make_mocked_coro
-from fixtures import async, patch_coroutines, FakeHammerTimeEngine
+from fixtures import async_test, patch_coroutines, FakeHammerTimeEngine
 from hammertime.core import HammerTime
 
 from tachyon import __main__ as tachyon, database
@@ -46,7 +46,7 @@ class TestTachyon(TestCase):
     def tearDownClass(cls):
         cls.patcher.stop()
 
-    @async()
+    @async_test()
     async def test_paths_exists_fetch_generated_paths(self, loop):
         path_generator = MagicMock()
         path_generator.generate_paths.return_value = ["/", "/test", "/path"]
@@ -59,7 +59,7 @@ class TestTachyon(TestCase):
 
         fake_directory_fetcher.fetch_paths.assert_called_once_with(path_generator.generate_paths.return_value)
 
-    @async()
+    @async_test()
     async def test_paths_exists_output_fetch_paths_count(self, loop):
         path_generator = MagicMock()
         paths = ["/", "/test", "/path"]
@@ -74,7 +74,7 @@ class TestTachyon(TestCase):
 
             output_info.assert_any_call("Probing %d paths" % len(paths))
 
-    @async()
+    @async_test()
     async def test_paths_exists_do_recursive_path_search_if_recursive_is_true(self, loop):
         path_generator = MagicMock()
         paths = ["/", "/test", "/path"]
@@ -91,7 +91,7 @@ class TestTachyon(TestCase):
 
         fake_directory_fetcher.fetch_paths.assert_has_calls([call(paths)]*3)
 
-    @async()
+    @async_test()
     async def test_paths_exists_output_paths_found_count(self, loop):
         path_generator = MagicMock()
         paths = ["/", "/test", "/path"]
@@ -108,7 +108,7 @@ class TestTachyon(TestCase):
 
             output_info.assert_any_call("Found 2 valid paths")
 
-    @async()
+    @async_test()
     async def test_file_exists_fetch_all_generate_files(self, loop):
         database.valid_paths = ["/path/file%d" % i for i in range(10)]
         fake_file_fetcher = MagicMock()
@@ -123,7 +123,7 @@ class TestTachyon(TestCase):
         fake_file_fetcher.fetch_files.assert_called_once_with(["list of files"])
 
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
-    @async()
+    @async_test()
     async def test_fetch_session_cookies_on_scan_start_if_no_user_supplied_cookies(self, loop):
         engine = FakeHammerTimeEngine()
         hammertime = HammerTime(request_engine=engine, loop=loop)
@@ -134,7 +134,7 @@ class TestTachyon(TestCase):
         tachyon.get_session_cookies.assert_called_once_with(hammertime)
 
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
-    @async()
+    @async_test()
     async def test_dont_fetch_session_cookies_on_scan_start_if_user_supplied_cookies(self, loop):
         engine = FakeHammerTimeEngine()
         hammertime = HammerTime(request_engine=engine, loop=loop)
@@ -145,7 +145,7 @@ class TestTachyon(TestCase):
 
         tachyon.get_session_cookies.assert_not_called()
 
-    @async()
+    @async_test()
     async def test_use_user_supplied_cookies_if_available(self, loop):
         database.session_cookie = "my-cookies=123"
         cookies = "test-cookie=true"
@@ -159,7 +159,7 @@ class TestTachyon(TestCase):
             add_http_header.assert_any_call(ANY, "Cookie", "test-cookie=true")
 
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
-    @async()
+    @async_test()
     async def test_scan_directory_only(self, loop):
         engine = FakeHammerTimeEngine()
         hammertime = HammerTime(request_engine=engine, loop=loop)
@@ -171,7 +171,7 @@ class TestTachyon(TestCase):
         tachyon.test_file_exists.assert_not_called()
 
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
-    @async()
+    @async_test()
     async def test_scan_file_only(self, loop):
         engine = FakeHammerTimeEngine()
         hammertime = HammerTime(request_engine=engine, loop=loop)
@@ -183,7 +183,7 @@ class TestTachyon(TestCase):
         tachyon.test_paths_exists.assert_not_called()
 
     @patch_coroutines("tachyon.__main__.", "test_file_exists", "test_paths_exists", "get_session_cookies")
-    @async()
+    @async_test()
     async def test_scan_plugins_only(self, loop):
         engine = FakeHammerTimeEngine()
         hammertime = HammerTime(request_engine=engine, loop=loop)

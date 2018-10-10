@@ -23,7 +23,7 @@ from unittest.mock import MagicMock, patch
 from aiohttp import TCPConnector
 from aiohttp.cookiejar import DummyCookieJar
 from aiohttp.test_utils import make_mocked_coro
-from fixtures import async
+from fixtures import async_test
 from hammertime.core import HammerTime
 from hammertime.rules import RejectCatchAllRedirect, FollowRedirects, FilterRequestFromURL, SetHeader
 
@@ -32,7 +32,7 @@ from tachyon import conf, config
 
 class TestConfig(TestCase):
 
-    @async()
+    @async_test()
     async def test_add_http_headers(self, loop):
         hammertime = HammerTime(loop=loop)
         config.heuristics_with_child = [RejectCatchAllRedirect(), FollowRedirects()]
@@ -51,7 +51,7 @@ class TestConfig(TestCase):
             self.assertEqual(set_header.name, "header")
             self.assertEqual(set_header.value, "value")
 
-    @async()
+    @async_test()
     async def test_configure_hammertime_add_user_agent_to_request_header(self):
         user_agent = "My-user-agent"
 
@@ -61,7 +61,7 @@ class TestConfig(TestCase):
 
             set_header.assert_any_call("User-Agent", user_agent)
 
-    @async()
+    @async_test()
     async def test_configure_hammertime_add_host_header_to_request_header(self):
         conf.target_host = "example.com"
 
@@ -71,7 +71,7 @@ class TestConfig(TestCase):
 
             set_header.assert_any_call("Host", conf.target_host)
 
-    @async()
+    @async_test()
     async def test_configure_hammertime_use_user_supplied_vhost_for_host_header(self):
         conf.target_host = "example.com"
         forge_vhost = "vhost.example.com"
@@ -82,7 +82,7 @@ class TestConfig(TestCase):
 
             set_header.assert_any_call("Host", forge_vhost)
 
-    @async()
+    @async_test()
     async def test_configure_hammertime_allow_requests_to_user_supplied_vhost(self):
         conf.target_host = "example.com"
         forge_vhost = "vhost.example.com"
@@ -93,7 +93,7 @@ class TestConfig(TestCase):
             _, kwargs = url_filter.call_args
             self.assertEqual(kwargs["allowed_urls"], ("vhost.example.com", "example.com"))
 
-    @async()
+    @async_test()
     async def test_configure_hammertime_create_aiohttp_engine_for_hammertime(self, loop):
         engine = MagicMock()
         engine.session.close = make_mocked_coro()
@@ -104,7 +104,7 @@ class TestConfig(TestCase):
             EngineFactory.assert_called_once_with(loop=loop, verify_ssl=False, proxy="my-proxy")
             self.assertEqual(hammertime.request_engine.request_engine, engine)
 
-    @async()
+    @async_test()
     async def test_configure_hammertime_create_client_session_with_dummy_cookie_jar_if_user_supply_cookies(self):
         cookies = "not none"
         with patch("tachyon.config.ClientSession") as SessionFactory:
@@ -113,7 +113,7 @@ class TestConfig(TestCase):
             _, kwargs = SessionFactory.call_args
             self.assertTrue(isinstance(kwargs["cookie_jar"], DummyCookieJar))
 
-    @async()
+    @async_test()
     async def test_configure_hammertime_configure_aiohttp_to_resolve_host_only_once(self, loop):
         with patch("tachyon.config.TCPConnector", MagicMock(return_value=TCPConnector(loop=loop))) as \
                 ConnectorFactory:

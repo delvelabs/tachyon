@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import MagicMock
-from fixtures import async
+from fixtures import async_test
 from tachyon.har import StoreHAR, HammerTimeToHAR
 from hammertime.http import Entry, StaticResponse
 from marshmallow_har import Header
@@ -20,7 +20,7 @@ class StoreHARTest(TestCase):
         self.writer = MagicMock()
         self.rule = StoreHAR(writer=self.writer)
 
-    @async()
+    @async_test()
     async def test_request_without_response(self, loop):
         entry = Entry.create("http://example.com")
 
