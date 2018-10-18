@@ -1268,19 +1268,175 @@
     },
     {
         "description": "Apache server files",
-	"data" : [
+        "data" : [
             {
                 "url" : "/server-info",
                 "description" : "Apache debug server information",
                 "severity": "critical",
-		"no_suffix": true
+                "no_suffix": true
             },
             {
                 "url" : "/server-status",
                 "description" : "Apache debug server status",
                 "severity": "critical",
-		"no_suffix": true
+                "no_suffix": true
             }
-	]
+        ]
+    },
+    {
+        "description": "Spring actuator endoints",
+        "comment": "/actuator/shutdown was omitted intentionally.",
+        "references": [
+            "https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html"
+        ],
+        "data": [
+            {
+                "url": "actuator",
+                "description": "Spring boot actuator",
+                "detail": "Exposes audit events information for the current application.",
+                "severity": "info",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/auditevents",
+                "description": "Spring boot actuator",
+                "detail": "Exposes audit events information for the current application.",
+                "severity": "medium",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/beans",
+                "description": "Spring boot actuator",
+                "detail": "Displays a complete list of all the Spring beans in your application.",
+                "severity": "info",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/conditions",
+                "description": "Spring boot actuator",
+                "detail": "Shows the conditions that were evaluated on configuration and auto-configuration classes and the reasons why they did or did not match.",
+                "severity": "medium",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/configprops",
+                "description": "Spring boot actuator",
+                "detail": "Displays a collated list of all @ConfigurationProperties.",
+                "severity": "critical",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/env",
+                "description": "Spring boot actuator",
+                "detail": "Exposes properties from Spring’s ConfigurableEnvironment.",
+                "severity": "critical",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/flyway",
+                "description": "Spring boot actuator",
+                "detail": "Shows any Flyway database migrations that have been applied.",
+                "severity": "warning",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/health",
+                "description": "Spring boot actuator",
+                "detail": "Shows application health information.",
+                "severity": "info",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/httptrace",
+                "description": "Spring boot actuator",
+                "detail": "Displays HTTP trace information (by default, the last 100 HTTP request-response exchanges).",
+                "severity": "warning",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/info",
+                "description": "Spring boot actuator",
+                "detail": "Displays arbitrary application info.",
+                "severity": "warning",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/loggers",
+                "description": "Spring boot actuator",
+                "detail": "Shows and modifies the configuration of loggers in the application.",
+                "severity": "medium",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/liquibase",
+                "description": "Spring boot actuator",
+                "detail": "Shows any Liquibase database migrations that have been applied.",
+                "severity": "warning",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/metrics",
+                "description": "Spring boot actuator",
+                "detail": "Shows ‘metrics’ information for the current application.",
+                "severity": "info",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/mappings",
+                "description": "Spring boot actuator",
+                "detail": "Displays a collated list of all @RequestMapping paths.",
+                "severity": "warning",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/scheduledtasks",
+                "description": "Spring boot actuator",
+                "detail": "Displays the scheduled tasks in your application.",
+                "severity": "info",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/sessions",
+                "description": "Spring boot actuator",
+                "detail": "Allows retrieval and deletion of user sessions from a Spring Session-backed session store. Not available when using Spring Session’s support for reactive web applications.",
+                "severity": "critical",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/threaddump",
+                "description": "Spring boot actuator",
+                "detail": "Performs a thread dump.",
+                "severity": "critical",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/heapdump",
+                "description": "Spring boot actuator",
+                "detail": "Returns a GZip compressed hprof heap dump file.",
+                "severity": "critical",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/jolokia",
+                "description": "Spring boot actuator",
+                "detail": "Exposes JMX beans over HTTP (when Jolokia is on the classpath, not available for WebFlux).",
+                "severity": "medium",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/logfile",
+                "description": "Spring boot actuator",
+                "detail": "Returns the contents of the logfile (if logging.file or logging.path properties have been set). Supports the use of the HTTP Range header to retrieve part of the log file’s content.",
+                "severity": "critical",
+                "no_suffix": true
+            },
+            {
+                "url": "actuator/prometheus",
+                "description": "Spring boot actuator",
+                "detail": "Exposes metrics in a format that can be scraped by a Prometheus server.",
+                "severity": "info",
+                "no_suffix": true
+            }
+        ]
     }
 ]
