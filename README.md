@@ -33,9 +33,12 @@ $ pip install --ignore-installed --upgrade tachyon3
 ```
 
 ### Usage:
+
+```bash
 $ cd tachyon
 $ source bin/activate
 $ tachyon -h
+```
 
 ## Developers Installation
 
