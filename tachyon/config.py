@@ -22,6 +22,7 @@ from aiohttp.cookiejar import DummyCookieJar
 from hammertime import HammerTime
 from hammertime.config import custom_event_loop
 from hammertime.engine import AioHttpEngine
+from hammertime.engine.scaling import SlowStartPolicy, StaticPolicy
 from hammertime.kb import KnowledgeBase
 from hammertime.ruleset import StopRequest
 from hammertime.rules.sampling import ContentHashSampling, ContentSampling, ContentSimhashSampling
@@ -39,7 +40,7 @@ default_user_agent = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, li
                      'Chrome/41.0.2228.0 Safari/537.36'
 
 
-async def configure_hammertime(proxy=None, retry_count=3, cookies=None, **kwargs):
+async def configure_hammertime(proxy=None, retry_count=3, cookies=None, concurrency=0, **kwargs):
     loop = custom_event_loop()
     engine = AioHttpEngine(loop=loop, verify_ssl=False, proxy=proxy)
     await engine.session.close()
@@ -48,8 +49,14 @@ async def configure_hammertime(proxy=None, retry_count=3, cookies=None, **kwargs
         engine.session = ClientSession(loop=loop, connector=connector, cookie_jar=DummyCookieJar(loop=loop))
     else:
         engine.session = ClientSession(loop=loop, connector=connector)
+
+    scale_policy = SlowStartPolicy(initial=3)
+    if concurrency > 0:
+        scale_policy = StaticPolicy(concurrency)
+
     kb = KnowledgeBase()
-    hammertime = HammerTime(loop=loop, request_engine=engine, retry_count=retry_count, proxy=proxy, kb=kb)
+    hammertime = HammerTime(loop=loop, request_engine=engine, retry_count=retry_count, proxy=proxy, kb=kb,
+                            scale_policy=scale_policy)
     setup_hammertime_heuristics(hammertime, **kwargs)
     hammertime.collect_successful_requests()
     hammertime.kb = kb

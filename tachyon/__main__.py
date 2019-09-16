@@ -217,23 +217,24 @@ class ReFetch:
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
 @click.option("-a", "--allow-download", is_flag=True)
 @click.option("-c", "--cookie-file", default="")
-@click.option("-l", "--depth-limit", default=2)
+@click.option("-l", "--depth-limit", type=int, default=2)
 @click.option("-s", "--directories-only", is_flag=True)
 @click.option("-f", "--files-only", is_flag=True)
 @click.option("-j", "--json-output", is_flag=True)
-@click.option("-m", "--max-retry-count", default=3)
+@click.option("-m", "--max-retry-count", type=int, default=3)
 @click.option("-z", "--plugins-only", is_flag=True)
 @click.option("-x", "--plugin-settings", multiple=True)
 @click.option("-p", "--proxy", default="")
 @click.option("-r", "--recursive", is_flag=True)
 @click.option("-u", "--user-agent", default=default_user_agent)
 @click.option("-v", "--vhost", type=str, default=None)
-@click.option("-C", "--confirmation-factor", default=1)
+@click.option("-C", "--confirmation-factor", type=int, default=1)
+@click.option("--concurrency", type=int, default=0)
 @click.option("--har-output-dir", default=None)
 @click.argument("target_host")
 def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_settings, proxy, user_agent, vhost,
          depth_limit, directories_only, files_only, plugins_only, recursive, allow_download, confirmation_factor,
-         har_output_dir):
+         concurrency, har_output_dir):
 
     output_manager = textutils.init_log(json_output)
     output_manager.output_header()
@@ -276,6 +277,7 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
             configure_hammertime(cookies=conf.cookies, proxy=conf.proxy_url, retry_count=max_retry_count,
                                  user_agent=conf.user_agent, vhost=conf.forge_vhost,
                                  confirmation_factor=confirmation_factor,
+                                 concurrency=concurrency,
                                  har_output_dir=har_output_dir))
         loop.create_task(stat_on_input(hammertime))
         loop.run_until_complete(scan(hammertime, accumulator=accumulator,
