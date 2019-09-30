@@ -5,7 +5,7 @@
 
 Tachyon is a fast web application security reconnaissance tool.
 
-It is specifically meant to crawl web application and look for left over or non-indexed files with the addition of reporting pages or scripts leaking internal data.
+It is specifically meant to crawl a web application and look for left over or non-indexed files with the addition of reporting pages or scripts leaking internal data.
 
 ## User Requirements    
 
@@ -121,7 +121,7 @@ cookie2=value2;
 
 ### Existing plugins:
 
-* HostProcessor: This plugin process the hostname to generate host and filenames relatives to it.
+* HostProcessor: This plugin processes the hostname to generate hosts and filenames relatives to it.
 * PathGenerator: Generate simple paths with letters and digits (ex: /0).
 * Robots: Add the paths in robots.txt to the paths database.
 * SitemapXML: Add paths and files found in the site map to the database.
@@ -129,7 +129,7 @@ cookie2=value2;
 
 ### Plugins settings
 
-Settings can be pass to the plugins via the ``-x`` option. Each option is a key/value pair, with a colon joining the key
+Settings can be passed to the plugins via the ``-x`` option. Each option is a key/value pair, with a colon joining the key
  and its value. Use a new ``-x`` for each setting.
  
 ```bash
@@ -148,6 +148,6 @@ To report a bug or suggest a feature, open an issue.
 
 ## License
 
-Copyright 2018- Delve Labs inc.
+Copyright 2019- Delve Labs inc.
 
 This software is published under the GNU General Public License, version 2.
