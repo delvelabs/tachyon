@@ -279,12 +279,12 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
                                  confirmation_factor=confirmation_factor,
                                  concurrency=concurrency,
                                  har_output_dir=har_output_dir))
-        loop.create_task(stat_on_input(hammertime))
         loop.run_until_complete(scan(hammertime, accumulator=accumulator,
                                      cookies=conf.cookies, directories_only=directories_only,
                                      files_only=files_only, plugins_only=plugins_only, depth_limit=depth_limit,
                                      recursive=recursive))
 
+        loop.create_task(stat_on_input(hammertime))
         output_manager.output_info('Scan completed')
 
     except (KeyboardInterrupt, asyncio.CancelledError):
