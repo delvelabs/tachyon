@@ -57,7 +57,7 @@ async def execute(hammertime):
     try:
         entry = await hammertime.request(target_url)
 
-        regexp = re.compile('(?im).*<url>\s*<loc>(.*)</loc>\s*</url>.*')
+        regexp = re.compile('(?im).*<url>\\s*<loc>(.*)</loc>\\s*</url>.*')
         matches = re.findall(regexp, entry.response.content)
 
         added = 0
