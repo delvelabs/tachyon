@@ -10,7 +10,7 @@ It is specifically meant to crawl a web application and look for left over or no
 ## User Requirements    
 
 - Linux
-- Python 3.5.2
+- Python 3.6+
 
 ## User Installation
 
