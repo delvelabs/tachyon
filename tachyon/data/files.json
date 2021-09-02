@@ -998,7 +998,8 @@
                 "url": "c99shell.php",
                 "severity": "critical",
                 "description": "Common backdoor",
-                "type": "malware"
+                "type": "malware",
+                "match_string": "c999shell"
             },
             {
                 "no_suffix": true,
