@@ -57,7 +57,12 @@ class TestTachyon(TestCase):
 
         await tachyon.test_paths_exists(HammerTime(loop=loop), accumulator=self.accumulator)
 
-        fake_directory_fetcher.fetch_paths.assert_called_once_with(path_generator.generate_paths.return_value)
+        fake_directory_fetcher.fetch_paths.assert_has_calls(
+            [
+                call(path_generator.generate_paths.return_value),
+                call(path_generator.generate_paths.return_value)
+            ]
+        )
 
     @async_test()
     async def test_paths_exists_output_fetch_paths_count(self, loop):
@@ -90,6 +95,53 @@ class TestTachyon(TestCase):
                                                         call(use_valid_paths=True)], any_order=False)
 
         fake_directory_fetcher.fetch_paths.assert_has_calls([call(paths)]*3)
+
+    @async_test()
+    async def test_paths_exists_inject_pre_crawled_paths(self, loop):
+        path_generator = MagicMock()
+        database.valid_paths = ["/", "/precrawled1", "/precrawled2"]
+        paths = ["/", "/test", "/path", "/precrawled1", "/precrawled2"]
+        path_generator.generate_paths.return_value = paths
+        fake_directory_fetcher = MagicMock()
+        fake_directory_fetcher.fetch_paths = make_mocked_coro()
+        tachyon.PathGenerator = MagicMock(return_value=path_generator)
+        tachyon.DirectoryFetcher = MagicMock(return_value=fake_directory_fetcher)
+
+        await tachyon.test_paths_exists(HammerTime(loop=loop), recursive=True, accumulator=self.accumulator)
+
+        path_generator.generate_paths.assert_has_calls(
+            [
+                call(use_valid_paths=True),
+                call(use_valid_paths=False),
+                call(use_valid_paths=True),
+                call(use_valid_paths=True)
+            ],
+            any_order=False
+        )
+
+        fake_directory_fetcher.fetch_paths.assert_has_calls([call(paths)]*4)
+
+    @async_test()
+    async def test_paths_exists_skip_pre_crawled_paths_if_not_provided(self, loop):
+        path_generator = MagicMock()
+        database.valid_paths = ["/"]
+        paths = ["/"]
+        path_generator.generate_paths.return_value = paths
+        fake_directory_fetcher = MagicMock()
+        fake_directory_fetcher.fetch_paths = make_mocked_coro()
+        tachyon.PathGenerator = MagicMock(return_value=path_generator)
+        tachyon.DirectoryFetcher = MagicMock(return_value=fake_directory_fetcher)
+
+        await tachyon.test_paths_exists(HammerTime(loop=loop), recursive=False, accumulator=self.accumulator)
+
+        path_generator.generate_paths.assert_has_calls(
+            [
+                call(use_valid_paths=False)
+            ],
+            any_order=False
+        )
+
+        fake_directory_fetcher.fetch_paths.assert_has_calls([call(paths)]*1)
 
     @async_test()
     async def test_paths_exists_output_paths_found_count(self, loop):

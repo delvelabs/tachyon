@@ -73,12 +73,22 @@ async def test_paths_exists(hammertime, *, recursive=False, depth_limit=2, accum
     path_generator = PathGenerator()
     fetcher = DirectoryFetcher(conf.base_url, hammertime, accumulator=accumulator)
 
+    # Inject pre-crawled paths if present; they are stored in database.valid_paths so we must set `use_valid_paths` for
+    # this call regardless of the recursion settings.
+    crawler_paths = []
+    # Skip this if only the root path is present...
+    if len(database.valid_paths) > 1:
+        crawler_paths = path_generator.generate_paths(use_valid_paths=True)
+
     paths_to_fetch = path_generator.generate_paths(use_valid_paths=False)
 
     if len(paths_to_fetch) > 0:
         textutils.output_info('Probing %d paths' % len(paths_to_fetch))
+    if len(crawler_paths) > 0:
+        textutils.output_info('Probing %d pre-crawled paths' % len(crawler_paths))
 
     await fetcher.fetch_paths(paths_to_fetch)
+    await fetcher.fetch_paths(crawler_paths)
 
     if recursive:
         recursion_depth = 0
@@ -231,10 +241,11 @@ class ReFetch:
 @click.option("-C", "--confirmation-factor", type=int, default=1)
 @click.option("--concurrency", type=int, default=0)
 @click.option("--har-output-dir", default=None)
+@click.option("--pre-crawled-paths", default=None)
 @click.argument("target_host")
 def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_settings, proxy, user_agent, vhost,
          depth_limit, directories_only, files_only, plugins_only, recursive, allow_download, confirmation_factor,
-         concurrency, har_output_dir):
+         concurrency, har_output_dir, pre_crawled_paths):
 
     output_manager = textutils.init_log(json_output)
     output_manager.output_header()
@@ -251,6 +262,10 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
     # Set conf values
     conf.target_host = parsed_url.netloc
     conf.base_url = "%s://%s" % (parsed_url.scheme, parsed_url.netloc)
+    if pre_crawled_paths:
+        conf.pre_crawled_paths = pre_crawled_paths.split(",")
+    else:
+        conf.pre_crawled_paths = []
 
     hammertime = None
     accumulator = ResultAccumulator(output_manager=output_manager)
@@ -266,6 +281,10 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
         root_path = conf.path_template.copy()
         root_path['url'] = '/'
         database.valid_paths.append(root_path)
+        for pre_crawled_path in conf.pre_crawled_paths:
+            new_path = conf.path_template.copy()
+            new_path['url'] = pre_crawled_path
+            database.valid_paths.append(new_path)
         load_target_paths()
         load_target_files()
         conf.cookies = loaders.load_cookie_file(cookie_file)

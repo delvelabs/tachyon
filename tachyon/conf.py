@@ -31,6 +31,7 @@ path_template = {'url': '', 'description': ''}
 target_host = ''
 base_url = ''
 proxy_url = ''
+pre_crawled_paths = []
 forge_vhost = None
 # maximum compatibility
 user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)'\
