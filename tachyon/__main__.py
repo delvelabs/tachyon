@@ -241,11 +241,11 @@ class ReFetch:
 @click.option("-C", "--confirmation-factor", type=int, default=1)
 @click.option("--concurrency", type=int, default=0)
 @click.option("--har-output-dir", default=None)
-@click.option("--pre-crawled-paths", default=None)
+@click.option("-P", "--pre-crawled-path", multiple=True, default=None)
 @click.argument("target_host")
 def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_settings, proxy, user_agent, vhost,
          depth_limit, directories_only, files_only, plugins_only, recursive, allow_download, confirmation_factor,
-         concurrency, har_output_dir, pre_crawled_paths):
+         concurrency, har_output_dir, pre_crawled_path):
 
     output_manager = textutils.init_log(json_output)
     output_manager.output_header()
@@ -262,11 +262,8 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
     # Set conf values
     conf.target_host = parsed_url.netloc
     conf.base_url = "%s://%s" % (parsed_url.scheme, parsed_url.netloc)
-    if pre_crawled_paths:
-        conf.pre_crawled_paths = pre_crawled_paths.split(",")
-    else:
-        conf.pre_crawled_paths = []
-
+    conf.pre_crawled_paths = pre_crawled_path or []
+    
     hammertime = None
     accumulator = ResultAccumulator(output_manager=output_manager)
 
@@ -281,9 +278,9 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
         root_path = conf.path_template.copy()
         root_path['url'] = '/'
         database.valid_paths.append(root_path)
-        for pre_crawled_path in conf.pre_crawled_paths:
+        for crawled_path in conf.pre_crawled_paths:
             new_path = conf.path_template.copy()
-            new_path['url'] = pre_crawled_path
+            new_path['url'] = crawled_path
             database.valid_paths.append(new_path)
         load_target_paths()
         load_target_files()
