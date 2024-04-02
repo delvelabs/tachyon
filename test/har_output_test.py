@@ -72,7 +72,7 @@ class HammerTimeToHARConversion(TestCase):
                           }))
 
         har = self.conv.convert_entry(ht)
-        har.__class__.load(har.dump().data)
+        har.__class__.load(har.dump())
         self.assertEqual(har.response.status, 200)
         self.assertEqual(har.response.status_text, "OK")
         self.assertEqual(har.response.content.text, "hello")

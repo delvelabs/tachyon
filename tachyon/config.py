@@ -44,7 +44,7 @@ async def configure_hammertime(proxy=None, retry_count=3, cookies=None, concurre
     loop = custom_event_loop()
     engine = AioHttpEngine(loop=loop, verify_ssl=False, proxy=proxy)
     await engine.session.close()
-    connector = TCPConnector(loop=loop, verify_ssl=False, use_dns_cache=True, ttl_dns_cache=None)
+    connector = TCPConnector(loop=loop, ssl=False, use_dns_cache=True, ttl_dns_cache=None)
     if cookies is not None:
         engine.session = ClientSession(loop=loop, connector=connector, cookie_jar=DummyCookieJar(loop=loop))
     else:

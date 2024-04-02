@@ -8,7 +8,7 @@ setup(
     url="https://github.com/delvelabs/tachyon",
     version=__version__,
     packages=find_packages(),
-    python_requires='>=3.6.0,<3.9.0',
+    python_requires='>=3.6.0,<3.13.0',
     package_data={'tachyon': ['data/*.json']},
     entry_points={
         'console_scripts': [
@@ -16,8 +16,9 @@ setup(
         ]
     },
     install_requires=[
-        'hammertime-http[simhash-py]>=0.8,<0.9',
-        'easyinject==0.3',
-        'click==7.1.2'
+        'hammertime-http>=0.8,<0.11',
+        'simhash==2.1.2',
+        'easyinject>=0.3,<0.4',
+        'click>=7.1.2,<9'
     ],
 )
