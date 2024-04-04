@@ -263,8 +263,7 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
     conf.target_host = parsed_url.netloc
     conf.base_url = "%s://%s" % (parsed_url.scheme, parsed_url.netloc)
     conf.pre_crawled_paths = pre_crawled_path or []
-    
-    hammertime = None
+
     accumulator = ResultAccumulator(output_manager=output_manager)
 
     output_manager.output_info('Starting Discovery on ' + conf.base_url)
@@ -274,45 +273,58 @@ def main(*, target_host, cookie_file, json_output, max_retry_count, plugin_setti
         plugin, value = option.split(':', 1)
         conf.plugin_settings[plugin].append(value)
 
-    try:
-        root_path = conf.path_template.copy()
-        root_path['url'] = '/'
-        database.valid_paths.append(root_path)
-        for crawled_path in conf.pre_crawled_paths:
-            new_path = conf.path_template.copy()
-            new_path['url'] = crawled_path
-            database.valid_paths.append(new_path)
-        load_target_paths()
-        load_target_files()
-        conf.cookies = loaders.load_cookie_file(cookie_file)
-        conf.user_agent = user_agent
-        conf.proxy_url = proxy
-        conf.forge_vhost = vhost
-        loop = custom_event_loop()
-        hammertime = loop.run_until_complete(
-            configure_hammertime(cookies=conf.cookies, proxy=conf.proxy_url, retry_count=max_retry_count,
-                                 user_agent=conf.user_agent, vhost=conf.forge_vhost,
-                                 confirmation_factor=confirmation_factor,
-                                 concurrency=concurrency,
-                                 har_output_dir=har_output_dir))
-        t = loop.create_task(stat_on_input(hammertime))
-        loop.run_until_complete(scan(hammertime, accumulator=accumulator,
-                                     cookies=conf.cookies, directories_only=directories_only,
-                                     files_only=files_only, plugins_only=plugins_only, depth_limit=depth_limit,
-                                     recursive=recursive))
-        t.cancel()
-        output_manager.output_info('Scan completed')
+    loop = custom_event_loop()
 
+    async def async_main():
+        hammertime = None
+        try:
+            root_path = conf.path_template.copy()
+            root_path['url'] = '/'
+            database.valid_paths.append(root_path)
+            for crawled_path in conf.pre_crawled_paths:
+                new_path = conf.path_template.copy()
+                new_path['url'] = crawled_path
+                database.valid_paths.append(new_path)
+            load_target_paths()
+            load_target_files()
+            conf.cookies = loaders.load_cookie_file(cookie_file)
+            conf.user_agent = user_agent
+            conf.proxy_url = proxy
+            conf.forge_vhost = vhost
+
+            async with configure_hammertime(cookies=conf.cookies, proxy=conf.proxy_url, retry_count=max_retry_count,
+                                            user_agent=conf.user_agent, vhost=conf.forge_vhost,
+                                            confirmation_factor=confirmation_factor,
+                                            concurrency=concurrency,
+                                            har_output_dir=har_output_dir) as hammertime:
+                try:
+                    t = loop.create_task(stat_on_input(hammertime))
+                    await scan(hammertime, accumulator=accumulator,
+                               cookies=conf.cookies, directories_only=directories_only,
+                               files_only=files_only, plugins_only=plugins_only, depth_limit=depth_limit,
+                               recursive=recursive)
+                finally:
+                    t.cancel()
+                    textutils.output_info(format_stats(hammertime.stats))
+
+            output_manager.output_info('Scan completed')
+
+        except (KeyboardInterrupt, asyncio.CancelledError):
+            output_manager.output_error('Keyboard Interrupt Received')
+        except (OfflineHostException, StopRequest):
+            output_manager.output_error("Target host seems to be offline.")
+        except ImportError as e:
+            output_manager.output_error("Additional module is required for the requested options: %s" % e)
+        finally:
+            output_manager.flush()
+
+    try:
+        main_task = loop.create_task(async_main())
+
+        loop.run_until_complete(main_task)
     except (KeyboardInterrupt, asyncio.CancelledError):
         output_manager.output_error('Keyboard Interrupt Received')
-    except (OfflineHostException, StopRequest):
-        output_manager.output_error("Target host seems to be offline.")
-    except ImportError as e:
-        output_manager.output_error("Additional module is required for the requested options: %s" % e)
     finally:
-        if hammertime is not None:
-            textutils.output_info(format_stats(hammertime.stats))
-
         output_manager.flush()
 
 
@@ -330,7 +342,7 @@ async def stat_on_input(hammertime):
     await loop.connect_read_pipe(lambda: reader_protocol, sys.stdin)
 
     expiry = datetime.now()
-    while True:
+    while not hammertime.is_closed:
         await reader.readline()
 
         # Throttle stats printing

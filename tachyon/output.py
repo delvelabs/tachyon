@@ -67,10 +67,13 @@ class OutputManager:
 class JSONOutput(OutputManager):
 
     def __init__(self):
+        self.flushed = False
         self.buffer = []
 
     def flush(self):
-        self.output_raw_message(json.dumps({"result": self.buffer, "version": __version__, "from": conf.name}))
+        if not self.flushed:
+            self.output_raw_message(json.dumps({"result": self.buffer, "version": __version__, "from": conf.name}))
+            self.flushed = True
 
     def _add_output(self, text, level, data=None):
         formatted = self._format_output(self._get_current_time(), logging.getLevelName(level), text, data)

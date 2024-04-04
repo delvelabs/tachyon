@@ -19,6 +19,7 @@
 
 from aiohttp import ClientSession, TCPConnector
 from aiohttp.cookiejar import DummyCookieJar
+from contextlib import asynccontextmanager
 from hammertime import HammerTime
 from hammertime.config import custom_event_loop
 from hammertime.engine import AioHttpEngine
@@ -40,6 +41,7 @@ default_user_agent = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, li
                      'Chrome/41.0.2228.0 Safari/537.36'
 
 
+@asynccontextmanager
 async def configure_hammertime(proxy=None, retry_count=3, cookies=None, concurrency=0, **kwargs):
     loop = custom_event_loop()
     engine = AioHttpEngine(loop=loop, verify_ssl=False, proxy=proxy)
@@ -55,12 +57,15 @@ async def configure_hammertime(proxy=None, retry_count=3, cookies=None, concurre
         scale_policy = StaticPolicy(concurrency)
 
     kb = KnowledgeBase()
-    hammertime = HammerTime(loop=loop, request_engine=engine, retry_count=retry_count, proxy=proxy, kb=kb,
-                            scale_policy=scale_policy)
-    setup_hammertime_heuristics(hammertime, **kwargs)
-    hammertime.collect_successful_requests()
-    hammertime.kb = kb
-    return hammertime
+    try:
+        hammertime = HammerTime(loop=loop, request_engine=engine, retry_count=retry_count, proxy=proxy, kb=kb,
+                                scale_policy=scale_policy)
+        setup_hammertime_heuristics(hammertime, **kwargs)
+        hammertime.collect_successful_requests()
+        hammertime.kb = kb
+        yield hammertime
+    finally:
+        await engine.session.close()
 
 
 def setup_hammertime_heuristics(hammertime, *,

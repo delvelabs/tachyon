@@ -17,7 +17,7 @@ class FileWriter:
         filename = "%s.har" % uuid.uuid4()
         file_path = join(self.dir, filename)
         with open(file_path, "w") as fp:
-            fp.write(json.dumps(har.dump().data, indent=4))
+            fp.write(json.dumps(har.dump(), indent=4))
         return file_path
 
 

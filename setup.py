@@ -8,7 +8,7 @@ setup(
     url="https://github.com/delvelabs/tachyon",
     version=__version__,
     packages=find_packages(),
-    python_requires='>=3.6.0,<3.13.0',
+    python_requires='>=3.12.0,<4',
     package_data={'tachyon': ['data/*.json']},
     entry_points={
         'console_scripts': [
