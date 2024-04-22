@@ -977,21 +977,23 @@
         ]
     },
     {
-        "description": "Comon backdoors",
+        "description": "Common backdoors",
         "data": [
             {
                 "no_suffix": true,
                 "url": "r57shell.php",
                 "severity": "critical",
                 "description": "Common backdoor",
-                "type": "malware"
+                "type": "malware",
+                "match_string": "r57 Shell"
             },
             {
                 "no_suffix": true,
                 "url": "r57.php",
                 "severity": "critical",
                 "description": "Common backdoor",
-                "type": "malware"
+                "type": "malware",
+                "match_string": "r57shell"
             },
             {
                 "no_suffix": true,
@@ -999,102 +1001,111 @@
                 "severity": "critical",
                 "description": "Common backdoor",
                 "type": "malware",
-                "match_string": "c999shell"
+                "match_string": "c99shell"
             },
             {
                 "no_suffix": true,
                 "url": "c99.php",
                 "severity": "critical",
                 "description": "Common backdoor",
-                "type": "malware"
+                "type": "malware",
+                "match_string": "c99shell"
             },
             {
                 "no_suffix": true,
                 "url": "nstview.php",
                 "severity": "critical",
                 "description": "Common backdoor",
-                "type": "malware"
-            },
-            {
-                "no_suffix": true,
-                "url": "nst.php",
-                "severity": "critical",
-                "description": "Common backdoor",
-                "type": "malware"
-            },
-            {
-                "no_suffix": true,
-                "url": "rst.php",
-                "severity": "critical",
-                "description": "Common backdoor",
-                "type": "malware"
-            },
-            {
-                "no_suffix": true,
-                "url": "r57eng.php",
-                "severity": "critical",
-                "description": "Common backdoor",
-                "type": "malware"
-            },
-            {
-                "no_suffix": true,
-                "url": "r.php",
-                "severity": "critical",
-                "description": "Common backdoor",
-                "type": "malware"
-            },
-            {
-                "no_suffix": true,
-                "url": "lol.php",
-                "severity": "critical",
-                "description": "Common backdoor",
-                "type": "malware"
-            },
-            {
-                "no_suffix": true,
-                "url": "zenhir.php",
-                "severity": "critical",
-                "description": "Common backdoor",
-                "type": "malware"
-            },
-            {
-                "no_suffix": true,
-                "url": "c-h.v2.php",
-                "severity": "critical",
-                "description": "Common backdoor",
-                "type": "malware"
-            },
-            {
-                "no_suffix": true,
-                "url": "php-backdoor.php",
-                "severity": "critical",
-                "description": "Common backdoor",
-                "type": "malware"
+                "type": "malware",
+                "match_string": "nsT"
             },
             {
                 "no_suffix": true,
                 "url": "cmdasp.asp",
                 "severity": "critical",
                 "description": "Common backdoor",
-                "type": "malware"
+                "type": "malware",
+                "match_string": "<!--    http://michaeldaw.org   2006    -->"
             },
             {
-                "url": "shell",
+                "no_suffix": true,
+                "url": "cmdasp.aspx",
+                "severity": "critical",
                 "description": "Common backdoor",
                 "type": "malware",
-                "severity": "critical"
+                "match_string": "awen asp.net webshell"
             },
             {
-                "url": "backdoor",
+                "no_suffix": true,
+                "url": "cmdjsp.jsp",
+                "severity": "critical",
                 "description": "Common backdoor",
                 "type": "malware",
-                "severity": "critical"
+                "match_string": "<FORM METHOD=GET ACTION='cmdjsp.jsp'>\n<INPUT name='cmd' type=text>\n<INPUT type=submit value='Run'>\n</FORM>"
             },
             {
-                "url": "cmd",
+                "no_suffix": true,
+                "url": "jsp-reverse.jsp",
+                "severity": "critical",
                 "description": "Common backdoor",
                 "type": "malware",
-                "severity": "critical"
+                "match_string": "JSP Backdoor Reverse Shell"
+            },
+            {
+                "no_suffix": true,
+                "url": "jspwebshell12.jsp",
+                "severity": "critical",
+                "description": "Common backdoor",
+                "type": "malware",
+                "match_string": "JspWebShell By"
+            },
+            {
+                "no_suffix": true,
+                "url": "simple-backdoor.php",
+                "severity": "critical",
+                "description": "Common backdoor",
+                "type": "malware",
+                "match_string": "Usage: http://target.com/simple-backdoor.php?cmd=cat+/etc/passwd"
+            },
+            {
+                "no_suffix": true,
+                "url": "qsd-php-backdoor.php",
+                "severity": "critical",
+                "description": "Common backdoor",
+                "type": "malware",
+                "match_string": "<form action=\"\" METHOD=\"GET\">\n<table>\n<tr><td>host</td><td><input type=\"text\" name=\"host\"value=\"localhost\"></td></tr>\n<tr><td>user</td><td><input type=\"text\" name=\"usr\" value=\"root\"></td></tr>\n<tr><td>password</td><td><input type=\"text\" name=\"passwd\"></td></tr>\n<tr><td>database</td><td><input type=\"text\" name=\"db\"></td></tr>\n<tr><td valign=\"top\">query</td><td><textarea name=\"mquery\" rows=\"6\" cols=\"65\"></textarea></td></tr>\n<tr><td colspan=\"2\"><input type=\"submit\" value=\"Execute\"></td></tr>\n</table>\n</form>"
+            },
+            {
+                "no_suffix": true,
+                "url": "php-backdoor.php",
+                "severity": "critical",
+                "description": "Common backdoor",
+                "type": "malware",
+                "match_string": "host:<input type=\"text\" name=\"host\"value=\"localhost\">  user: <input type=\"text\" name=\"usr\" value=root> password: <input type=\"text\" name=\"passwd\">\n\ndatabase: <input type=\"text\" name=\"db\">  query: <input type=\"text\" name=\"mquery\"> <input type=\"submit\" value=\"execute\">\n</form>"
+            },
+            {
+                "no_suffix": true,
+                "url": "perl-reverse-shell.pl",
+                "severity": "critical",
+                "description": "Common backdoor",
+                "type": "malware",
+                "match_string": "Browser IP address appears to be: "
+            },
+            {
+                "no_suffix": true,
+                "url": "perlcmd.cgi",
+                "severity": "critical",
+                "description": "Common backdoor",
+                "type": "malware",
+                "match_string": "Usage: http://target.com/perlcmd.cgi?cat /etc/passwd"
+            },
+            {
+                "no_suffix": true,
+                "url": "cfexec.cfm",
+                "severity": "critical",
+                "description": "Common backdoor",
+                "type": "malware",
+                "match_string": "Prefix DOS commands with \"c:\\windows\\system32\\cmd.exe /c &lt;command&gt;\" or wherever cmd.exe is"
             }
         ]
     },
@@ -1269,16 +1280,16 @@
     },
     {
         "description": "Apache server files",
-        "data" : [
+        "data": [
             {
-                "url" : "/server-info",
-                "description" : "Apache debug server information",
+                "url": "/server-info",
+                "description": "Apache debug server information",
                 "severity": "critical",
                 "no_suffix": true
             },
             {
-                "url" : "/server-status",
-                "description" : "Apache debug server status",
+                "url": "/server-status",
+                "description": "Apache debug server status",
                 "severity": "critical",
                 "no_suffix": true
             }
