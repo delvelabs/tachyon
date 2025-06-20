@@ -33,30 +33,32 @@ async def execute(hammertime):
     target_url = urljoin(conf.base_url, "/robots.txt")
 
     try:
-        entry = await hammertime.request(target_url)
-        matches = re.findall(r'Disallow:\s*/[a-zA-Z0-9-/\r]+\n', entry.response.content)
-
         added = 0
-        for match in matches:
-            # Filter out some characters
-            match = filter(lambda c: c not in ' *?.\n\r\t', match)
 
-            if match:
-                match = ''.join(match)
+        entry = await hammertime.request(target_url)
+        if entry and entry.response:
+            matches = re.findall(r'Disallow:\s*/[a-zA-Z0-9-/\r]+\n', entry.response.content)
 
-            # Split on ':'
-            splitted = match.split(':')
-            if splitted[1]:
-                target_path = splitted[1]
+            for match in matches:
+                # Filter out some characters
+                match = filter(lambda c: c not in ' *?.\n\r\t', match)
 
-                # Remove trailing /
-                if target_path.endswith('/'):
-                    target_path = target_path[:-1]
+                if match:
+                    match = ''.join(match)
 
-                current_template = current_template.copy()
-                current_template['url'] = target_path
-                database.paths.append(current_template)
-                added += 1
+                # Split on ':'
+                splitted = match.split(':')
+                if splitted[1]:
+                    target_path = splitted[1]
+
+                    # Remove trailing /
+                    if target_path.endswith('/'):
+                        target_path = target_path[:-1]
+
+                    current_template = current_template.copy()
+                    current_template['url'] = target_path
+                    database.paths.append(current_template)
+                    added += 1
 
         if added > 0:
             textutils.output_info(' - Robots Plugin: added ' + str(added) + ' base paths using /robots.txt')
