@@ -150,7 +150,9 @@ class TestRejectIgnoredQuery(TestCase):
 class FakeSimhash:
 
     def __init__(self, data, *args, **kwargs):
-        self.value = "simhash of %s" % data
+        # Real Simhash.value is always an int; _simhash_equal XORs it directly
+        # against a persisted value, so this fake must behave the same way.
+        self.value = hash(data) & 0xFFFFFFFFFFFFFFFF
 
     def distance(self, *args):
         return 999
