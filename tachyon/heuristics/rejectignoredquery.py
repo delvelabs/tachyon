@@ -73,9 +73,9 @@ class RejectIgnoredQuery:
         elif "simhash" in sample_simhash:
             try:
                 response_simhash = self._create_simhash(response.content)
-                return self._simhash_equal(response_simhash, self._create_simhash(sample_simhash["simhash"]))
             except UnicodeDecodeError:
                 return False
+            return self._simhash_equal(response_simhash, sample_simhash["simhash"])
 
     def _hash_response(self, response):
         try:
@@ -93,5 +93,10 @@ class RejectIgnoredQuery:
     def _create_simhash(self, content_response):
         return Simhash(content_response, self.match_filter, self.token_size)
 
-    def _simhash_equal(self, simhash, other_simhash):
-        return simhash.distance(other_simhash) <= self.match_threshold
+    def _simhash_equal(self, simhash, other_value):
+        # ``other_value`` is a persisted simhash value (the int produced by
+        # ``_hash_response``), not content to be hashed. Compare the hamming
+        # distance directly rather than rebuilding a Simhash from the int:
+        # the C-extension backend does ``len(data)`` before its int check and
+        # raises "object of type 'int' has no len()" for an int argument.
+        return bin(simhash.value ^ other_value).count("1") <= self.match_threshold
